@@ -1,4 +1,5 @@
 import type { IgnorePolicy } from './ctx.js';
+import type { HookConfig } from './hook.js';
 
 export interface WorkspaceProfile {
   version: number;
@@ -8,6 +9,7 @@ export interface WorkspaceProfile {
   agents: Record<string, AgentConfig>;
   auto_approve: AutoApproveConfig;
   retention: RetentionConfig;
+  hooks?: HookConfig;
 }
 
 export interface GlobalProfile {

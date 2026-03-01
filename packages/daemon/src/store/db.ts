@@ -24,7 +24,13 @@ CREATE TABLE IF NOT EXISTS request_events (
   token_count INTEGER NOT NULL,
   budget INTEGER NOT NULL,
   deep_read TEXT,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  event_type TEXT DEFAULT 'request',
+  tool_name TEXT,
+  tool_input TEXT,
+  tool_response TEXT,
+  exit_code INTEGER,
+  duration_ms INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS memory_diffs (
@@ -54,6 +60,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_repo ON sessions(repo_path);
 CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
 CREATE INDEX IF NOT EXISTS idx_events_session ON request_events(session_id);
 CREATE INDEX IF NOT EXISTS idx_events_created ON request_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_events_type ON request_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_diffs_status ON memory_diffs(status);
 CREATE INDEX IF NOT EXISTS idx_diffs_ctx ON memory_diffs(ctx_path);
 CREATE INDEX IF NOT EXISTS idx_audit_ctx ON audit_log(ctx_path);

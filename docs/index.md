@@ -26,6 +26,10 @@ features:
     details: Eight built-in patterns detect AWS keys, API tokens, PEM keys, connection strings, GitHub tokens, bearer tokens, and more. Secrets are automatically redacted from diffs and proposals before they reach disk.
   - title: Dashboard
     details: A local React-based inspection dashboard lets you browse sessions, inspect injected context per request, review proposals with diff preview, and audit every memory change with full attribution.
+  - title: MCP Server
+    details: 10 structured JSON-RPC tools exposed over stdio for any MCP-compatible agent. Tools cover context packing, event logging, proposal lifecycle, session inspection, policy validation, and memory search -- all discoverable via the standard MCP handshake.
+  - title: Claude Code Plugin
+    details: Automatic context injection via 8 lifecycle hooks with zero developer action required. The plugin injects context at session start, logs tool usage, validates proposals before file writes, and compacts memory at the end of each session.
 ---
 
 ## Why ctxl?
@@ -38,7 +42,7 @@ The result: deterministic, inspectable context injection. Same input, same outpu
 
 ## Architecture
 
-ctxl is a TypeScript monorepo with four packages:
+ctxl is a TypeScript monorepo with six packages:
 
 | Package | Description |
 |---------|-------------|
@@ -46,6 +50,8 @@ ctxl is a TypeScript monorepo with four packages:
 | `@ctxl/daemon` | Hono HTTP server with SQLite storage for sessions, events, proposals, and audit |
 | `@ctxl/cli` | The `ctxkit` command-line tool for all operations |
 | `@ctxl/ui` | React-based local inspection dashboard |
+| `@ctxl/mcp` | MCP server exposing 10 JSON-RPC tools over stdio (`ctxkit-mcp` command) |
+| `@ctxl/claude-plugin` | Claude Code plugin with 8 lifecycle hooks and `/ctxkit` skill |
 
 ## Quick Example
 
@@ -61,4 +67,13 @@ ctxkit daemon start
 
 # Wrap an agent with context injection
 ctxkit run -- your-agent-command
+
+# Connect to Claude Code (installs the plugin)
+ctxkit claude install
+
+# Connect to Codex via MCP
+codex mcp add ctxkit -- ctxkit-mcp
+
+# Generate AGENTS.md for Codex from .ctx files
+ctxkit codex sync-agents
 ```

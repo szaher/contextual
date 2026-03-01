@@ -140,6 +140,7 @@ ctxkit inject [options]
 | `--cwd <path>` | Current directory | Working directory for context resolution |
 | `--budget <tokens>` | `4000` | Token budget |
 | `--preview` | `false` | Preview mode (no event recorded) |
+| `--json` | `false` | Output the Context Pack as a JSON object |
 
 ### Output Format
 
@@ -172,6 +173,43 @@ ctxkit inject --request "fix the database query" --cwd src/db
 
 # With a larger budget
 ctxkit inject --request "refactor the API layer" --budget 8000
+
+# Output as JSON (for piping to other tools)
+ctxkit inject --request "fix the auth bug" --json
+```
+
+### JSON Output
+
+When `--json` is passed, the command outputs a JSON Context Pack instead of the human-readable table. This is useful for piping into other tools or for programmatic consumption.
+
+```json
+{
+  "version": 1,
+  "items": [
+    {
+      "content": "login.ts: Handles user authentication flow",
+      "source": "src/auth/.ctx",
+      "section": "key_files",
+      "entry_id": "login.ts",
+      "score": 0.88,
+      "tokens": 42,
+      "reason_codes": ["LOCALITY_HIGH", "TAG_MATCH"]
+    }
+  ],
+  "omitted": [
+    {
+      "content_preview": "Do not use console.log in production...",
+      "source": ".ctx",
+      "section": "gotchas",
+      "score": 0.22,
+      "tokens": 30,
+      "reason": "BUDGET_EXCEEDED"
+    }
+  ],
+  "total_tokens": 1842,
+  "budget_tokens": 4000,
+  "budget_used_pct": 46.1
+}
 ```
 
 ---
@@ -196,6 +234,7 @@ ctxkit propose <ctx-path> [options]
 |--------|---------|-------------|
 | `--check-files` | `false` | Check for dead file references |
 | `--daemon <url>` | `http://localhost:3742` | Daemon URL to submit the proposal |
+| `--json` | `false` | Output proposal details as JSON |
 
 ### Examples
 
@@ -205,6 +244,9 @@ ctxkit propose .ctx
 
 # Check for dead references
 ctxkit propose src/auth/.ctx --check-files
+
+# Output as JSON
+ctxkit propose .ctx --json
 ```
 
 ### Output
@@ -228,6 +270,26 @@ Analyzing /path/to/src/auth/.ctx...
 
   Locked entries (1):
     key_files/critical.ts (owner: core-team)
+```
+
+### JSON Output
+
+When `--json` is passed, the command outputs a JSON object with the proposal summary:
+
+```json
+{
+  "path": "src/auth/.ctx",
+  "version": 1,
+  "summary": "Auth module context descriptor",
+  "counts": {
+    "key_files": 5,
+    "contracts": 2,
+    "decisions": 3,
+    "gotchas": 1,
+    "refs": 2
+  },
+  "tags": ["typescript", "auth"]
+}
 ```
 
 ---
@@ -286,6 +348,7 @@ ctxkit sessions [options]
 | `--daemon <url>` | `http://localhost:3742` | Daemon URL |
 | `--status <status>` | (all) | Filter by status (`active` or `completed`) |
 | `--limit <n>` | `20` | Maximum results |
+| `--json` | `false` | Output session data as JSON (applies to both `list` and `show`) |
 
 ### Output
 
@@ -301,10 +364,10 @@ Total: 2
 ### Subcommand: `sessions show`
 
 ```bash
-ctxkit sessions show <id>
+ctxkit sessions show <id> [--json]
 ```
 
-Displays full session details including the request timeline.
+Displays full session details including the request timeline. When `--json` is passed, outputs the session object as JSON.
 
 ### Examples
 
@@ -317,6 +380,55 @@ ctxkit sessions --status active
 
 # Show session details
 ctxkit sessions show sess_abc123
+
+# List sessions as JSON
+ctxkit sessions --json
+
+# Show session details as JSON
+ctxkit sessions show sess_abc123 --json
+```
+
+### JSON Output
+
+When `--json` is passed to `sessions list`:
+
+```json
+{
+  "sessions": [
+    {
+      "id": "sess_abc123",
+      "agent_id": "claude",
+      "status": "active",
+      "request_count": 3,
+      "started_at": "2026-03-01T10:30:00.000Z"
+    }
+  ],
+  "total": 1
+}
+```
+
+When `--json` is passed to `sessions show`:
+
+```json
+{
+  "id": "sess_abc123",
+  "repo_path": "/path/to/repo",
+  "working_dir": "/path/to/repo/src/auth",
+  "branch": "main",
+  "agent_id": "claude",
+  "status": "active",
+  "started_at": "2026-03-01T10:30:00.000Z",
+  "ended_at": null,
+  "events": [
+    {
+      "id": "evt_001",
+      "request_text": "fix the auth bug",
+      "token_count": 1842,
+      "budget": 4000,
+      "created_at": "2026-03-01T10:30:15.000Z"
+    }
+  ]
+}
 ```
 
 ---
@@ -495,6 +607,89 @@ ctxkit run --request "refactor the database layer" -- python agent.py
 
 # With a custom daemon URL
 ctxkit run --daemon http://localhost:8080 -- npm run agent
+```
+
+---
+
+## `ctxkit codex`
+
+Commands for generating agent-oriented project files from `.ctx` metadata.
+
+### `ctxkit codex sync-agents`
+
+Generate or update an `AGENTS.md` file from the `.ctx` hierarchy. The generated file provides a structured summary of the project for coding agents (e.g., Claude, Copilot) that consume `AGENTS.md` for workspace awareness.
+
+```bash
+ctxkit codex sync-agents [options]
+```
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--repo-root <path>` | (auto-detected) | Path to the repository root. If omitted, walks up from the current directory to find the nearest `.git` directory. |
+| `--budget <tokens>` | `8000` | Token budget for the generated content. Controls how much detail is included in the output. |
+| `--dry-run` | `false` | Show what would be written to `AGENTS.md` without actually writing the file. |
+
+### Behavior
+
+The command walks the `.ctx` hierarchy starting from the repository root, collects summaries, key files, contracts, decisions, gotchas, and tags, then renders them into an `AGENTS.md` file at the repository root.
+
+**Marker protocol:** The generated content is wrapped in markers to support idempotent updates:
+
+```markdown
+<!-- CTXKIT:BEGIN -->
+(generated content here)
+<!-- CTXKIT:END -->
+```
+
+On subsequent runs, only the content between the `CTXKIT:BEGIN` and `CTXKIT:END` markers is replaced. Any content outside the markers (added manually by the user) is preserved. This allows teams to maintain hand-written sections alongside the auto-generated content.
+
+**Idempotency:** Running `sync-agents` multiple times produces the same result as long as the `.ctx` files have not changed. The command is safe to include in CI pipelines or git hooks.
+
+**Token budgeting:** The `--budget` flag controls how much content is included. When the total content from all `.ctx` files exceeds the budget, lower-priority sections (e.g., gotchas, decisions with low relevance) are trimmed first. Summaries and contracts are prioritized.
+
+### Examples
+
+```bash
+# Generate AGENTS.md from the current repo
+ctxkit codex sync-agents
+
+# Preview without writing
+ctxkit codex sync-agents --dry-run
+
+# Specify a custom repo root and budget
+ctxkit codex sync-agents --repo-root /path/to/repo --budget 12000
+
+# Use in a CI pipeline
+ctxkit codex sync-agents && git diff --exit-code AGENTS.md
+```
+
+### Output
+
+```
+Scanning .ctx files from /path/to/repo...
+  Found 8 .ctx files across 4 packages
+
+Generated AGENTS.md (6240 / 8000 tokens)
+  Sections: 8 summaries, 12 key files, 4 contracts, 3 decisions, 2 gotchas
+  Path: /path/to/repo/AGENTS.md
+```
+
+### Dry Run Output
+
+When `--dry-run` is passed, the command prints the content that would be written and exits without modifying any files:
+
+```
+[dry-run] Would write AGENTS.md to /path/to/repo/AGENTS.md (6240 tokens)
+
+<!-- CTXKIT:BEGIN -->
+# Project Context
+
+## src/auth
+Auth module handling login, registration, and token refresh.
+...
+<!-- CTXKIT:END -->
 ```
 
 ---

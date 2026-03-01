@@ -1,0 +1,18 @@
+{
+  "name": "ctxkit",
+  "version": "0.1.0",
+  "description": "CtxKit context and memory management for Claude Code",
+  "hooks": "../hooks/hooks.json",
+  "skills": [
+    {
+      "name": "ctxkit",
+      "path": "../skills/ctxkit/SKILL.md"
+    }
+  ],
+  "mcpServers": [
+    {
+      "name": "ctxkit-mcp",
+      "config": "../.mcp.json"
+    }
+  ]
+}

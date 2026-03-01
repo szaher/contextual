@@ -9,6 +9,7 @@ import { sessionsCommand } from './commands/sessions';
 import { driftCommand } from './commands/drift';
 import { daemonCommand, dashboardCommand } from './commands/daemon';
 import { runCommand } from './commands/run';
+import { codexCommand } from './commands/codex';
 
 const program = new Command();
 
@@ -28,5 +29,6 @@ program.addCommand(driftCommand);
 program.addCommand(daemonCommand);
 program.addCommand(dashboardCommand);
 program.addCommand(runCommand);
+program.addCommand(codexCommand);
 
 program.parse();

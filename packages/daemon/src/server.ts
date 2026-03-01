@@ -9,6 +9,9 @@ import { proposals } from './routes/proposals.js';
 import { sessions } from './routes/sessions.js';
 import { audit } from './routes/audit.js';
 import { drift } from './routes/drift.js';
+import { events } from './routes/events.js';
+import { config } from './routes/config.js';
+import { memory } from './routes/memory.js';
 
 export interface AppContext {
   db: Database.Database;
@@ -35,6 +38,9 @@ export function createApp(ctx: AppContext): Hono<AppEnv> {
   app.route('/api/v1', sessions);
   app.route('/api/v1', audit);
   app.route('/api/v1', drift);
+  app.route('/api/v1', events);
+  app.route('/api/v1', config);
+  app.route('/api/v1', memory);
 
   // Serve static UI (dashboard)
   app.use('/*', serveStatic({ root: './packages/ui/dist' }));
