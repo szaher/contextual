@@ -35,6 +35,13 @@ jobs:
       - name: Build all packages
         run: pnpm build
 
+      - name: Verify build output
+        run: |
+          echo "=== claude-plugin dist structure ==="
+          find packages/claude-plugin/dist -type f -name '*.js' | sort || echo "No dist found!"
+          echo "=== mcp dist structure ==="
+          ls packages/mcp/dist/*.js 2>/dev/null || echo "No mcp dist found!"
+
       - name: Run linting
         run: pnpm lint
 
@@ -70,6 +77,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build all packages (generates .d.ts for cross-package type resolution)
+        run: pnpm build
 
       - name: Run type checking across all packages
         run: pnpm -r exec tsc --noEmit
