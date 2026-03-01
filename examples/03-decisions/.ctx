@@ -1,0 +1,115 @@
+# Demonstrates architectural decision records (ADRs) in .ctx files.
+# Decisions capture the "why" behind important choices so agents
+# and new team members understand constraints and tradeoffs.
+
+version: 1
+
+summary: |
+  E-commerce platform backend. Handles product catalog,
+  shopping cart, checkout, and payment processing.
+  Decisions below reflect key architectural choices made
+  during the initial design phase (Q1 2025).
+
+decisions:
+  # A fully accepted decision with alternatives considered.
+  - id: d001
+    title: "Use PostgreSQL as the primary database"
+    status: accepted
+    date: "2025-01-10"
+    rationale: |
+      PostgreSQL provides ACID transactions, JSON columns for
+      flexible product attributes, and full-text search for the
+      catalog. The team has deep PostgreSQL expertise.
+    alternatives:
+      - name: "MongoDB"
+        reason_rejected: |
+          Flexible schema is appealing for product data, but we
+          need strong transactional guarantees for checkout and
+          payments. Cross-collection transactions in MongoDB are
+          limited and add complexity.
+      - name: "MySQL"
+        reason_rejected: |
+          Viable option, but PostgreSQL's JSONB support and
+          full-text search capabilities better fit our needs
+          without requiring additional services.
+    verified_at: "a1b2c3d"
+    locked: true
+    owner: backend
+
+  # A decision about the payment integration approach.
+  - id: d002
+    title: "Stripe as the sole payment processor"
+    status: accepted
+    date: "2025-01-15"
+    rationale: |
+      Stripe's API is well-documented, supports all our target
+      markets, and handles PCI compliance. Using a single provider
+      simplifies reconciliation and reduces integration surface.
+    alternatives:
+      - name: "Multi-provider (Stripe + PayPal)"
+        reason_rejected: |
+          Adds complexity to checkout flow, reconciliation, and
+          error handling. PayPal can be added later if needed
+          without changing the core architecture.
+      - name: "Adyen"
+        reason_rejected: |
+          Better pricing at high volume but requires more
+          integration work. Our current volume does not justify
+          the additional engineering cost.
+    verified_at: "a1b2c3d"
+    locked: true
+    owner: payments
+
+  # A proposed decision that is still under discussion.
+  - id: d003
+    title: "Event sourcing for order lifecycle"
+    status: proposed
+    date: "2025-02-20"
+    rationale: |
+      Order state changes (created, paid, shipped, delivered,
+      returned) are a natural fit for event sourcing. It provides
+      a complete audit trail and enables rebuilding state at any
+      point in time.
+    alternatives:
+      - name: "Traditional CRUD with audit log"
+        reason_rejected: |
+          Simpler to implement but loses the ability to replay
+          events and reconstruct past state. Audit log is
+          append-only but disconnected from the domain model.
+    verified_at: "e5f6789"
+    locked: false
+
+  # A superseded decision -- kept for historical context.
+  - id: d004
+    title: "REST API for all client communication"
+    status: superseded
+    date: "2025-01-05"
+    rationale: |
+      REST was chosen initially for simplicity. Superseded by
+      d005 which adds GraphQL for the product catalog while
+      keeping REST for checkout and payments.
+    alternatives: []
+    verified_at: "a1b2c3d"
+    locked: false
+
+  # The decision that superseded d004.
+  - id: d005
+    title: "GraphQL for catalog, REST for checkout"
+    status: accepted
+    date: "2025-03-01"
+    rationale: |
+      The product catalog has deeply nested data (variants,
+      images, attributes, reviews) that clients need to query
+      flexibly. GraphQL reduces over-fetching for the catalog.
+      Checkout and payments remain REST for simplicity and
+      because their data shapes are fixed.
+    alternatives:
+      - name: "GraphQL everywhere"
+        reason_rejected: |
+          Checkout mutations with payment processing do not
+          benefit from GraphQL flexibility and add complexity
+          to error handling and webhook integration.
+    verified_at: "f0a1b2c"
+    locked: false
+
+tags: [ecommerce, backend, architecture]

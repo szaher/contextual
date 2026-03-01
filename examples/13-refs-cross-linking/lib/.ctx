@@ -1,0 +1,82 @@
+# Shared library .ctx -- referenced by the root .ctx via refs.
+# Contains contracts and decisions that apply to all consumers of lib/.
+
+version: 1
+
+summary: |
+  Shared library containing validation schemas, type definitions,
+  and utility functions. Used by the API server and background
+  workers. Changes here affect multiple consumers -- test both
+  after any modification.
+
+key_files:
+  - path: validators.ts
+    why: "Zod validation schemas for all domain objects (User, Order, Product)"
+    tags: [validation, zod, schemas]
+    verified_at: "b2c3d4e"
+    locked: false
+
+  - path: types.ts
+    why: "TypeScript type definitions shared across the monorepo"
+    tags: [types, typescript, shared]
+    verified_at: "b2c3d4e"
+    locked: false
+
+  - path: errors.ts
+    why: "Custom error classes with error codes. Used for API responses."
+    tags: [errors, api, shared]
+    verified_at: "b2c3d4e"
+    locked: false
+
+contracts:
+  # This contract is pulled into the root context via the ref.
+  - name: "validation-schema-rules"
+    scope:
+      paths: ["lib/validators.ts", "lib/schemas/*"]
+      tags: [validation]
+    content: |
+      VALIDATION RULES:
+      1. All validation schemas MUST use Zod (not joi, yup, or manual checks).
+      2. Schema names follow the pattern: {Entity}Schema (e.g., UserSchema).
+      3. All schemas MUST export both the schema and the inferred type.
+      4. Breaking schema changes require a version bump in the schema name.
+      Example:
+        export const UserSchemaV2 = z.object({ ... });
+        export type UserV2 = z.infer<typeof UserSchemaV2>;
+    verified_at: "b2c3d4e"
+    locked: true
+    owner: platform
+
+  # Another contract that gets pulled into root via the ref.
+  - name: "error-handling-contract"
+    scope:
+      paths: ["lib/errors.ts"]
+      tags: [errors, api]
+    content: |
+      ERROR HANDLING:
+      1. All custom errors MUST extend AppError base class.
+      2. Errors MUST include a machine-readable code (e.g., "USER_NOT_FOUND").
+      3. Error codes MUST be documented in lib/error-codes.ts.
+      4. Never expose stack traces in API responses.
+    verified_at: "b2c3d4e"
+    locked: true
+    owner: platform
+
+decisions:
+  - id: d-lib-001
+    title: "Zod for runtime validation"
+    status: accepted
+    date: "2025-01-20"
+    rationale: |
+      Zod provides TypeScript-first schema validation with
+      automatic type inference. One schema definition serves
+      both runtime validation and compile-time type safety.
+    alternatives:
+      - name: "Joi"
+        reason_rejected: "No built-in TypeScript type inference"
+      - name: "Class-validator"
+        reason_rejected: "Requires class-based models, not functional"
+    verified_at: "b2c3d4e"
+    locked: false
+
+tags: [shared, library, validation, types]

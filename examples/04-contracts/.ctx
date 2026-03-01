@@ -1,0 +1,72 @@
+# Demonstrates context contracts -- must-include invariants that are
+# injected whenever a request touches certain paths or tags.
+# Contracts are the safety net for critical project rules.
+
+version: 1
+
+summary: |
+  Authentication and authorization service. Handles user login,
+  token management, role-based access control, and session
+  management. Security-critical module with strict coding
+  constraints defined as contracts below.
+
+contracts:
+  # This contract is injected whenever any file in src/auth/* is touched,
+  # or when the request matches the "security" or "auth" tags.
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [security, auth]
+    content: |
+      SECURITY REQUIREMENTS (mandatory for all auth code):
+      1. All passwords MUST be hashed with bcrypt, cost factor 12.
+      2. JWT tokens MUST expire after 1 hour. Refresh tokens after 7 days.
+      3. Failed login attempts MUST be rate-limited (max 5 per minute per IP).
+      4. All auth endpoints MUST log attempts to the audit trail.
+      5. Never store raw passwords, tokens, or secrets in logs or .ctx files.
+      6. Use constant-time comparison for token validation.
+    verified_at: "a1b2c3d"
+    locked: true
+    owner: security
+
+  # A narrower contract for the session management subsystem.
+  - name: "session-management-rules"
+    scope:
+      paths: ["src/auth/session*"]
+      tags: [sessions]
+    content: |
+      SESSION RULES:
+      1. Sessions are stored server-side in Redis, NOT in cookies.
+      2. Session IDs must be cryptographically random (256-bit minimum).
+      3. Sessions must be invalidated on password change.
+      4. Concurrent session limit: 5 per user.
+    verified_at: "b2c3d4e"
+    locked: true
+    owner: security
+
+  # A contract without path scope -- triggered only by tag matching.
+  - name: "api-versioning-policy"
+    scope:
+      paths: []
+      tags: [api, public-api]
+    content: |
+      API VERSIONING POLICY:
+      1. All public API endpoints MUST be versioned (e.g., /v1/users).
+      2. Breaking changes require a new major version.
+      3. Deprecated versions must be supported for 6 months minimum.
+      4. Version headers: Accept-Version is supported but URL path is canonical.
+    verified_at: "c3d4e5f"
+    locked: false
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Main auth request handler. Login, logout, token refresh endpoints."
+    tags: [auth, api, security]
+    verified_at: "a1b2c3d"
+    locked: false
+
+tags: [auth, security, typescript]
+
+commands:
+  test: "npm test -- --grep auth"
+  test:security: "npm run test:security"

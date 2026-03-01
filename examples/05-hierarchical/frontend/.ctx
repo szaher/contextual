@@ -1,0 +1,58 @@
+# Frontend-specific .ctx -- distinct from the backend context.
+# Agents working on frontend code see this context merged with root.
+
+version: 1
+
+summary: |
+  React single-page application built with Vite.
+  Uses React Router for navigation, Zustand for state
+  management, and TanStack Query for data fetching.
+  Connects to the backend API and WebSocket server.
+
+key_files:
+  - path: app.tsx
+    why: "Root React component. Sets up routing and providers."
+    tags: [entry, react, routing]
+    verified_at: "c3d4e5f"
+    locked: false
+
+  - path: src/hooks/useWebSocket.ts
+    why: "WebSocket hook for real-time updates. Handles reconnection."
+    tags: [websocket, realtime, hooks]
+    verified_at: "c3d4e5f"
+    locked: false
+
+decisions:
+  - id: d-fe-001
+    title: "Zustand over Redux for state management"
+    status: accepted
+    date: "2025-02-01"
+    rationale: |
+      Zustand is simpler, has less boilerplate, and performs
+      well for our use case. We do not need Redux middleware
+      or devtools complexity.
+    alternatives:
+      - name: "Redux Toolkit"
+        reason_rejected: "Over-engineered for our state complexity"
+      - name: "Jotai"
+        reason_rejected: "Atomic model less intuitive for team"
+    verified_at: "c3d4e5f"
+    locked: false
+
+# Frontend-specific commands override root commands.
+commands:
+  build: "pnpm build:frontend"
+  test: "pnpm test:frontend"
+  dev: "pnpm dev:frontend"
+  storybook: "pnpm storybook"
+
+gotchas:
+  - text: |
+      The WebSocket reconnection logic has a race condition when
+      the user switches between projects rapidly. The old connection
+      may receive events for the wrong project. See useWebSocket.ts:45.
+    tags: [websocket, bugs, react]
+    verified_at: "c3d4e5f"
+    locked: false
+
+tags: [frontend, react, vite, typescript]

@@ -1,0 +1,48 @@
+version: 1
+summary: |
+  A simple test project for verifying context pack assembly.
+  Single directory with a few key files.
+key_files:
+  - path: src/index.ts
+    purpose: Application entry point
+    tags: [entry]
+    verified_at: "abc1234"
+    locked: false
+  - path: src/utils.ts
+    purpose: Shared utility functions
+    tags: [utils]
+    verified_at: "abc1234"
+    locked: false
+  - path: src/config.ts
+    purpose: Configuration loader
+    tags: [config]
+    verified_at: "abc1234"
+    locked: false
+contracts: []
+decisions:
+  - id: adr-001
+    title: Use TypeScript for all source files
+    status: accepted
+    date: "2026-01-15"
+    rationale: |
+      Type safety reduces runtime errors.
+    alternatives:
+      - name: Plain JavaScript
+        reason_rejected: No compile-time type checking
+    verified_at: "abc1234"
+    locked: true
+commands:
+  build: npm run build
+  test: npm test
+gotchas:
+  - text: |
+      The config loader reads from process.env first, then falls
+      back to config.json. Environment variables always win.
+    tags: [config]
+    verified_at: "abc1234"
+    locked: false
+tags: [typescript, nodejs]
+refs: []
+ignore:
+  never_read: []
+  never_log: []

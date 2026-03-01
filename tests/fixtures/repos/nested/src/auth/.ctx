@@ -1,0 +1,59 @@
+version: 1
+summary: |
+  Authentication module handling login, signup, and session management.
+  Uses JWT tokens for stateless auth.
+key_files:
+  - path: src/auth/handler.ts
+    purpose: Auth request handlers (login, signup, logout)
+    tags: [auth, api, handlers]
+    verified_at: "ghi9012"
+    locked: false
+  - path: src/auth/middleware.ts
+    purpose: JWT validation middleware
+    tags: [auth, middleware, security]
+    verified_at: "ghi9012"
+    locked: false
+  - path: src/auth/types.ts
+    purpose: Auth type definitions
+    tags: [auth, types]
+    verified_at: "ghi9012"
+    locked: false
+contracts:
+  - name: Auth API Contract
+    scope:
+      paths: ["src/auth/*"]
+      tags: [security]
+    content: |
+      All auth endpoints MUST validate JWT tokens.
+      Never store raw passwords; use bcrypt with cost 12.
+      Token expiry: 24 hours for access, 30 days for refresh.
+    verified_at: "ghi9012"
+    locked: true
+    owner: security
+decisions:
+  - id: adr-002
+    title: Use JWT for session tokens
+    status: accepted
+    date: "2026-01-12"
+    rationale: |
+      Stateless tokens reduce server-side session storage.
+    alternatives:
+      - name: Server-side sessions
+        reason_rejected: Requires sticky sessions or shared store
+    verified_at: "ghi9012"
+    locked: true
+    owner: security
+commands: {}
+gotchas:
+  - text: |
+      The auth middleware silently swallows errors from
+      expired tokens. Always check token expiry explicitly
+      in handler.ts before processing requests.
+    tags: [auth, bugs]
+    verified_at: "ghi9012"
+    locked: false
+tags: [auth, security, jwt]
+refs: []
+ignore:
+  never_read: []
+  never_log: [".env", "secrets/"]

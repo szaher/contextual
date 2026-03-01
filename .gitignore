@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test
+coverage/
+
+# Runtime
+*.log
+*.pid
+
+# ctxl local data
+.ctxl/data/
+
+# VitePress
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# Lock files (keep pnpm-lock.yaml)
+package-lock.json
+yarn.lock

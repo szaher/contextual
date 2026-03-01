@@ -1,0 +1,19 @@
+version: 1
+summary: |
+  Source directory containing all application modules.
+  Each module has its own subdirectory.
+key_files:
+  - path: src/middleware.ts
+    purpose: Express middleware chain
+    tags: [middleware, api]
+    verified_at: "def5678"
+    locked: false
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: [api, middleware]
+refs: []
+ignore:
+  never_read: []
+  never_log: []

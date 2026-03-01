@@ -1,0 +1,49 @@
+# API routes context. Defines conventions for API endpoint implementation.
+
+version: 1
+
+summary: |
+  REST API routes for the TaskFlow application. Organized by
+  resource: tasks, projects, users, teams. All routes follow
+  the layered architecture pattern (routes -> handlers -> services).
+
+key_files:
+  - path: routes.ts
+    why: "Route registration. Maps HTTP methods and paths to handlers."
+    tags: [api, routes, express]
+    verified_at: "e5f6a7b"
+    locked: false
+
+contracts:
+  - name: "api-endpoint-conventions"
+    scope:
+      paths: ["*.ts"]
+      tags: [api, routes]
+    content: |
+      API ENDPOINT CONVENTIONS:
+      1. Routes use RESTful naming: /api/v1/{resource} (plural nouns).
+      2. All handlers MUST use asyncHandler() wrapper for error handling.
+      3. Request validation MUST use Zod schemas before business logic.
+      4. Successful responses: 200 (GET/PUT), 201 (POST), 204 (DELETE).
+      5. All list endpoints MUST support: ?page, ?limit, ?sort, ?filter.
+      6. CORS preflight is handled globally -- do not add per-route CORS.
+    verified_at: "e5f6a7b"
+    locked: true
+    owner: platform
+
+gotchas:
+  - text: |
+      The route order in routes.ts matters. Express matches routes
+      top-to-bottom. The /api/v1/tasks/:id route must come AFTER
+      /api/v1/tasks/export to prevent "export" from being parsed as
+      a task ID.
+    tags: [express, routing, bugs]
+    verified_at: "e5f6a7b"
+    locked: false
+
+tags: [api, routes, rest]
+
+refs:
+  - target: "../auth/.ctx"
+    sections: [contracts]
+    reason: "Auth contracts apply to API routes that require authentication"

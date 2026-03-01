@@ -1,0 +1,125 @@
+# Complete real-world .ctx file for a SaaS application.
+# This demonstrates all sections working together in a production project.
+
+version: 1
+
+summary: |
+  TaskFlow -- a team task management SaaS application.
+  Backend: Node.js/Express REST API with PostgreSQL and Redis.
+  Frontend: React SPA with Vite and TanStack Query.
+  Auth: JWT-based with refresh tokens and role-based access control.
+  Deployment: Docker containers on AWS ECS with RDS and ElastiCache.
+  Monorepo managed with pnpm workspaces.
+
+key_files:
+  - path: package.json
+    why: "Root workspace config. Defines pnpm workspaces and shared scripts."
+    tags: [config, monorepo, build]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  - path: docker-compose.yml
+    why: "Local development environment. PostgreSQL, Redis, and app services."
+    tags: [docker, development, infrastructure]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  - path: src/index.ts
+    why: "Application entry point. Bootstraps Express, connects DB, starts server."
+    tags: [entry, server]
+    verified_at: "f0a1b2c"
+    locked: false
+
+contracts:
+  - name: "api-response-envelope"
+    scope:
+      paths: ["src/api/*"]
+      tags: [api]
+    content: |
+      API RESPONSE FORMAT:
+      All API responses MUST use the standard envelope:
+        { data: T | null, error: { code: string, message: string } | null, meta?: object }
+      List endpoints MUST support pagination: ?page=1&limit=20
+      All timestamps MUST be ISO 8601 UTC.
+      Error codes MUST be UPPER_SNAKE_CASE (e.g., TASK_NOT_FOUND).
+    verified_at: "a1b2c3d"
+    locked: true
+    owner: platform
+
+decisions:
+  - id: d001
+    title: "pnpm workspaces monorepo"
+    status: accepted
+    date: "2025-01-05"
+    rationale: |
+      Single repo for frontend and backend enables shared TypeScript types,
+      unified CI pipeline, and atomic cross-package changes.
+    alternatives:
+      - name: "Separate repositories"
+        reason_rejected: "Type sharing requires package publishing overhead"
+      - name: "Turborepo"
+        reason_rejected: "Added complexity not justified at current scale"
+    verified_at: "a1b2c3d"
+    locked: true
+
+  - id: d002
+    title: "PostgreSQL over MySQL"
+    status: accepted
+    date: "2025-01-05"
+    rationale: |
+      PostgreSQL provides better JSON support, full-text search, and
+      advanced indexing. Team has deep PostgreSQL expertise.
+    alternatives:
+      - name: "MySQL 8"
+        reason_rejected: "Weaker JSON and full-text search capabilities"
+    verified_at: "a1b2c3d"
+    locked: true
+
+gotchas:
+  - text: |
+      The pnpm workspace hoisting can cause phantom dependency issues.
+      If a package works locally but fails in CI, check for unlisted
+      dependencies. Use pnpm ls to verify. See package.json "pnpm"
+      overrides section.
+    tags: [pnpm, monorepo, ci, dependencies]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  - text: |
+      The Docker development environment requires Docker Compose V2.
+      The old docker-compose (V1) command syntax will not work with
+      our compose file. Use "docker compose" (space, not hyphen).
+    tags: [docker, development]
+    verified_at: "a1b2c3d"
+    locked: false
+
+commands:
+  build: "pnpm build"
+  test: "pnpm test"
+  dev: "docker compose up -d && pnpm dev"
+  lint: "pnpm lint"
+  typecheck: "pnpm typecheck"
+  migrate: "pnpm --filter backend prisma migrate dev"
+  seed: "pnpm --filter backend prisma db seed"
+
+tags: [taskflow, saas, typescript, monorepo, fullstack]
+
+refs:
+  - target: "src/.ctx"
+    sections: [contracts]
+    reason: "Source-level contracts apply at the project root too"
+
+ignore:
+  never_read:
+    - ".env"
+    - ".env.*"
+    - "*.key"
+    - "*.pem"
+    - "node_modules/"
+    - "dist/"
+    - ".git/"
+    - "coverage/"
+  never_log:
+    - ".env"
+    - ".env.*"
+    - "*.key"

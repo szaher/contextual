@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "source": "src/auth/.ctx",
+      "section": "contracts",
+      "entry_id": "Auth API Contract",
+      "reason_codes": ["LOCALITY_HIGH", "TAG_MATCH", "CONTRACT_REQUIRED"],
+      "staleness": {
+        "verified_at": "ghi9012",
+        "is_stale": false
+      }
+    },
+    {
+      "source": "src/auth/.ctx",
+      "section": "key_files",
+      "entry_id": "src/auth/handler.ts",
+      "reason_codes": ["LOCALITY_HIGH", "TAG_MATCH"],
+      "staleness": {
+        "verified_at": "ghi9012",
+        "is_stale": false
+      }
+    },
+    {
+      "source": "src/auth/.ctx",
+      "section": "key_files",
+      "entry_id": "src/auth/middleware.ts",
+      "reason_codes": ["LOCALITY_HIGH", "TAG_MATCH"],
+      "staleness": {
+        "verified_at": "ghi9012",
+        "is_stale": false
+      }
+    },
+    {
+      "source": "src/auth/.ctx",
+      "section": "decisions",
+      "entry_id": "adr-002",
+      "reason_codes": ["LOCALITY_HIGH", "PINNED"],
+      "staleness": {
+        "verified_at": "ghi9012",
+        "is_stale": false
+      }
+    },
+    {
+      "source": "src/auth/.ctx",
+      "section": "gotchas",
+      "entry_id": "gotcha_0",
+      "reason_codes": ["LOCALITY_HIGH", "TAG_MATCH"],
+      "staleness": {
+        "verified_at": "ghi9012",
+        "is_stale": false
+      }
+    }
+  ],
+  "budget_tokens": 4000,
+  "_note": "Auth-related entries from src/auth/.ctx ranked highest due to locality + tag matching. Parent .ctx entries may appear further down if budget allows."
+}

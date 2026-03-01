@@ -1,0 +1,47 @@
+# Auth module context. Security-critical with locked contracts.
+
+version: 1
+
+summary: |
+  Authentication and authorization module. Handles JWT token
+  issuance, validation, refresh, and role-based access control.
+  Security-critical: all changes should be reviewed by the
+  security team.
+
+key_files:
+  - path: middleware.ts
+    why: "Express middleware that validates JWT on every API request."
+    tags: [auth, middleware, jwt, security]
+    verified_at: "d4e5f6a"
+    locked: true
+    owner: security
+
+contracts:
+  - name: "auth-security-contract"
+    scope:
+      paths: ["*.ts"]
+      tags: [auth, security]
+    content: |
+      AUTH SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt, cost factor 12.
+      2. JWT access tokens expire after 15 minutes.
+      3. Refresh tokens expire after 7 days and are single-use.
+      4. Failed login attempts are rate-limited: 5 per minute per IP.
+      5. All auth events MUST be logged to the audit trail.
+      6. Token comparison MUST use constant-time comparison.
+      7. Never log raw tokens, passwords, or secrets.
+    verified_at: "d4e5f6a"
+    locked: true
+    owner: security
+
+gotchas:
+  - text: |
+      The JWT_SECRET environment variable must be at least 256 bits.
+      Shorter secrets will cause the server to reject all tokens
+      with a cryptic "invalid signature" error. Check .env.example
+      for the expected format.
+    tags: [jwt, config, security]
+    verified_at: "d4e5f6a"
+    locked: false
+
+tags: [auth, security, jwt]

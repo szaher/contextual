@@ -1,0 +1,83 @@
+# Demonstrates drift detection using verified_at commit hashes.
+# Each entry records the commit where it was last verified accurate.
+# When the referenced file changes after that commit, drift is detected.
+
+version: 1
+
+summary: |
+  Notification service for a SaaS platform. Sends email, SMS,
+  and push notifications based on event triggers. Uses a queue
+  for reliable delivery and supports template-based content.
+
+key_files:
+  # This entry references a file that was last verified at commit a1b2c3d.
+  # If src/email/sender.ts has been modified after that commit,
+  # ctxl will flag this entry as potentially stale.
+  - path: src/email/sender.ts
+    why: "Email sending logic using SendGrid API. Handles retries and templates."
+    tags: [email, sendgrid, notifications]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  # This entry was verified more recently (commit f0a1b2c).
+  # It is less likely to be stale.
+  - path: src/sms/twilio-client.ts
+    why: "Twilio SMS integration. Rate-limited to 100 messages per minute."
+    tags: [sms, twilio, notifications]
+    verified_at: "f0a1b2c"
+    locked: false
+
+  # This entry is locked. If drift is detected, ctxl will warn but
+  # will NOT propose automated changes.
+  - path: src/queue/processor.ts
+    why: "Queue processor for async notification delivery. Uses BullMQ."
+    tags: [queue, bullmq, infrastructure]
+    verified_at: "b2c3d4e"
+    locked: true
+    owner: infrastructure
+
+  # This entry references a file that was DELETED from the repo.
+  # Drift detection will flag this as a missing file reference.
+  - path: src/push/firebase-client.ts
+    why: "Firebase Cloud Messaging client for push notifications."
+    tags: [push, firebase, notifications]
+    verified_at: "c3d4e5f"
+    locked: false
+
+contracts:
+  - name: "notification-reliability"
+    scope:
+      paths: ["src/queue/*", "src/email/*", "src/sms/*"]
+      tags: [notifications]
+    content: |
+      RELIABILITY REQUIREMENTS:
+      1. All notifications MUST be sent through the queue (never inline).
+      2. Failed sends MUST be retried up to 3 times with exponential backoff.
+      3. Dead-letter queue MUST be monitored; alerts trigger at 100 messages.
+      4. Notification templates MUST be validated before sending.
+    verified_at: "d4e5f6a"
+    locked: true
+    owner: infrastructure
+
+decisions:
+  - id: d001
+    title: "BullMQ over RabbitMQ for notification queue"
+    status: accepted
+    date: "2025-01-20"
+    rationale: |
+      BullMQ runs on Redis which we already operate. Simpler stack
+      than adding RabbitMQ. Supports delayed jobs and retries natively.
+    alternatives:
+      - name: "RabbitMQ"
+        reason_rejected: "Additional infrastructure to operate"
+      - name: "AWS SQS"
+        reason_rejected: "Vendor lock-in, higher latency for local dev"
+    verified_at: "a1b2c3d"
+    locked: false
+
+tags: [notifications, email, sms, push, typescript]
+
+commands:
+  test: "npm test"
+  test:integration: "npm run test:integration"
+  dev: "npm run dev"

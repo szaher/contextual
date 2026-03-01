@@ -1,0 +1,45 @@
+# A simple .ctx file that works alongside the workspace profile.
+# The profile in .ctxl/config.yaml controls budgets and policies.
+# This .ctx file contains the actual project knowledge.
+
+version: 1
+
+summary: |
+  SaaS analytics platform. Ingests event data via HTTP API,
+  processes it in real-time with Apache Kafka, and stores
+  aggregated metrics in ClickHouse. Dashboard built with React.
+
+key_files:
+  - path: src/ingestion/api.ts
+    why: "HTTP endpoint for event ingestion. High throughput, low latency."
+    tags: [api, ingestion, performance]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  - path: src/pipeline/consumer.ts
+    why: "Kafka consumer that processes raw events into aggregated metrics."
+    tags: [kafka, pipeline, data-processing]
+    verified_at: "a1b2c3d"
+    locked: false
+
+contracts:
+  - name: "data-retention-policy"
+    scope:
+      paths: ["src/pipeline/*", "src/storage/*"]
+      tags: [compliance, data-retention]
+    content: |
+      DATA RETENTION POLICY (compliance requirement):
+      1. Raw events MUST be deleted after 90 days.
+      2. Aggregated metrics are retained indefinitely.
+      3. PII fields MUST be hashed before storage.
+      4. Deletion jobs run nightly; do not modify the schedule.
+    verified_at: "a1b2c3d"
+    locked: true
+    owner: compliance
+
+tags: [analytics, saas, typescript]
+
+commands:
+  build: "pnpm build"
+  test: "pnpm test"
+  dev: "pnpm dev"

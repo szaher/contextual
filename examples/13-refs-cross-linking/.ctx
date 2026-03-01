@@ -1,0 +1,52 @@
+# Demonstrates cross-references between .ctx files using the refs section.
+# Refs allow linking to shared context without duplicating information.
+
+version: 1
+
+summary: |
+  E-commerce application root. Contains the API server and
+  a shared library (lib/) with validation schemas, types,
+  and utility functions used by both the API and background workers.
+
+key_files:
+  - path: src/server.ts
+    why: "Express API server entry point"
+    tags: [api, server, entry]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  - path: lib/validators.ts
+    why: "Shared validation schemas used by API and workers"
+    tags: [validation, shared]
+    verified_at: "a1b2c3d"
+    locked: false
+
+decisions:
+  - id: d001
+    title: "Shared validation in lib/ directory"
+    status: accepted
+    date: "2025-02-01"
+    rationale: |
+      Validation logic is shared between the API server and
+      background workers. Centralizing it in lib/ prevents
+      drift between the two consumers.
+    alternatives:
+      - name: "Duplicate validation in each consumer"
+        reason_rejected: "Leads to inconsistent validation rules"
+    verified_at: "a1b2c3d"
+    locked: false
+
+# Cross-references to other .ctx files.
+# Instead of duplicating the lib/.ctx contracts and decisions here,
+# we link to them. ctxl follows these refs during context assembly.
+refs:
+  - target: "lib/.ctx"
+    sections: [contracts, decisions]
+    reason: "Shared library constraints apply to code that uses lib/"
+
+tags: [ecommerce, api, typescript]
+
+commands:
+  build: "pnpm build"
+  test: "pnpm test"
+  dev: "pnpm dev"

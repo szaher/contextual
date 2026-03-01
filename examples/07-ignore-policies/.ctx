@@ -1,0 +1,83 @@
+# Demonstrates ignore policies: never_read and never_log.
+# These policies prevent ctxl from reading sensitive files or
+# logging sensitive content. They override all other heuristics.
+
+version: 1
+
+summary: |
+  Payment processing service that handles credit card transactions,
+  billing, and invoicing. Contains sensitive financial data and
+  API keys that must never be exposed in .ctx files or logs.
+
+key_files:
+  - path: src/payment-gateway.ts
+    why: "Stripe integration. Processes charges and refunds."
+    tags: [payments, stripe, api]
+    verified_at: "a1b2c3d"
+    locked: false
+
+  - path: src/billing/invoice.ts
+    why: "Invoice generation and PDF rendering."
+    tags: [billing, invoices]
+    verified_at: "a1b2c3d"
+    locked: false
+
+# The ignore section defines privacy and security policies.
+# These are enforced with deny-list semantics: blocked paths
+# ALWAYS win over inclusion rules, even if an agent explicitly
+# tries to read them.
+ignore:
+  # never_read: ctxl will never read these files for context,
+  # indexing, or any other purpose. They are completely invisible
+  # to the context system.
+  never_read:
+    # Environment files with credentials
+    - ".env"
+    - ".env.*"
+    - "*.env"
+
+    # Secret and key files
+    - "secrets/"
+    - "*.key"
+    - "*.pem"
+    - "*.p12"
+    - "*.pfx"
+
+    # Configuration files with sensitive data
+    - "config/production.yaml"
+    - "config/staging.yaml"
+
+    # Vendor and build artifacts (not sensitive, but wasteful)
+    - "node_modules/"
+    - "dist/"
+    - "coverage/"
+    - ".git/"
+
+    # Terraform state (contains secrets)
+    - "*.tfstate"
+    - "*.tfstate.backup"
+
+  # never_log: ctxl will never write content from these files
+  # into session logs, audit trails, or proposed .ctx updates.
+  # The files CAN be read for context assembly, but their
+  # content is redacted before logging.
+  never_log:
+    # All paths from never_read are implicitly never_log too.
+    # These are additional paths that may be read but not logged.
+
+    # Database migration files (may contain PII in seed data)
+    - "migrations/seed-*.sql"
+
+    # Test fixtures with synthetic PII
+    - "test/fixtures/users.json"
+    - "test/fixtures/payments.json"
+
+    # Internal documentation with security details
+    - "docs/security-architecture.md"
+    - "docs/incident-response.md"
+
+tags: [payments, billing, security]
+
+commands:
+  test: "npm test"
+  test:pci: "npm run test:pci-compliance"

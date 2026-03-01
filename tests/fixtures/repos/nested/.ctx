@@ -1,0 +1,44 @@
+version: 1
+summary: |
+  A multi-module project for testing hierarchical .ctx merging.
+  Has auth, database, and API modules.
+key_files:
+  - path: src/index.ts
+    purpose: Application entry point
+    tags: [entry]
+    verified_at: "def5678"
+    locked: false
+  - path: src/config.ts
+    purpose: Global configuration
+    tags: [config]
+    verified_at: "def5678"
+    locked: false
+contracts: []
+decisions:
+  - id: adr-001
+    title: Use Express for HTTP server
+    status: accepted
+    date: "2026-01-10"
+    rationale: |
+      Mature ecosystem, well-known API.
+    alternatives:
+      - name: Fastify
+        reason_rejected: Team less familiar
+    verified_at: "def5678"
+    locked: true
+commands:
+  build: npm run build
+  test: npm test
+  dev: npm run dev
+gotchas:
+  - text: |
+      Database connections are pooled globally.
+      Do not create new pools per request.
+    tags: [database, performance]
+    verified_at: "def5678"
+    locked: false
+tags: [typescript, express, postgresql]
+refs: []
+ignore:
+  never_read: []
+  never_log: [".env"]

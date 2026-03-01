@@ -1,0 +1,73 @@
+# Source directory context. Sits between root and module-level .ctx files.
+# Contains cross-cutting concerns that apply to all source code.
+
+version: 1
+
+summary: |
+  Source root for the TaskFlow application. Contains the Express
+  server, API routes, auth middleware, and database access layer.
+  All source code is TypeScript with strict mode enabled.
+
+key_files:
+  - path: index.ts
+    why: "Server entry point. Express setup, middleware chain, graceful shutdown."
+    tags: [entry, server, express]
+    verified_at: "f0a1b2c"
+    locked: false
+
+contracts:
+  - name: "typescript-strict-mode"
+    scope:
+      paths: ["**/*.ts"]
+      tags: [typescript]
+    content: |
+      TYPESCRIPT CONVENTIONS:
+      1. Strict mode is enabled. No "any" types without explicit justification.
+      2. All functions MUST have explicit return types.
+      3. Use "unknown" instead of "any" for untyped external data.
+      4. Prefer "interface" for object shapes, "type" for unions/intersections.
+      5. All enums MUST be string enums (not numeric).
+    verified_at: "f0a1b2c"
+    locked: true
+    owner: platform
+
+  - name: "error-handling"
+    scope:
+      paths: ["**/*.ts"]
+      tags: [errors]
+    content: |
+      ERROR HANDLING:
+      1. Never swallow errors silently (no empty catch blocks).
+      2. Use AppError for domain errors, let infrastructure errors propagate.
+      3. All async route handlers MUST be wrapped with asyncHandler().
+      4. Log errors with structured logging (logger.error, not console.error).
+    verified_at: "f0a1b2c"
+    locked: true
+    owner: platform
+
+decisions:
+  - id: d-src-001
+    title: "Layered architecture: routes -> handlers -> services -> repos"
+    status: accepted
+    date: "2025-01-10"
+    rationale: |
+      Clear separation of concerns. Routes define endpoints, handlers
+      parse requests, services contain business logic, repos handle
+      database access. Each layer can be tested independently.
+    alternatives:
+      - name: "Controller-only pattern"
+        reason_rejected: "Business logic mixed with HTTP handling"
+    verified_at: "f0a1b2c"
+    locked: true
+
+gotchas:
+  - text: |
+      The asyncHandler wrapper in src/middleware/async.ts is required
+      for ALL async route handlers. Without it, unhandled promise
+      rejections will crash the server. Express 5 fixes this, but
+      we are on Express 4.
+    tags: [express, async, errors, middleware]
+    verified_at: "f0a1b2c"
+    locked: false
+
+tags: [source, typescript, express]

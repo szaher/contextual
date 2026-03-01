@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: "Dry run (do not publish)"
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Run linting
+        run: pnpm lint
+
+      - name: Configure git for E2E tests
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run integration tests
+        run: pnpm test
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+
+      - name: Bump version in all packages
+        run: pnpm -r exec npm version ${{ inputs.version_bump }} --no-git-tag-version
+
+      - name: Get new version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Dry run summary
+        if: inputs.dry_run
+        run: |
+          echo "## Dry Run Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Version bump**: ${{ inputs.version_bump }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **New version**: ${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Tag**: ${{ steps.version.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "No changes were pushed. Run again with dry_run=false to publish." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit version bump
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: release ${{ steps.version.outputs.tag }}"
+
+      - name: Create git tag
+        if: ${{ !inputs.dry_run }}
+        run: git tag ${{ steps.version.outputs.tag }}
+
+      - name: Push commit and tag
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git push origin main
+          git push origin ${{ steps.version.outputs.tag }}
+
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        run: pnpm -r --filter './packages/*' publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub release
+        if: ${{ !inputs.dry_run }}
+        run: |
+          gh release create ${{ steps.version.outputs.tag }} \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,48 @@
+# Backend-specific .ctx -- overrides and extends the root .ctx.
+# When working in the backend/ directory, this file has higher
+# priority than the root .ctx.
+
+version: 1
+
+summary: |
+  Express.js API server with PostgreSQL and Redis.
+  Handles REST endpoints, WebSocket connections, and
+  background job processing. All endpoints require
+  JWT authentication except /health and /auth/login.
+
+key_files:
+  - path: server.ts
+    why: "Express app setup, middleware chain, route registration"
+    tags: [entry, server, api]
+    verified_at: "b2c3d4e"
+    locked: false
+
+  - path: src/ws.ts
+    why: "WebSocket server. Handles real-time project updates."
+    tags: [websocket, realtime]
+    verified_at: "b2c3d4e"
+    locked: false
+
+contracts:
+  - name: "api-response-format"
+    scope:
+      paths: ["src/routes/*", "src/handlers/*"]
+      tags: [api]
+    content: |
+      API RESPONSE FORMAT:
+      1. All responses MUST use { data, error, meta } envelope.
+      2. Errors MUST include a machine-readable code and human message.
+      3. List endpoints MUST support pagination via ?page=&limit= params.
+      4. All timestamps MUST be ISO 8601 in UTC.
+    verified_at: "b2c3d4e"
+    locked: true
+
+# Override the root commands with backend-specific ones.
+# When working in backend/, these commands take precedence.
+commands:
+  build: "pnpm build:backend"
+  test: "pnpm test:backend"
+  dev: "pnpm dev:backend"
+  migrate: "pnpm prisma migrate dev"
+
+tags: [backend, express, postgresql, api]

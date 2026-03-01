@@ -1,0 +1,88 @@
+# Demonstrates the gotchas and commands sections.
+# Gotchas warn about sharp edges and known issues.
+# Commands tell agents (and humans) how to build, test, and run the project.
+
+version: 1
+
+summary: |
+  Legacy data migration service. Reads records from a MySQL 5.7
+  database and writes them to PostgreSQL 15. Handles schema
+  differences, data type conversions, and incremental sync.
+  This service has several known issues documented as gotchas below.
+
+gotchas:
+  # Each gotcha has text (the warning) and optional tags for retrieval.
+  # Gotchas are the "do not touch the hot stove" section of .ctx.
+
+  - text: |
+      CRITICAL: The MySQL connection pool leaks connections when a
+      migration batch fails mid-stream. If you see "Too many connections"
+      errors, restart the service and check src/mysql-pool.ts:67 for
+      the missing connection.release() in the error path.
+    tags: [mysql, connection-pool, bugs, critical]
+    verified_at: "a1b2c3d"
+    locked: true
+
+  - text: |
+      The date conversion logic in src/converters/dates.ts silently
+      drops timezone information for dates before 1970. This is a known
+      MySQL limitation with TIMESTAMP columns. Use DATETIME columns
+      for pre-1970 dates, and see the workaround in dates.ts:112.
+    tags: [dates, mysql, data-conversion]
+    verified_at: "b2c3d4e"
+    locked: false
+
+  - text: |
+      The incremental sync relies on a "last_synced_at" cursor stored
+      in the migrations table. If you truncate that table, the next
+      run will attempt a FULL re-sync which can take 12+ hours on
+      production data. Always use the --reset-cursor flag instead
+      of direct table manipulation.
+    tags: [sync, migration, operations]
+    verified_at: "c3d4e5f"
+    locked: false
+
+  - text: |
+      The PostgreSQL COPY command used in bulk inserts does not support
+      upserts. If a record already exists, the batch will fail with a
+      unique constraint violation. Use the --upsert-mode flag to switch
+      to individual INSERT ON CONFLICT statements (slower but safe).
+    tags: [postgresql, bulk-insert, operations]
+    verified_at: "d4e5f6a"
+    locked: false
+
+  - text: |
+      Environment variable DB_MYSQL_SSL must be set to "true" in
+      production. The default is "false" for local development. If
+      you see "Access denied" errors in staging/production, check
+      this variable first.
+    tags: [config, environment, ssl]
+    verified_at: "e5f6a7b"
+    locked: false
+
+commands:
+  # Build commands
+  build: "npm run build"
+  build:watch: "npm run build -- --watch"
+
+  # Test commands with explanations
+  test: "npm test"
+  test:integration: "npm run test:integration -- --timeout 60000"
+  test:mysql: "docker compose up -d mysql && npm run test:mysql"
+
+  # Run commands
+  dev: "npm run dev -- --dry-run"
+  migrate: "npm run migrate -- --batch-size 1000"
+  migrate:full: "npm run migrate -- --full --batch-size 5000"
+  migrate:resume: "npm run migrate -- --resume"
+
+  # Utility commands
+  lint: "npm run lint"
+  typecheck: "npx tsc --noEmit"
+  validate:schema: "npm run validate:schema"
+
+  # Operations commands
+  status: "npm run status"
+  reset-cursor: "npm run reset-cursor -- --confirm"
+
+tags: [migration, mysql, postgresql, data-pipeline]

@@ -1,0 +1,92 @@
+# Workspace profile: .ctxl/config.yaml
+# This file configures ctxl behavior for the entire repository.
+# It is placed in the repo root under .ctxl/ and can be tracked in git.
+#
+# Settings here control token budgets, scoring modes, ignore policies,
+# per-agent configurations, auto-approve rules, and retention periods.
+
+version: 1
+
+# ------------------------------------------------------------------
+# Token budget defaults
+# ------------------------------------------------------------------
+budget:
+  # Default token budget for Context Pack assembly.
+  # This applies when no per-agent or per-request override is set.
+  default_tokens: 4000
+
+# ------------------------------------------------------------------
+# Scoring configuration
+# ------------------------------------------------------------------
+scoring:
+  # "lexical" uses text-based relevance (locality, recency, tags, pins).
+  # "hybrid" adds optional embedding-based semantic scoring (v1 feature).
+  mode: lexical
+
+# ------------------------------------------------------------------
+# Repository-wide ignore policies
+# ------------------------------------------------------------------
+# These merge with (and cannot be overridden by) per-directory .ctx
+# ignore sections. Deny-list semantics: blocked paths always win.
+ignore:
+  never_read:
+    - ".env"
+    - ".env.*"
+    - "secrets/"
+    - "node_modules/"
+    - "dist/"
+    - ".git/"
+    - "*.tfstate"
+  never_log:
+    - ".env"
+    - ".env.*"
+    - "secrets/"
+
+# ------------------------------------------------------------------
+# Per-agent configuration
+# ------------------------------------------------------------------
+# Different agents can have different budgets and modes.
+# The agent is identified by the agent_id passed when starting a session.
+agents:
+  # Claude gets a larger budget because it handles complex context well.
+  claude:
+    budget_tokens: 8000
+    mode: lexical
+
+  # Copilot gets a smaller budget for quick completions.
+  copilot:
+    budget_tokens: 2000
+    mode: lexical
+
+  # A custom internal agent with its own settings.
+  internal-review-bot:
+    budget_tokens: 6000
+    mode: lexical
+
+# ------------------------------------------------------------------
+# Auto-approve settings
+# ------------------------------------------------------------------
+# Control which .ctx update proposals are auto-approved.
+auto_approve:
+  # List of .ctx section names that can be auto-approved.
+  # Leave empty to require manual approval for everything.
+  sections:
+    - commands      # Command updates are low-risk, auto-approve them.
+    - tags          # Tag changes are low-risk too.
+
+  # Ownership tags that always require human review, even if the
+  # section is in the auto-approve list above.
+  excluded_owners:
+    - security
+    - compliance
+    - infrastructure
+
+# ------------------------------------------------------------------
+# Data retention
+# ------------------------------------------------------------------
+retention:
+  # How long to keep session data (days). Older sessions are purged.
+  sessions_days: 30
+
+  # How long to keep audit log entries (days).
+  audit_days: 90

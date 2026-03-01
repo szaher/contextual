@@ -23,13 +23,13 @@
 
 **Purpose**: Initialize pnpm monorepo with 4 packages and shared tooling
 
-- [ ] T001 Create root package.json with pnpm workspaces config and pnpm-workspace.yaml listing packages/*
-- [ ] T002 [P] Initialize packages/core with package.json (name: @ctxl/core, deps: js-yaml, proper-lockfile) and tsconfig.json
-- [ ] T003 [P] Initialize packages/daemon with package.json (name: @ctxl/daemon, deps: hono, better-sqlite3, @hono/node-server) and tsconfig.json
-- [ ] T004 [P] Initialize packages/cli with package.json (name: @ctxl/cli, deps: commander, bin: ctxkit) and tsconfig.json
-- [ ] T005 [P] Initialize packages/ui with package.json (name: @ctxl/ui, deps: react, react-dom), vite.config.ts (React plugin), and tsconfig.json
-- [ ] T006 [P] Configure shared ESLint + Prettier at repository root with TypeScript rules
-- [ ] T007 [P] Configure Vitest as test runner in root vitest.config.ts with workspace support
+- [x] T001 Create root package.json with pnpm workspaces config and pnpm-workspace.yaml listing packages/*
+- [x] T002 [P] Initialize packages/core with package.json (name: @ctxl/core, deps: js-yaml, proper-lockfile) and tsconfig.json
+- [x] T003 [P] Initialize packages/daemon with package.json (name: @ctxl/daemon, deps: hono, better-sqlite3, @hono/node-server) and tsconfig.json
+- [x] T004 [P] Initialize packages/cli with package.json (name: @ctxl/cli, deps: commander, bin: ctxkit) and tsconfig.json
+- [x] T005 [P] Initialize packages/ui with package.json (name: @ctxl/ui, deps: react, react-dom), vite.config.ts (React plugin), and tsconfig.json
+- [x] T006 [P] Configure shared ESLint + Prettier at repository root with TypeScript rules
+- [x] T007 [P] Configure Vitest as test runner in root vitest.config.ts with workspace support
 
 ---
 
@@ -39,22 +39,22 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T008 [P] Define .ctx file type interfaces in packages/core/src/types/ctx.ts (CtxFile, KeyFile, Contract, Decision, Gotcha, CtxRef, IgnorePolicy per data-model.md)
-- [ ] T009 [P] Define Context Pack type interfaces in packages/core/src/types/pack.ts (ContextPack, PackItem, OmittedItem, ReasonCode enum per data-model.md)
-- [ ] T010 [P] Define config/profile type interfaces in packages/core/src/types/config.ts (WorkspaceProfile, GlobalProfile, AgentConfig, profile precedence per data-model.md)
-- [ ] T011 Create public API barrel export in packages/core/src/index.ts
-- [ ] T012 Implement YAML parse/serialize for .ctx files in packages/core/src/ctx/parser.ts (js-yaml load + dump with type safety, version field required)
-- [ ] T013 Implement .ctx schema validator in packages/core/src/ctx/validator.ts (required sections, field types, entry uniqueness rules per data-model.md)
-- [ ] T014 [P] Implement secret pattern detection in packages/core/src/redact/secrets.ts (AWS keys, API tokens with high entropy, base64 secrets, PEM blocks, connection strings per research.md)
-- [ ] T015 [P] Implement token estimation (Math.ceil(text.length / 4)) with pluggable interface in packages/core/src/packer/tokens.ts
-- [ ] T016 Set up SQLite database with WAL mode, schema creation (sessions, request_events, memory_diffs, audit_log tables + all indexes per data-model.md) in packages/daemon/src/store/db.ts
-- [ ] T017 Set up Hono HTTP server with JSON error format, localhost binding (127.0.0.1:3742), and /api/v1 prefix in packages/daemon/src/server.ts
-- [ ] T018 Implement daemon entry point with graceful shutdown and bounded memory in packages/daemon/src/index.ts
-- [ ] T019 [P] Implement GET /health endpoint (status, version, uptime, active_sessions, db_size per contract) in packages/daemon/src/routes/health.ts
-- [ ] T020 Set up Commander.js CLI skeleton with top-level program and subcommand registration in packages/cli/src/index.ts
-- [ ] T021 [P] Create test fixture repo scaffolding (simple/ with root .ctx, nested/ with hierarchical .ctx at root + src/ + src/auth/, minimal git init) in tests/fixtures/repos/ — T081 later adds deterministic git history
-- [ ] T022 Implement hierarchical .ctx file merger in packages/core/src/ctx/merger.ts (load cwd → parent → root, follow refs with cycle detection and warning on circular references, apply merge rules: summary=replace, key_files/contracts/decisions=union child-overrides, gotchas=concat, tags=union, ignore=union per data-model.md)
-- [ ] T022a [P] Implement audit_log store queries (insert entry, query by ctx_path/date range/initiator with pagination) in packages/daemon/src/store/audit.ts
+- [x] T008 [P] Define .ctx file type interfaces in packages/core/src/types/ctx.ts (CtxFile, KeyFile, Contract, Decision, Gotcha, CtxRef, IgnorePolicy per data-model.md)
+- [x] T009 [P] Define Context Pack type interfaces in packages/core/src/types/pack.ts (ContextPack, PackItem, OmittedItem, ReasonCode enum per data-model.md)
+- [x] T010 [P] Define config/profile type interfaces in packages/core/src/types/config.ts (WorkspaceProfile, GlobalProfile, AgentConfig, profile precedence per data-model.md)
+- [x] T011 Create public API barrel export in packages/core/src/index.ts
+- [x] T012 Implement YAML parse/serialize for .ctx files in packages/core/src/ctx/parser.ts (js-yaml load + dump with type safety, version field required)
+- [x] T013 Implement .ctx schema validator in packages/core/src/ctx/validator.ts (required sections, field types, entry uniqueness rules per data-model.md)
+- [x] T014 [P] Implement secret pattern detection in packages/core/src/redact/secrets.ts (AWS keys, API tokens with high entropy, base64 secrets, PEM blocks, connection strings per research.md)
+- [x] T015 [P] Implement token estimation (Math.ceil(text.length / 4)) with pluggable interface in packages/core/src/packer/tokens.ts
+- [x] T016 Set up SQLite database with WAL mode, schema creation (sessions, request_events, memory_diffs, audit_log tables + all indexes per data-model.md) in packages/daemon/src/store/db.ts
+- [x] T017 Set up Hono HTTP server with JSON error format, localhost binding (127.0.0.1:3742), and /api/v1 prefix in packages/daemon/src/server.ts
+- [x] T018 Implement daemon entry point with graceful shutdown and bounded memory in packages/daemon/src/index.ts
+- [x] T019 [P] Implement GET /health endpoint (status, version, uptime, active_sessions, db_size per contract) in packages/daemon/src/routes/health.ts
+- [x] T020 Set up Commander.js CLI skeleton with top-level program and subcommand registration in packages/cli/src/index.ts
+- [x] T021 [P] Create test fixture repo scaffolding (simple/ with root .ctx, nested/ with hierarchical .ctx at root + src/ + src/auth/, minimal git init) in tests/fixtures/repos/ — T081 later adds deterministic git history
+- [x] T022 Implement hierarchical .ctx file merger in packages/core/src/ctx/merger.ts (load cwd → parent → root, follow refs with cycle detection and warning on circular references, apply merge rules: summary=replace, key_files/contracts/decisions=union child-overrides, gotchas=concat, tags=union, ignore=union per data-model.md)
+- [x] T022a [P] Implement audit_log store queries (insert entry, query by ctx_path/date range/initiator with pagination) in packages/daemon/src/store/audit.ts
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -68,20 +68,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Implement directory distance scoring in packages/core/src/scorer/locality.ts (score based on directory depth from working_dir to .ctx file)
-- [ ] T024 [P] [US1] Implement staleness-aware recency scoring in packages/core/src/scorer/recency.ts (score based on verified_at commit age, down-rank stale entries per FR-027)
-- [ ] T025 [P] [US1] Implement tag matching scoring in packages/core/src/scorer/tags.ts (match request keywords against entry tags, return TAG_MATCH reason code)
-- [ ] T026 [US1] Implement relevance scoring engine in packages/core/src/scorer/scorer.ts (combine locality + recency + tags + pins with deterministic tiebreakers for stable ordering per FR-004)
-- [ ] T027 [US1] Implement token budgeting + priority-based truncation in packages/core/src/packer/budget.ts (respect 4000-token default ceiling, pinned items priority, budget overage warnings)
-- [ ] T028 [US1] Implement Context Pack assembly in packages/core/src/packer/packer.ts (merge .ctx → score entries → budget allocation → build pack with per-item attribution + omitted list per FR-005/FR-006)
-- [ ] T028a [US1] Implement deep-read fallback heuristic in packages/core/src/packer/packer.ts (bypass .ctx and read files directly when confidence is low: zero tag matches or top score < 0.3, .ctx missing/stale, or user intent signals deep analysis; log decision with rationale and minimal file set per FR-007)
-- [ ] T029 [US1] Implement request event store queries (insert event with context_pack JSON, query by session_id) in packages/daemon/src/store/events.ts
-- [ ] T030 [US1] Implement POST /context-pack endpoint (build pack, record event, return pack with event_id per contract) in packages/daemon/src/routes/context-pack.ts
-- [ ] T031 [US1] Implement GET /context-pack/preview endpoint (preview without recording event, event_id=null per contract) in packages/daemon/src/routes/context-pack.ts
-- [ ] T032 [US1] Implement `ctxkit inject` command with --preview, --request, --cwd, --budget flags in packages/cli/src/commands/inject.ts (format output per quickstart.md section 4)
-- [ ] T033 [US1] Create golden Context Pack fixtures (expected deterministic output) in tests/fixtures/golden/simple-pack.json and tests/fixtures/golden/nested-pack.json
-- [ ] T034 [US1] Integration test: context pack assembly with real filesystem + .ctx files + scoring verification in tests/integration/context-pack.test.ts
-- [ ] T035 [US1] E2E test: single .ctx scenario (root .ctx only → inject → verify subset within budget) in tests/e2e/single-ctx.test.ts
+- [x] T023 [P] [US1] Implement directory distance scoring in packages/core/src/scorer/locality.ts (score based on directory depth from working_dir to .ctx file)
+- [x] T024 [P] [US1] Implement staleness-aware recency scoring in packages/core/src/scorer/recency.ts (score based on verified_at commit age, down-rank stale entries per FR-027)
+- [x] T025 [P] [US1] Implement tag matching scoring in packages/core/src/scorer/tags.ts (match request keywords against entry tags, return TAG_MATCH reason code)
+- [x] T026 [US1] Implement relevance scoring engine in packages/core/src/scorer/scorer.ts (combine locality + recency + tags + pins with deterministic tiebreakers for stable ordering per FR-004)
+- [x] T027 [US1] Implement token budgeting + priority-based truncation in packages/core/src/packer/budget.ts (respect 4000-token default ceiling, pinned items priority, budget overage warnings)
+- [x] T028 [US1] Implement Context Pack assembly in packages/core/src/packer/packer.ts (merge .ctx → score entries → budget allocation → build pack with per-item attribution + omitted list per FR-005/FR-006)
+- [x] T028a [US1] Implement deep-read fallback heuristic in packages/core/src/packer/packer.ts (bypass .ctx and read files directly when confidence is low: zero tag matches or top score < 0.3, .ctx missing/stale, or user intent signals deep analysis; log decision with rationale and minimal file set per FR-007)
+- [x] T029 [US1] Implement request event store queries (insert event with context_pack JSON, query by session_id) in packages/daemon/src/store/events.ts
+- [x] T030 [US1] Implement POST /context-pack endpoint (build pack, record event, return pack with event_id per contract) in packages/daemon/src/routes/context-pack.ts
+- [x] T031 [US1] Implement GET /context-pack/preview endpoint (preview without recording event, event_id=null per contract) in packages/daemon/src/routes/context-pack.ts
+- [x] T032 [US1] Implement `ctxkit inject` command with --preview, --request, --cwd, --budget flags in packages/cli/src/commands/inject.ts (format output per quickstart.md section 4)
+- [x] T033 [US1] Create golden Context Pack fixtures (expected deterministic output) in tests/fixtures/golden/simple-pack.json and tests/fixtures/golden/nested-pack.json
+- [x] T034 [US1] Integration test: context pack assembly with real filesystem + .ctx files + scoring verification in tests/integration/context-pack.test.ts
+- [x] T035 [US1] E2E test: single .ctx scenario (root .ctx only → inject → verify subset within budget) in tests/e2e/single-ctx.test.ts
 
 **Checkpoint**: Context Pack assembly works end-to-end. Core value proposition delivered.
 
@@ -95,10 +95,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T036 [US2] Implement .ctx version migration in packages/core/src/ctx/migrator.ts (detect version < CURRENT_VERSION, auto-migrate in-place, preserve user content, produce minimal diff per FR-017a)
-- [ ] T037 [US2] Implement `ctxkit init` command in packages/cli/src/commands/init.ts (scan repo for README/package.json/tsconfig metadata, generate .ctx with summary + key_files + commands + tags, support subdirectory init per quickstart.md section 2)
-- [ ] T038 [US2] Implement `ctxkit validate` command in packages/cli/src/commands/validate.ts (call validator, report structural errors + content warnings, check referenced files exist per FR-017)
-- [ ] T039 [US2] E2E test: hierarchical .ctx merge scenario (nested .ctx files at root + src/ + src/auth/ → verify merge precedence + scoring picks correct items) in tests/e2e/hierarchical.test.ts
+- [x] T036 [US2] Implement .ctx version migration in packages/core/src/ctx/migrator.ts (detect version < CURRENT_VERSION, auto-migrate in-place, preserve user content, produce minimal diff per FR-017a)
+- [x] T037 [US2] Implement `ctxkit init` command in packages/cli/src/commands/init.ts (scan repo for README/package.json/tsconfig metadata, generate .ctx with summary + key_files + commands + tags, support subdirectory init per quickstart.md section 2)
+- [x] T038 [US2] Implement `ctxkit validate` command in packages/cli/src/commands/validate.ts (call validator, report structural errors + content warnings, check referenced files exist per FR-017)
+- [x] T039 [US2] E2E test: hierarchical .ctx merge scenario (nested .ctx files at root + src/ + src/auth/ → verify merge precedence + scoring picks correct items) in tests/e2e/hierarchical.test.ts
 
 **Checkpoint**: Developers can create, validate, and manage .ctx files with full lifecycle support
 
@@ -112,16 +112,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Implement .ctx diff generation in packages/core/src/differ/differ.ts (compare old vs new .ctx content, produce unified diff, run secret redaction before output per FR-033)
-- [ ] T040a [US3] Implement auto-pruning scan in packages/core/src/differ/differ.ts (scan .ctx entries for dead references — deleted files, renamed symbols — and generate removal/update proposals with justification per FR-020)
-- [ ] T041 [P] [US3] Implement memory_diffs store queries (insert, query by status/ctx_path, update status/resolved_at/resolved_by) in packages/daemon/src/store/diffs.ts
-- [ ] T043 [US3] Implement POST /proposals endpoint (create proposal with diff_content + provenance per contract) in packages/daemon/src/routes/proposals.ts
-- [ ] T044 [US3] Implement GET /proposals endpoint (list proposals with status/ctx_path filter per contract) in packages/daemon/src/routes/proposals.ts
-- [ ] T045 [US3] Implement PATCH /proposals/:id endpoint (approve/reject/edit proposal, respect locked entries + ownership review per FR-013/FR-023) in packages/daemon/src/routes/proposals.ts
-- [ ] T046 [US3] Implement POST /proposals/:id/apply endpoint (apply approved diff to .ctx file using proper-lockfile for atomic writes, create audit_log entry per FR-021) in packages/daemon/src/routes/proposals.ts
-- [ ] T047 [US3] Implement `ctxkit propose` command in packages/cli/src/commands/propose.ts (generate diff for specified .ctx, show interactive approve/edit/reject per quickstart.md section 7)
-- [ ] T048 [US3] Implement `ctxkit apply` command in packages/cli/src/commands/apply.ts (approve + apply proposal by ID via daemon API per quickstart.md section 8)
-- [ ] T049 [US3] Integration test: propose → approve → apply flow with .ctx file write verification + audit log entry in tests/integration/proposals.test.ts
+- [x] T040 [US3] Implement .ctx diff generation in packages/core/src/differ/differ.ts (compare old vs new .ctx content, produce unified diff, run secret redaction before output per FR-033)
+- [x] T040a [US3] Implement auto-pruning scan in packages/core/src/differ/differ.ts (scan .ctx entries for dead references — deleted files, renamed symbols — and generate removal/update proposals with justification per FR-020)
+- [x] T041 [P] [US3] Implement memory_diffs store queries (insert, query by status/ctx_path, update status/resolved_at/resolved_by) in packages/daemon/src/store/diffs.ts
+- [x] T043 [US3] Implement POST /proposals endpoint (create proposal with diff_content + provenance per contract) in packages/daemon/src/routes/proposals.ts
+- [x] T044 [US3] Implement GET /proposals endpoint (list proposals with status/ctx_path filter per contract) in packages/daemon/src/routes/proposals.ts
+- [x] T045 [US3] Implement PATCH /proposals/:id endpoint (approve/reject/edit proposal, respect locked entries + ownership review per FR-013/FR-023) in packages/daemon/src/routes/proposals.ts
+- [x] T046 [US3] Implement POST /proposals/:id/apply endpoint (apply approved diff to .ctx file using proper-lockfile for atomic writes, create audit_log entry per FR-021) in packages/daemon/src/routes/proposals.ts
+- [x] T047 [US3] Implement `ctxkit propose` command in packages/cli/src/commands/propose.ts (generate diff for specified .ctx, show interactive approve/edit/reject per quickstart.md section 7)
+- [x] T048 [US3] Implement `ctxkit apply` command in packages/cli/src/commands/apply.ts (approve + apply proposal by ID via daemon API per quickstart.md section 8)
+- [x] T049 [US3] Integration test: propose → approve → apply flow with .ctx file write verification + audit log entry in tests/integration/proposals.test.ts
 
 **Checkpoint**: Memory stays current via reviewable, audited, diff-based updates
 
@@ -135,14 +135,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T050 [US4] Implement session store queries (create with UUID, get by id with events, list with status/repo_path/limit/offset filters, end session) in packages/daemon/src/store/sessions.ts
-- [ ] T051 [US4] Implement POST /sessions endpoint (create session with repo_path, working_dir, branch, agent_id, agent_config per contract) in packages/daemon/src/routes/sessions.ts
-- [ ] T052 [US4] Implement GET /sessions and GET /sessions/:id endpoints (list with filters + detail with events timeline per contract) in packages/daemon/src/routes/sessions.ts
-- [ ] T053 [US4] Implement PATCH /sessions/:id endpoint (end session by setting status=completed per contract) in packages/daemon/src/routes/sessions.ts
-- [ ] T054 [US4] Implement GET /audit endpoint (query audit log with ctx_path/from/to/limit filters per contract) in packages/daemon/src/routes/audit.ts
-- [ ] T055 [US4] Implement `ctxkit sessions` and `ctxkit sessions show <id>` commands in packages/cli/src/commands/sessions.ts (table format per quickstart.md section 6)
-- [ ] T056 [US4] Implement retention cleanup scheduler (purge sessions > 30 days, audit > 90 days, memory_diffs with parent session, run on startup + daily interval per data-model.md) in packages/daemon/src/scheduler/retention.ts
-- [ ] T057 [US4] Integration test: daemon API with session CRUD + event recording + audit query in tests/integration/daemon-api.test.ts
+- [x] T050 [US4] Implement session store queries (create with UUID, get by id with events, list with status/repo_path/limit/offset filters, end session) in packages/daemon/src/store/sessions.ts
+- [x] T051 [US4] Implement POST /sessions endpoint (create session with repo_path, working_dir, branch, agent_id, agent_config per contract) in packages/daemon/src/routes/sessions.ts
+- [x] T052 [US4] Implement GET /sessions and GET /sessions/:id endpoints (list with filters + detail with events timeline per contract) in packages/daemon/src/routes/sessions.ts
+- [x] T053 [US4] Implement PATCH /sessions/:id endpoint (end session by setting status=completed per contract) in packages/daemon/src/routes/sessions.ts
+- [x] T054 [US4] Implement GET /audit endpoint (query audit log with ctx_path/from/to/limit filters per contract) in packages/daemon/src/routes/audit.ts
+- [x] T055 [US4] Implement `ctxkit sessions` and `ctxkit sessions show <id>` commands in packages/cli/src/commands/sessions.ts (table format per quickstart.md section 6)
+- [x] T056 [US4] Implement retention cleanup scheduler (purge sessions > 30 days, audit > 90 days, memory_diffs with parent session, run on startup + daily interval per data-model.md) in packages/daemon/src/scheduler/retention.ts
+- [x] T057 [US4] Integration test: daemon API with session CRUD + event recording + audit query in tests/integration/daemon-api.test.ts
 
 **Checkpoint**: Full observability into agent sessions and memory changes
 
@@ -156,10 +156,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T058 [US5] Implement git-based drift detection in packages/core/src/differ/drift.ts (compare verified_at commit vs current HEAD, detect file moves/renames/deletes via git log/diff, return stale_entries with reason + details per FR-024/FR-025/FR-027)
-- [ ] T059 [US5] Implement GET /drift endpoint (check drift for specific ctx_path or all .ctx files, return results per contract) in packages/daemon/src/routes/drift.ts
-- [ ] T060 [US5] Implement `ctxkit drift` command in packages/cli/src/commands/drift.ts (show stale entries with reasons and commit distance per quickstart.md section 7)
-- [ ] T061 [US5] E2E test: drift detection flow (modify code so .ctx is stale → detect drift → propose update → approve → verify audit log) in tests/e2e/drift.test.ts
+- [x] T058 [US5] Implement git-based drift detection in packages/core/src/differ/drift.ts (compare verified_at commit vs current HEAD, detect file moves/renames/deletes via git log/diff, return stale_entries with reason + details per FR-024/FR-025/FR-027)
+- [x] T059 [US5] Implement GET /drift endpoint (check drift for specific ctx_path or all .ctx files, return results per contract) in packages/daemon/src/routes/drift.ts
+- [x] T060 [US5] Implement `ctxkit drift` command in packages/cli/src/commands/drift.ts (show stale entries with reasons and commit distance per quickstart.md section 7)
+- [x] T061 [US5] E2E test: drift detection flow (modify code so .ctx is stale → detect drift → propose update → approve → verify audit log) in tests/e2e/drift.test.ts
 
 **Checkpoint**: .ctx files stay in sync with actual repository state
 
@@ -173,23 +173,23 @@
 
 ### Implementation for User Story 6
 
-- [ ] T062 [US6] Set up React app shell with React Router in packages/ui/src/main.tsx and packages/ui/src/App.tsx (routes: /, /sessions/:id, /ctx, /audit)
-- [ ] T063 [P] [US6] Configure shadcn/ui with Tailwind CSS in packages/ui/ (install components: Table, Card, Button, Input, Dialog, Tabs, Badge, ScrollArea)
-- [ ] T064 [US6] Implement daemon API client service with typed fetch wrappers for all daemon endpoints in packages/ui/src/services/api.ts
-- [ ] T065 [P] [US6] Implement SessionList component (sortable table: id, agent, status, request count, started_at) in packages/ui/src/components/SessionList.tsx
-- [ ] T066 [P] [US6] Implement SessionTimeline component (per-request timeline with context attribution, token counts, reason codes) in packages/ui/src/components/SessionTimeline.tsx
-- [ ] T067 [P] [US6] Implement ContextPackView component (items with scores, reason codes, tokens, staleness indicators, omitted list) in packages/ui/src/components/ContextPackView.tsx
-- [ ] T068 [P] [US6] Implement CtxEditor component (YAML editor with section navigation, lock/ownership badges) in packages/ui/src/components/CtxEditor.tsx
-- [ ] T069 [P] [US6] Implement DiffViewer component (unified diff display with approve/reject/edit actions) in packages/ui/src/components/DiffViewer.tsx
-- [ ] T070 [P] [US6] Implement AuditLog component (filterable table: ctx_path, change_type, initiated_by, reason, date) in packages/ui/src/components/AuditLog.tsx
-- [ ] T071 [P] [US6] Implement SearchBar component (search across memories and sessions with highlighted results) in packages/ui/src/components/SearchBar.tsx
-- [ ] T072 [US6] Implement Dashboard page (overview with SessionList + system stats) in packages/ui/src/pages/Dashboard.tsx
-- [ ] T073 [P] [US6] Implement SessionDetail page (SessionTimeline + ContextPackView drill-down) in packages/ui/src/pages/SessionDetail.tsx
-- [ ] T074 [P] [US6] Implement CtxBrowser page (browse/edit .ctx files with drift badges and DiffViewer) in packages/ui/src/pages/CtxBrowser.tsx
-- [ ] T075 [P] [US6] Implement AuditPage (AuditLog with date range + ctx_path filters) in packages/ui/src/pages/AuditPage.tsx
-- [ ] T076 [US6] Configure daemon to serve static UI build from packages/ui/dist/ in packages/daemon/src/server.ts
-- [ ] T077 [US6] Add `ctxkit dashboard` subcommand to open browser at http://localhost:3742 in packages/cli/src/commands/daemon.ts
-- [ ] T077a [US6] Integration test: dashboard serves static build, session list renders, context pack drill-down displays attribution, .ctx edit round-trips via UI API calls in tests/integration/dashboard.test.ts
+- [x] T062 [US6] Set up React app shell with React Router in packages/ui/src/main.tsx and packages/ui/src/App.tsx (routes: /, /sessions/:id, /ctx, /audit)
+- [x] T063 [P] [US6] Configure shadcn/ui with Tailwind CSS in packages/ui/ (install components: Table, Card, Button, Input, Dialog, Tabs, Badge, ScrollArea)
+- [x] T064 [US6] Implement daemon API client service with typed fetch wrappers for all daemon endpoints in packages/ui/src/services/api.ts
+- [x] T065 [P] [US6] Implement SessionList component (sortable table: id, agent, status, request count, started_at) in packages/ui/src/components/SessionList.tsx
+- [x] T066 [P] [US6] Implement SessionTimeline component (per-request timeline with context attribution, token counts, reason codes) in packages/ui/src/components/SessionTimeline.tsx
+- [x] T067 [P] [US6] Implement ContextPackView component (items with scores, reason codes, tokens, staleness indicators, omitted list) in packages/ui/src/components/ContextPackView.tsx
+- [x] T068 [P] [US6] Implement CtxEditor component (YAML editor with section navigation, lock/ownership badges) in packages/ui/src/components/CtxEditor.tsx
+- [x] T069 [P] [US6] Implement DiffViewer component (unified diff display with approve/reject/edit actions) in packages/ui/src/components/DiffViewer.tsx
+- [x] T070 [P] [US6] Implement AuditLog component (filterable table: ctx_path, change_type, initiated_by, reason, date) in packages/ui/src/components/AuditLog.tsx
+- [x] T071 [P] [US6] Implement SearchBar component (search across memories and sessions with highlighted results) in packages/ui/src/components/SearchBar.tsx
+- [x] T072 [US6] Implement Dashboard page (overview with SessionList + system stats) in packages/ui/src/pages/Dashboard.tsx
+- [x] T073 [P] [US6] Implement SessionDetail page (SessionTimeline + ContextPackView drill-down) in packages/ui/src/pages/SessionDetail.tsx
+- [x] T074 [P] [US6] Implement CtxBrowser page (browse/edit .ctx files with drift badges and DiffViewer) in packages/ui/src/pages/CtxBrowser.tsx
+- [x] T075 [P] [US6] Implement AuditPage (AuditLog with date range + ctx_path filters) in packages/ui/src/pages/AuditPage.tsx
+- [x] T076 [US6] Configure daemon to serve static UI build from packages/ui/dist/ in packages/daemon/src/server.ts
+- [x] T077 [US6] Add `ctxkit dashboard` subcommand to open browser at http://localhost:3742 in packages/cli/src/commands/daemon.ts
+- [x] T077a [US6] Integration test: dashboard serves static build, session list renders, context pack drill-down displays attribution, .ctx edit round-trips via UI API calls in tests/integration/dashboard.test.ts
 
 **Checkpoint**: Visual inspection and management of all system state
 
@@ -203,9 +203,9 @@
 
 ### Implementation for User Story 7
 
-- [ ] T078 [US7] Implement `ctxkit run -- <cmd>` wrapper in packages/cli/src/commands/run.ts (create session → build context pack → inject into agent stdin/env → record events → end session on exit per quickstart.md section 5)
-- [ ] T079 [US7] Implement `ctxkit daemon start` and `ctxkit daemon stop` commands in packages/cli/src/commands/daemon.ts (background process management with PID file at ~/.ctxl/daemon.pid, stdout/stderr logging)
-- [ ] T079a [US7] E2E test: ctxkit daemon start → ctxkit run wraps sample echo agent → verify context pack injected in agent input → session recorded in daemon → ctxkit daemon stop in tests/e2e/agent-wrapper.test.ts
+- [x] T078 [US7] Implement `ctxkit run -- <cmd>` wrapper in packages/cli/src/commands/run.ts (create session → build context pack → inject into agent stdin/env → record events → end session on exit per quickstart.md section 5)
+- [x] T079 [US7] Implement `ctxkit daemon start` and `ctxkit daemon stop` commands in packages/cli/src/commands/daemon.ts (background process management with PID file at ~/.ctxl/daemon.pid, stdout/stderr logging)
+- [x] T079a [US7] E2E test: ctxkit daemon start → ctxkit run wraps sample echo agent → verify context pack injected in agent input → session recorded in daemon → ctxkit daemon stop in tests/e2e/agent-wrapper.test.ts
 
 **Checkpoint**: Any existing coding agent can use the context system without modification
 
@@ -219,9 +219,9 @@
 
 ### Implementation for User Story 8
 
-- [ ] T080 [P] [US8] Create E2E test harness utilities (session recording/loading, replay runner, context pack diff comparison, pass/fail reporting with non-zero exit code) in tests/e2e/harness.ts
-- [ ] T081 [P] [US8] Populate test fixture repos with deterministic .ctx content and git history (commits with known hashes) in tests/fixtures/repos/simple/ and tests/fixtures/repos/nested/
-- [ ] T082 [US8] Create regression test scenarios using golden fixtures (replay sessions → compare packs against tests/fixtures/golden/*.json → report mismatches with reason codes) in tests/e2e/regression.test.ts
+- [x] T080 [P] [US8] Create E2E test harness utilities (session recording/loading, replay runner, context pack diff comparison, pass/fail reporting with non-zero exit code) in tests/e2e/harness.ts
+- [x] T081 [P] [US8] Populate test fixture repos with deterministic .ctx content and git history (commits with known hashes) in tests/fixtures/repos/simple/ and tests/fixtures/repos/nested/
+- [x] T082 [US8] Create regression test scenarios using golden fixtures (replay sessions → compare packs against tests/fixtures/golden/*.json → report mismatches with reason codes) in tests/e2e/regression.test.ts
 
 **Checkpoint**: Changes to scoring or .ctx files produce detectable, verifiable diffs
 
@@ -235,10 +235,10 @@
 
 ### Implementation for User Story 9
 
-- [ ] T083 [US9] Implement profile loading with precedence chain (per-request → per-agent → repo .ctxl/config.yaml → global ~/.ctxl/config.yaml → system defaults: 4000 tokens, lexical mode per data-model.md) in packages/core/src/config/loader.ts
-- [ ] T084 [US9] Integrate profile config into context pack assembly (budget override, scoring mode, auto-approve sections, excluded_owners per FR-045) in packages/core/src/packer/packer.ts
-- [ ] T085 [US9] Implement ignore policy enforcement (never_read excludes paths from .ctx loading, never_log redacts from session events, deny-list grows monotonically up tree per data-model.md) in packages/core/src/ctx/merger.ts
-- [ ] T085a [US9] Integration test: two repos with different .ctxl/config.yaml profiles (budget: 2000 vs 8000, different ignore rules) → verify context pack respects per-repo budget and ignore policies in tests/integration/profiles.test.ts
+- [x] T083 [US9] Implement profile loading with precedence chain (per-request → per-agent → repo .ctxl/config.yaml → global ~/.ctxl/config.yaml → system defaults: 4000 tokens, lexical mode per data-model.md) in packages/core/src/config/loader.ts
+- [x] T084 [US9] Integrate profile config into context pack assembly (budget override, scoring mode, auto-approve sections, excluded_owners per FR-045) in packages/core/src/packer/packer.ts
+- [x] T085 [US9] Implement ignore policy enforcement (never_read excludes paths from .ctx loading, never_log redacts from session events, deny-list grows monotonically up tree per data-model.md) in packages/core/src/ctx/merger.ts
+- [x] T085a [US9] Integration test: two repos with different .ctxl/config.yaml profiles (budget: 2000 vs 8000, different ignore rules) → verify context pack respects per-repo budget and ignore policies in tests/integration/profiles.test.ts
 
 **Checkpoint**: Multi-repo developers have seamless per-project configuration
 
@@ -252,10 +252,10 @@
 
 ### Implementation for User Story 10
 
-- [ ] T086 [US10] Implement contract scope matching (path glob against scope.paths, tag intersection against scope.tags per data-model.md contracts section) in packages/core/src/scorer/scorer.ts
-- [ ] T087 [US10] Implement contract budget priority (contracts always included before non-contract items, displace lower-scored items when budget tight, emit warning on budget stretch per FR-008) in packages/core/src/packer/budget.ts
-- [ ] T088 [US10] Add CONTRACT_REQUIRED reason code handling and contract-specific attribution (contract name, scope, staleness) in packages/core/src/packer/packer.ts
-- [ ] T088a [US10] Integration test: define contract with scope paths=["src/auth/*"] and tags=["security"] → request touches src/auth/handler.ts → verify CONTRACT_REQUIRED in pack, contract displaces lower items when budget tight in tests/integration/contracts.test.ts
+- [x] T086 [US10] Implement contract scope matching (path glob against scope.paths, tag intersection against scope.tags per data-model.md contracts section) in packages/core/src/scorer/scorer.ts
+- [x] T087 [US10] Implement contract budget priority (contracts always included before non-contract items, displace lower-scored items when budget tight, emit warning on budget stretch per FR-008) in packages/core/src/packer/budget.ts
+- [x] T088 [US10] Add CONTRACT_REQUIRED reason code handling and contract-specific attribution (contract name, scope, staleness) in packages/core/src/packer/packer.ts
+- [x] T088a [US10] Integration test: define contract with scope paths=["src/auth/*"] and tags=["security"] → request touches src/auth/handler.ts → verify CONTRACT_REQUIRED in pack, contract displaces lower items when budget tight in tests/integration/contracts.test.ts
 
 **Checkpoint**: Critical project constraints are always present in context when relevant
 
@@ -265,11 +265,11 @@
 
 **Purpose**: Performance optimization, end-to-end validation, security hardening, resource safety
 
-- [ ] T089 [P] Performance: profile context pack assembly, optimize to ensure < 500ms for 100 .ctx files (SC-009a)
-- [ ] T090 Validate quickstart.md scenario end-to-end: init → daemon start → inject preview → run agent → sessions → drift → propose → apply → dashboard → validate (SC-010)
-- [ ] T091 [P] Security: scan all .ctx write paths and log outputs for secret detection coverage, verify no credentials in .ctx or logs (SC-008)
-- [ ] T092 [P] Operations: verify daemon resource bounds — bounded memory < 100MB, graceful shutdown on SIGTERM/SIGINT, backpressure with request queue limit (SC-009)
-- [ ] T093 Final validation: run all 3 E2E scenarios + all integration tests, verify determinism (SC-001), budget adherence (SC-002), zero silent rewrites (SC-007)
+- [x] T089 [P] Performance: profile context pack assembly, optimize to ensure < 500ms for 100 .ctx files (SC-009a)
+- [x] T090 Validate quickstart.md scenario end-to-end: init → daemon start → inject preview → run agent → sessions → drift → propose → apply → dashboard → validate (SC-010)
+- [x] T091 [P] Security: scan all .ctx write paths and log outputs for secret detection coverage, verify no credentials in .ctx or logs (SC-008)
+- [x] T092 [P] Operations: verify daemon resource bounds — bounded memory < 100MB, graceful shutdown on SIGTERM/SIGINT, backpressure with request queue limit (SC-009)
+- [x] T093 Final validation: run all 3 E2E scenarios + all integration tests, verify determinism (SC-001), budget adherence (SC-002), zero silent rewrites (SC-007)
 
 ---
 

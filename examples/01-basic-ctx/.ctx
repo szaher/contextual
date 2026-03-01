@@ -1,0 +1,16 @@
+# The simplest possible .ctx file.
+# Only "version" and "summary" are required. Everything else is optional.
+
+version: 1
+
+summary: |
+  A minimal Node.js CLI tool that converts Markdown files to HTML.
+  Single-file project, no external dependencies beyond marked.
+  Built as a learning exercise for .ctx files.
+
+tags: [nodejs, cli, markdown]
+
+commands:
+  build: "npm run build"
+  test: "npm test"
+  run: "node dist/index.js input.md"

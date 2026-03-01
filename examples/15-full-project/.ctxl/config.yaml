@@ -1,0 +1,46 @@
+# TaskFlow workspace profile.
+# Configures ctxl behavior for the entire repository.
+
+version: 1
+
+budget:
+  default_tokens: 4000
+
+scoring:
+  mode: lexical
+
+ignore:
+  never_read:
+    - ".env"
+    - ".env.*"
+    - "secrets/"
+    - "node_modules/"
+    - "dist/"
+    - ".git/"
+    - "coverage/"
+    - "*.tfstate"
+  never_log:
+    - ".env"
+    - ".env.*"
+    - "secrets/"
+
+agents:
+  claude:
+    budget_tokens: 8000
+    mode: lexical
+  copilot:
+    budget_tokens: 2000
+    mode: lexical
+
+auto_approve:
+  sections:
+    - commands
+    - tags
+  excluded_owners:
+    - security
+    - platform
+    - compliance
+
+retention:
+  sessions_days: 30
+  audit_days: 90

@@ -1,0 +1,42 @@
+# Demonstrates the key_files section.
+# key_files maps important files to their purpose, with metadata for
+# scoring, locking, and drift detection.
+
+version: 1
+
+summary: |
+  A REST API server for a task management application.
+  Uses Express for routing, Prisma for database access,
+  and JWT for authentication. The main entry point is
+  src/index.ts which sets up middleware and routes.
+
+key_files:
+  # The entry point -- always important for orientation.
+  - path: src/index.ts
+    why: "Application entry point. Sets up Express, middleware, and routes."
+    tags: [entry, server]
+    verified_at: "f4a2e1b"
+    locked: false
+
+  # Auth module -- critical for security-related requests.
+  # Locked to prevent automated changes to this sensitive area.
+  - path: src/auth.ts
+    why: "JWT authentication middleware. Validates tokens on every request."
+    tags: [auth, security, middleware]
+    verified_at: "f4a2e1b"
+    locked: true
+    owner: security
+
+  # Database layer -- tagged for easy retrieval when DB questions arise.
+  - path: src/database.ts
+    why: "Prisma client setup and connection management. Handles retries."
+    tags: [database, prisma, infrastructure]
+    verified_at: "c3d9f0a"
+    locked: false
+
+tags: [typescript, express, rest-api]
+
+commands:
+  build: "npm run build"
+  test: "npm test"
+  dev: "npm run dev"

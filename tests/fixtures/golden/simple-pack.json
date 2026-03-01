@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "source": ".ctx",
+      "section": "key_files",
+      "entry_id": "src/config.ts",
+      "reason_codes": ["TAG_MATCH"],
+      "staleness": {
+        "verified_at": "abc1234",
+        "is_stale": false
+      }
+    },
+    {
+      "source": ".ctx",
+      "section": "gotchas",
+      "entry_id": "gotcha_0",
+      "reason_codes": ["TAG_MATCH"],
+      "staleness": {
+        "verified_at": "abc1234",
+        "is_stale": false
+      }
+    },
+    {
+      "source": ".ctx",
+      "section": "decisions",
+      "entry_id": "adr-001",
+      "reason_codes": ["PINNED"],
+      "staleness": {
+        "verified_at": "abc1234",
+        "is_stale": false
+      }
+    },
+    {
+      "source": ".ctx",
+      "section": "key_files",
+      "entry_id": "src/index.ts",
+      "reason_codes": [],
+      "staleness": {
+        "verified_at": "abc1234",
+        "is_stale": false
+      }
+    },
+    {
+      "source": ".ctx",
+      "section": "key_files",
+      "entry_id": "src/utils.ts",
+      "reason_codes": [],
+      "staleness": {
+        "verified_at": "abc1234",
+        "is_stale": false
+      }
+    },
+    {
+      "source": ".ctx",
+      "section": "summary",
+      "entry_id": "summary",
+      "reason_codes": [],
+      "staleness": {
+        "verified_at": "",
+        "is_stale": false
+      }
+    }
+  ],
+  "budget_tokens": 4000,
+  "_note": "Scores, tokens, and content fields are omitted from golden fixtures. Only structural fields (source, section, entry_id, reason_codes, staleness) are verified for determinism."
+}

@@ -1,0 +1,52 @@
+# Root .ctx -- provides project-wide context.
+# Child .ctx files in subdirectories override or extend this.
+
+version: 1
+
+summary: |
+  Full-stack web application for project management.
+  Monorepo with separate backend (Node.js/Express) and
+  frontend (React/Vite) directories. Uses PostgreSQL
+  for storage and WebSocket for real-time updates.
+
+key_files:
+  - path: package.json
+    why: "Root package.json with workspace configuration"
+    tags: [config, build]
+    verified_at: "a1b2c3d"
+    locked: false
+
+decisions:
+  - id: d001
+    title: "Monorepo with pnpm workspaces"
+    status: accepted
+    date: "2025-01-10"
+    rationale: |
+      Shared types between frontend and backend. Single CI pipeline.
+      pnpm workspaces for dependency management.
+    alternatives:
+      - name: "Separate repositories"
+        reason_rejected: "Type sharing becomes a publishing problem"
+    verified_at: "a1b2c3d"
+    locked: true
+
+commands:
+  build: "pnpm build"
+  test: "pnpm test"
+  dev: "pnpm dev"
+  lint: "pnpm lint"
+
+gotchas:
+  - text: |
+      The WebSocket connection drops silently after 30 seconds
+      of inactivity. The client has a heartbeat mechanism but
+      it occasionally misses. Check backend/src/ws.ts:88.
+    tags: [websocket, bugs]
+    verified_at: "d4e5f6a"
+    locked: false
+
+tags: [fullstack, typescript, monorepo]
+
+ignore:
+  never_read: ["node_modules/", "dist/", ".env"]
+  never_log: [".env", "*.key"]
