@@ -53,7 +53,7 @@ runHook<PreToolUseInput>('PreToolUse', async (input) => {
   const { cwd, tool_name, tool_input } = input;
 
   // Build a small context pack scoped to this tool invocation
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
   const pack = (await client.buildContextPack({
     session_id: sessionId,
     request_text: tool_name + ' ' + JSON.stringify(tool_input),

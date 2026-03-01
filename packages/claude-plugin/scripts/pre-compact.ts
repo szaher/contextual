@@ -72,7 +72,7 @@ runHook<PreCompactInput>('pre-compact', async (input) => {
     return;
   }
 
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
 
   console.error(
     `[ctxkit:pre-compact] Building compaction spine trigger=${input.trigger}`,

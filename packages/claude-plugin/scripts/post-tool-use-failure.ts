@@ -38,7 +38,7 @@ runHook<PostToolUseFailureInput>('post-tool-use-failure', async (input) => {
     return;
   }
 
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
 
   console.error(
     `[ctxkit:post-tool-use-failure] Logging failure tool=${input.tool_name} interrupt=${input.is_interrupt}`,

@@ -37,7 +37,7 @@ runHook<TaskCompletedInput>('task-completed', async (input) => {
     return;
   }
 
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
 
   console.error(
     `[ctxkit:task-completed] Creating proposal for task=${input.task_id}`,

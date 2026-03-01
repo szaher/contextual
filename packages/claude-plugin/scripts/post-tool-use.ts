@@ -36,7 +36,7 @@ runHook<PostToolUseInput>('post-tool-use', async (input) => {
     return;
   }
 
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
 
   // Extract file paths from tool_input (common fields used by various tools)
   const filePaths: string[] = [];
