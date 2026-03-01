@@ -44,6 +44,9 @@ cp -r examples/01-basic-ctx/* .
 | 13 | [13-refs-cross-linking](13-refs-cross-linking) | Cross-references           | Linking between .ctx files to avoid duplication.                   |
 | 14 | [14-budget-tuning](14-budget-tuning)       | Budget and scoring             | Understanding the scoring formula and tuning token budgets.        |
 | 15 | [15-full-project](15-full-project)         | Full real-world project        | A complete, realistic project setup with all features combined.    |
+| 16 | [16-mcp-server](16-mcp-server)             | MCP Server                     | Registering and using the CtxKit MCP server with any agent.        |
+| 17 | [17-claude-code-plugin](17-claude-code-plugin) | Claude Code Plugin          | Automatic context injection via hooks, interactive /ctxkit skill.  |
+| 18 | [18-codex-integration](18-codex-integration) | Codex Integration            | MCP registration, AGENTS.md generation, and CLI fallback for Codex.|
 
 ## .ctx File Format Quick Reference
 
@@ -80,4 +83,6 @@ ctxkit sessions show <id>           # Inspect a specific session
 ctxkit daemon start                 # Start the background daemon
 ctxkit dashboard                    # Open the local inspection dashboard
 ctxkit run -- <agent-command>       # Wrap an agent with context injection
+ctxkit codex sync-agents            # Generate/update AGENTS.md for Codex
+ctxkit-mcp                          # Start the MCP server (stdio transport)
 ```

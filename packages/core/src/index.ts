@@ -72,5 +72,9 @@ export type { StaleEntry, DriftResult } from './differ/drift.js';
 export { loadProfile } from './config/loader.js';
 export type { LoadedProfile, ProfileOverrides } from './config/loader.js';
 
+// Hook types
+export type { HookInputBase, HookOutput, HookConfig } from './types/hook.js';
+export { DEFAULT_HOOK_CONFIG } from './types/hook.js';
+
 // Utilities
 export { detectSecrets, redactSecrets, containsSecrets } from './redact/secrets.js';

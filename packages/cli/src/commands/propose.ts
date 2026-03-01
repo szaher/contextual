@@ -2,12 +2,14 @@ import { Command } from 'commander';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { parseCtxFile } from '@ctxl/core';
+import type { KeyFile, Contract, Decision } from '@ctxl/core';
 
 export const proposeCommand = new Command('propose')
   .description('Generate a .ctx update proposal showing what would change')
   .argument('<ctx-path>', 'Path to .ctx file to analyze')
   .option('--check-files', 'Check for dead file references', false)
   .option('--daemon <url>', 'Daemon URL to submit proposal', 'http://localhost:3742')
+  .option('--json', 'Output as JSON', false)
   .action(async (ctxPathArg: string, options) => {
     const ctxPath = resolve(ctxPathArg);
 
@@ -20,6 +22,38 @@ export const proposeCommand = new Command('propose')
     const content = readFileSync(ctxPath, 'utf-8');
     const ctx = parseCtxFile(content);
     const ctxDir = dirname(ctxPath);
+
+    if (options.json) {
+      const result: Record<string, unknown> = {
+        path: ctxPath,
+        version: ctx.version,
+        summary: ctx.summary,
+        key_files: ctx.key_files.length,
+        contracts: ctx.contracts.length,
+        decisions: ctx.decisions.length,
+        gotchas: ctx.gotchas.length,
+        tags: ctx.tags,
+        refs: ctx.refs.length,
+      };
+
+      if (options.checkFiles) {
+        const deadRefs: Array<{ type: string; path: string }> = [];
+        for (const kf of ctx.key_files) {
+          if (!existsSync(resolve(ctxDir, kf.path))) {
+            deadRefs.push({ type: 'key_file', path: kf.path });
+          }
+        }
+        for (const ref of ctx.refs) {
+          if (!existsSync(resolve(ctxDir, ref.target))) {
+            deadRefs.push({ type: 'ref', path: ref.target });
+          }
+        }
+        result.dead_references = deadRefs;
+      }
+
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
 
     console.log(`Analyzing ${ctxPath}...\n`);
 
@@ -62,9 +96,9 @@ export const proposeCommand = new Command('propose')
     console.log(`  Refs: ${ctx.refs.length}`);
 
     // Show locked entries
-    const lockedFiles = ctx.key_files.filter((kf) => kf.locked);
-    const lockedContracts = ctx.contracts.filter((c) => c.locked);
-    const lockedDecisions = ctx.decisions.filter((d) => d.locked);
+    const lockedFiles = ctx.key_files.filter((kf: KeyFile) => kf.locked);
+    const lockedContracts = ctx.contracts.filter((c: Contract) => c.locked);
+    const lockedDecisions = ctx.decisions.filter((d: Decision) => d.locked);
     const totalLocked = lockedFiles.length + lockedContracts.length + lockedDecisions.length;
     if (totalLocked > 0) {
       console.log(`\n  Locked entries (${totalLocked}):`);

@@ -546,6 +546,122 @@ jobs:
           done
 ```
 
+## Agent Integration
+
+With `.ctx` files and the workspace profile in place, you can connect
+ctxl to coding agents for automatic context injection.
+
+### Claude Code Plugin
+
+Install the CtxKit Claude Code plugin so that every session gets
+automatic context injection via hooks:
+
+```bash
+# Copy the plugin into your Claude Code plugins directory
+cp -r ctxkit-claude-code-plugin/ .claude/plugins/ctxkit/
+
+# Or install globally
+cp -r ctxkit-claude-code-plugin/ ~/.claude/plugins/ctxkit/
+```
+
+Once installed, the plugin:
+- Injects a context pack into every prompt (UserPromptSubmit hook)
+- Provides tool-specific context before Bash/Edit/Write calls (PreToolUse hook)
+- Logs all tool activity to the session timeline (PostToolUse hook, async)
+- Proposes `.ctx` updates when a task completes (TaskCompleted hook)
+- Preserves memory across compaction (PreCompact hook)
+
+Configure agent-specific budgets in `.ctxl/config.yaml`:
+
+```yaml
+agents:
+  claude-code:
+    budget_tokens: 12000
+    mode: lexical
+hooks:
+  user_prompt_submit:
+    enabled: true
+  pre_tool_use:
+    enabled: true
+    tools: [Bash, Edit, Write, NotebookEdit, Agent]
+  task_completed:
+    auto_propose: true
+```
+
+### Codex AGENTS.md Generation
+
+Generate an `AGENTS.md` file so Codex receives project context as part
+of its system prompt:
+
+```bash
+ctxkit codex sync-agents
+```
+
+This scans all `.ctx` files and writes a context snapshot between
+`CTXKIT:BEGIN` / `CTXKIT:END` markers in `AGENTS.md`. Content outside
+the markers is preserved. Re-running the command is idempotent.
+
+```bash
+# Override the token budget (default: 8000)
+ctxkit codex sync-agents --budget 12000
+
+# Add to a pre-commit hook to keep it current
+echo 'ctxkit codex sync-agents' >> .git/hooks/pre-commit
+```
+
+Commit `AGENTS.md` to version control so all team members and CI
+get the same context.
+
+### MCP Server Registration
+
+Register the CtxKit MCP server so any MCP-compatible agent can call
+ctxl tools directly:
+
+```json
+{
+  "mcpServers": {
+    "ctxkit": {
+      "command": "ctxkit-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}
+```
+
+Save this as `.mcp.json` in your project root. For Codex, use:
+
+```bash
+codex mcp add ctxkit -- ctxkit-mcp
+```
+
+The MCP server exposes 10 tools including `ctxkit.context_pack`,
+`ctxkit.memory.search`, `ctxkit.log_event`, and `ctxkit.propose_update`.
+See [Example 16](../../examples/16-mcp-server) for the full tool list
+and example call flows.
+
+### Running with the Agent Integration
+
+```bash
+# Start the daemon (required for MCP server and session tracking)
+ctxkit daemon start
+
+# Option 1: Claude Code with plugin (hooks handle everything)
+cd packages/api/src/routes
+claude
+
+# Option 2: Codex with MCP registration
+codex "fix the auth endpoint error format"
+
+# Option 3: Codex with AGENTS.md (no daemon needed)
+ctxkit codex sync-agents
+codex "fix the auth endpoint error format"
+
+# After the session, review proposals
+ctxkit propose
+ctxkit sessions show <session-id>
+```
+
 ## Key Takeaways
 
 1. **Root .ctx** provides project-wide knowledge (tech stack, build commands, architectural decisions)
@@ -555,3 +671,6 @@ jobs:
 5. **Refs** let packages pull shared contracts without duplicating content
 6. **Profiles** configure per-agent budgets and ignore policies
 7. **Drift detection in CI** catches stale context early
+8. **The Claude Code plugin** provides zero-friction context injection via hooks, with no manual commands needed during a session
+9. **AGENTS.md generation** gives Codex a static context snapshot that works without a daemon and stays current through idempotent re-syncs
+10. **The MCP server** exposes ctxl as callable tools for any MCP-compatible agent, enabling real-time context packs, memory search, and session tracking

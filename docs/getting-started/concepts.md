@@ -153,8 +153,83 @@ When ctxl's confidence in `.ctx` content is low, it triggers a deep-read fallbac
 
 Deep-read decisions are logged in the session timeline and visible in the dashboard, with a rationale explaining why the fallback was triggered.
 
+## MCP Tools
+
+ctxl exposes its capabilities as 10 JSON-RPC tools through the `@ctxl/mcp` package, following the [Model Context Protocol](https://modelcontextprotocol.io) standard. The MCP server runs over stdio transport, meaning any MCP-compatible agent can discover and call these tools without custom integration code.
+
+The tools are:
+
+| Tool | Purpose |
+|------|---------|
+| `ctxkit.context_pack` | Build a Context Pack for a given request and working directory |
+| `ctxkit.log_event` | Log a tool-use event to the current session |
+| `ctxkit.propose_update` | Create a proposal to update a `.ctx` file |
+| `ctxkit.apply_proposal` | Apply an approved proposal to disk |
+| `ctxkit.reject_proposal` | Reject a pending proposal with a reason |
+| `ctxkit.sessions.list` | List recent sessions with filtering |
+| `ctxkit.sessions.show` | Get full details for a specific session |
+| `ctxkit.policy.get` | Retrieve the active workspace configuration |
+| `ctxkit.policy.validate` | Validate a configuration object against the schema |
+| `ctxkit.memory.search` | Search `.ctx` entries by keyword, tag, or path |
+
+Agents register the MCP server once and then call tools by name. For example, with Codex:
+
+```bash
+codex mcp add ctxkit -- ctxkit-mcp
+```
+
+After registration, the agent can call `ctxkit.context_pack` at the start of each task to get relevant context, call `ctxkit.log_event` to report tool usage, and call `ctxkit.propose_update` when it believes a `.ctx` file should be changed.
+
+All tool inputs are validated with Zod schemas. Invalid calls receive structured error responses with field-level details.
+
+## Hooks
+
+The `@ctxl/claude-plugin` package integrates ctxl with Claude Code through 8 lifecycle hooks. Hooks fire automatically at specific points in the Claude Code session lifecycle -- no developer action is required beyond installing the plugin.
+
+The hooks are:
+
+| Hook | When It Fires | What It Does |
+|------|---------------|--------------|
+| `SessionStart` | A new Claude Code session begins | Builds and injects a Context Pack into the session, registers the session with the daemon |
+| `SessionEnd` | The session is ending | Closes the session on the daemon, flushes pending events |
+| `UserPromptSubmit` | The user submits a prompt | Extracts request keywords for tag matching and scoring |
+| `PreToolUse` | Before a tool is invoked | Validates the tool call against policy (e.g., blocked paths, forbidden commands) |
+| `PostToolUse` | After a tool succeeds | Logs the tool event to the session timeline, detects potential `.ctx` drift from file writes |
+| `PostToolUseFailure` | After a tool fails | Logs the failure event with error details for audit |
+| `TaskCompleted` | A task finishes | Generates `.ctx` update proposals if the task modified files referenced by context entries |
+| `PreCompact` | Before context is compacted | Preserves high-priority context items from being dropped during compaction |
+
+The plugin also exposes a `/ctxkit` skill within Claude Code, allowing users to invoke ctxl operations interactively during a session (e.g., `/ctxkit inject`, `/ctxkit propose`).
+
+## AGENTS.md
+
+For agents that consume project context from an `AGENTS.md` file (such as Codex), ctxl can generate and maintain this file from your `.ctx` entries. The command:
+
+```bash
+ctxkit codex sync-agents
+```
+
+This reads all `.ctx` files in the repository, selects the highest-scoring entries within a token budget, and writes them into the `AGENTS.md` file at the repository root. The generated content is wrapped in marker comments:
+
+```markdown
+<!-- CTXKIT:BEGIN -->
+...generated content...
+<!-- CTXKIT:END -->
+```
+
+Content outside these markers is preserved, so you can add manual sections to `AGENTS.md` without losing them on the next sync. The generation is **idempotent** -- running `sync-agents` twice with the same `.ctx` content produces the same output.
+
+Available flags:
+
+| Flag | Purpose |
+|------|---------|
+| `--budget <tokens>` | Set the token budget for the generated content (default: from workspace config) |
+| `--dry-run` | Print the generated content to stdout without writing the file |
+| `--repo-root <path>` | Override the repository root directory |
+
 ## Next Steps
 
 - Learn the [.ctx File Format](/guide/ctx-format) in detail
 - Understand [Hierarchical Contexts](/guide/hierarchical-contexts) and merge rules
 - Dive into the [Scoring Algorithm](/guide/scoring-algorithm) mechanics
+- Set up [Agent Integration](/guide/agent-integration) with Claude Code, Codex, or any MCP-compatible agent

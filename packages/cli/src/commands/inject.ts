@@ -9,6 +9,7 @@ export const injectCommand = new Command('inject')
   .option('--cwd <path>', 'Working directory', process.cwd())
   .option('--budget <tokens>', 'Token budget', '4000')
   .option('--preview', 'Preview mode (no event recorded)', false)
+  .option('--json', 'Output as JSON', false)
   .action((options) => {
     const workingDir = resolve(options.cwd);
     const repoRoot = findRepoRoot(workingDir);
@@ -22,6 +23,11 @@ export const injectCommand = new Command('inject')
     });
 
     const pack = result.pack;
+
+    if (options.json) {
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
 
     // Format output
     console.log(

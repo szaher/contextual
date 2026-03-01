@@ -3,12 +3,14 @@ import { join } from 'node:path';
 import { load as yamlLoad } from 'js-yaml';
 import type { WorkspaceProfile, GlobalProfile, BudgetConfig, ScoringConfig, AutoApproveConfig, RetentionConfig } from '../types/config.js';
 import type { IgnorePolicy } from '../types/ctx.js';
+import type { HookConfig } from '../types/hook.js';
 import {
   DEFAULT_BUDGET_TOKENS,
   DEFAULT_SCORING_MODE,
   DEFAULT_SESSIONS_RETENTION_DAYS,
   DEFAULT_AUDIT_RETENTION_DAYS,
 } from '../types/config.js';
+import { DEFAULT_HOOK_CONFIG } from '../types/hook.js';
 
 export interface LoadedProfile {
   budget: BudgetConfig;
@@ -16,6 +18,7 @@ export interface LoadedProfile {
   ignore: IgnorePolicy;
   auto_approve: AutoApproveConfig;
   retention: RetentionConfig;
+  hooks: HookConfig;
   sources: string[];
 }
 
@@ -49,6 +52,7 @@ export function loadProfile(
       sessions_days: DEFAULT_SESSIONS_RETENTION_DAYS,
       audit_days: DEFAULT_AUDIT_RETENTION_DAYS,
     },
+    hooks: { ...DEFAULT_HOOK_CONFIG },
     sources: ['defaults'],
   };
   sources.push('defaults');
@@ -147,6 +151,18 @@ function mergeWorkspaceProfile(
     retention: {
       sessions_days: ws.retention?.sessions_days ?? base.retention.sessions_days,
       audit_days: ws.retention?.audit_days ?? base.retention.audit_days,
+    },
+    hooks: {
+      preToolUse: {
+        enabled: ws.hooks?.preToolUse?.enabled ?? base.hooks.preToolUse.enabled,
+        allowlist: ws.hooks?.preToolUse?.allowlist ?? base.hooks.preToolUse.allowlist,
+        budget: ws.hooks?.preToolUse?.budget ?? base.hooks.preToolUse.budget,
+      },
+      sessionEnd: {
+        close: ws.hooks?.sessionEnd?.close ?? base.hooks.sessionEnd.close,
+        propose_final_update: ws.hooks?.sessionEnd?.propose_final_update ?? base.hooks.sessionEnd.propose_final_update,
+        propose_scope: ws.hooks?.sessionEnd?.propose_scope ?? base.hooks.sessionEnd.propose_scope,
+      },
     },
   };
 }

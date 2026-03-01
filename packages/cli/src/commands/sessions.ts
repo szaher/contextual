@@ -5,6 +5,7 @@ export const sessionsCommand = new Command('sessions')
   .option('--daemon <url>', 'Daemon URL', 'http://localhost:3742')
   .option('--status <status>', 'Filter by status (active/completed)')
   .option('--limit <n>', 'Maximum results', '20')
+  .option('--json', 'Output as JSON', false)
   .action(async (options) => {
     const baseUrl = options.daemon;
     const params = new URLSearchParams();
@@ -21,6 +22,12 @@ export const sessionsCommand = new Command('sessions')
       }
 
       const data = await res.json();
+
+      if (options.json) {
+        console.log(JSON.stringify(data, null, 2));
+        return;
+      }
+
       const sessions = data.sessions;
 
       if (sessions.length === 0) {
@@ -51,7 +58,8 @@ export const sessionsCommand = new Command('sessions')
 sessionsCommand
   .command('show <id>')
   .description('Show session details with request timeline')
-  .action(async (id: string, _opts, cmd) => {
+  .option('--json', 'Output as JSON', false)
+  .action(async (id: string, opts, cmd) => {
     const baseUrl = cmd.parent?.opts().daemon || 'http://localhost:3742';
 
     try {
@@ -64,6 +72,11 @@ sessionsCommand
       }
 
       const session = await res.json();
+
+      if (opts.json) {
+        console.log(JSON.stringify(session, null, 2));
+        return;
+      }
 
       console.log(`Session: ${session.id}`);
       console.log(`  Status: ${session.status}`);

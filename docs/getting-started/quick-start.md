@@ -155,9 +155,83 @@ This scans all `.ctx` files in the repository and reports entries that reference
 - Files modified since their last verification
 - Commits that no longer exist
 
+## Step 8: Connect to Claude Code
+
+Install the ctxl plugin for Claude Code to get automatic context injection via lifecycle hooks:
+
+```bash
+ctxkit claude install
+```
+
+```
+Installed ctxl plugin for Claude Code
+  Hooks: 8 lifecycle hooks registered
+  Skill: /ctxkit available in sessions
+```
+
+Once installed, Claude Code sessions automatically receive context from your `.ctx` files at session start, log tool usage for audit, and generate `.ctx` update proposals when files are modified. No additional configuration is needed.
+
+To verify the installation:
+
+```bash
+ctxkit claude status
+```
+
+## Step 9: Connect to Codex
+
+There are two ways to connect ctxl to Codex. You can use either or both.
+
+**Option A: MCP registration** -- gives Codex access to all 10 ctxl tools via the Model Context Protocol:
+
+```bash
+codex mcp add ctxkit -- ctxkit-mcp
+```
+
+This registers the `ctxkit-mcp` stdio server with Codex. Once registered, Codex can call tools like `ctxkit.context_pack` and `ctxkit.memory.search` directly during tasks.
+
+**Option B: AGENTS.md generation** -- writes your `.ctx` content into an `AGENTS.md` file that Codex reads at task start:
+
+```bash
+ctxkit codex sync-agents
+```
+
+```
+Generated AGENTS.md at /path/to/your/project/AGENTS.md
+  Entries: 12
+  Tokens: 2840 / 4000
+  Sections: summary, key_files, contracts, decisions
+```
+
+You can preview without writing:
+
+```bash
+ctxkit codex sync-agents --dry-run
+```
+
+Or set a custom token budget:
+
+```bash
+ctxkit codex sync-agents --budget 8000
+```
+
+The generated content is wrapped in `<!-- CTXKIT:BEGIN -->` / `<!-- CTXKIT:END -->` markers. Content outside these markers is preserved across regenerations.
+
+### CLI --json Output
+
+When working with agents that parse structured output, use the `--json` flag on key commands:
+
+```bash
+ctxkit inject --request "fix the auth bug" --json
+ctxkit sessions --json
+ctxkit propose --json
+```
+
+This outputs machine-readable JSON instead of the human-formatted text, suitable for piping into agent toolchains.
+
 ## Next Steps
 
 - Read about [Core Concepts](/getting-started/concepts) to understand the mental model
 - Learn the full [.ctx File Format](/guide/ctx-format) for writing effective context
 - Understand the [Scoring Algorithm](/guide/scoring-algorithm) that drives relevance ranking
 - Set up [Profiles](/guide/profiles) for per-repo and per-agent configuration
+- Configure [Agent Integration](/guide/agent-integration) for Claude Code, Codex, and other MCP-compatible agents

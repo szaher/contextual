@@ -33,7 +33,10 @@ Memory lives in `.ctx` YAML files alongside your code. They are tracked in git, 
 - **Drift detection** -- flags when referenced files are moved, renamed, or deleted
 - **Proposal workflow** -- diffs are shown before any `.ctx` modification is written
 - **Session tracking** with full audit trail of every context injection
-- **Agent wrapper** for transparent context injection into any coding agent
+- **MCP server** -- 10 structured JSON-RPC tools usable by any MCP-compatible agent
+- **Claude Code plugin** -- automatic context injection via 8 hooks, interactive `/ctxkit` skill
+- **Codex integration** -- MCP registration, `AGENTS.md` generation, and CLI fallback
+- **Agent wrapper** for transparent context injection via `ctxkit run`
 - **React inspection dashboard** for visual session and memory management
 - **Secret detection** and automatic redaction of credentials in diffs and logs
 
@@ -41,27 +44,35 @@ Memory lives in `.ctx` YAML files alongside your code. They are tracked in git, 
 
 ## Architecture
 
-ctxl is a TypeScript monorepo with four packages:
+ctxl is a TypeScript monorepo with six packages:
 
 ```
-                          +------------------+
-                          |    @ctxl/cli     |
-                          |   (ctxkit CLI)   |
-                          +--------+---------+
-                                   |
-                    +--------------+--------------+
-                    |                             |
-           +-------v--------+          +---------v--------+
-           |  @ctxl/daemon   |          |    @ctxl/ui      |
-           | (HTTP API +     |          | (React dashboard)|
-           |  SQLite store)  |          +------------------+
-           +-------+--------+
-                    |
-           +-------v--------+
-           |   @ctxl/core   |
-           | (engine: parse, |
-           |  score, pack)   |
-           +-----------------+
+  +-------------------+     +---------------------+
+  | @ctxl/claude-plugin|     |     @ctxl/mcp       |
+  | (hooks + skill)    |     | (MCP server, 10     |
+  +--------+----------+     |  JSON-RPC tools)    |
+           |                 +----------+----------+
+           |                            |
+           +------------+---------------+
+                        |
+                +-------v--------+
+                |    @ctxl/cli   |
+                |  (ctxkit CLI)  |
+                +-------+--------+
+                        |
+         +--------------+--------------+
+         |                             |
++--------v--------+          +--------v---------+
+|  @ctxl/daemon    |          |    @ctxl/ui       |
+| (HTTP API +      |          | (React dashboard) |
+|  SQLite store)   |          +------------------+
++--------+--------+
+         |
++--------v--------+
+|   @ctxl/core    |
+| (engine: parse,  |
+|  score, pack)    |
++-----------------+
 ```
 
 | Package | Description | Key Dependencies |
@@ -70,8 +81,10 @@ ctxl is a TypeScript monorepo with four packages:
 | `@ctxl/daemon` | HTTP API server with persistent SQLite storage | Hono, @hono/node-server, better-sqlite3 |
 | `@ctxl/cli` | Command-line interface (`ctxkit`) | Commander.js |
 | `@ctxl/ui` | React inspection dashboard | React 19, React Router, Vite |
+| `@ctxl/mcp` | MCP server exposing 10 CtxKit tools over stdio | @modelcontextprotocol/sdk, zod |
+| `@ctxl/claude-plugin` | Claude Code plugin with 8 hooks and `/ctxkit` skill | @ctxl/mcp (client) |
 
-**Tech stack:** TypeScript 5.x, Node.js 20+, Hono (HTTP framework), better-sqlite3 (storage), Commander.js (CLI), React 19, Vite 6
+**Tech stack:** TypeScript 5.x, Node.js 20+, Hono (HTTP), better-sqlite3 (storage), Commander.js (CLI), @modelcontextprotocol/sdk (MCP), zod (schema validation), React 19, Vite 6
 
 ---
 
@@ -102,6 +115,86 @@ ctxkit daemon start
 # Open the inspection dashboard
 ctxkit dashboard
 ```
+
+---
+
+## Agent Integrations
+
+ctxl supports multiple integration paths depending on the agent:
+
+### Claude Code (automatic, zero-config)
+
+Install the Claude Code plugin for fully automatic context injection:
+
+```bash
+# The plugin registers 8 hooks that fire automatically:
+# SessionStart, UserPromptSubmit, PreToolUse, PostToolUse,
+# PostToolUseFailure, TaskCompleted, PreCompact, SessionEnd
+```
+
+What happens automatically:
+- **Every prompt** gets a relevant Context Pack injected as `additionalContext`
+- **Every tool call** (Bash, Edit, Write) gets tool-specific context
+- **Tool activity** is logged to the session timeline
+- **Task completion** triggers a `.ctx` update proposal
+- **Context compaction** preserves session memory via a compaction spine
+
+Use the interactive skill for manual control:
+
+```bash
+/ctxkit inject       # Build and display context pack
+/ctxkit sessions     # List sessions
+/ctxkit memory search <query>  # Search .ctx entries
+/ctxkit propose      # Trigger a .ctx update proposal
+/ctxkit apply <id>   # Apply an approved proposal
+/ctxkit policy       # Show effective configuration
+```
+
+### Codex (MCP or AGENTS.md)
+
+**Option A: MCP tools** (structured, real-time)
+
+```bash
+codex mcp add ctxkit -- ctxkit-mcp
+```
+
+Codex can then call any of the 10 MCP tools (`ctxkit.context_pack`, `ctxkit.log_event`, `ctxkit.propose_update`, etc.).
+
+**Option B: AGENTS.md** (zero-config, passive)
+
+```bash
+ctxkit codex sync-agents
+```
+
+Generates `AGENTS.md` files from your `.ctx` hierarchy. Codex automatically discovers and reads these files -- no MCP registration required.
+
+**Option C: CLI fallback**
+
+```bash
+ctxkit inject --request "fix auth bug" --json
+ctxkit sessions list --json
+ctxkit propose .ctx --json
+```
+
+All CLI commands support `--json` for machine-readable output compatible with Codex's shell tool.
+
+### Any MCP-Compatible Agent
+
+Register the MCP server for any agent that supports the Model Context Protocol:
+
+```bash
+ctxkit-mcp   # stdio-based MCP server
+```
+
+Exposes 10 tools: `ctxkit.context_pack`, `ctxkit.log_event`, `ctxkit.propose_update`, `ctxkit.apply_proposal`, `ctxkit.reject_proposal`, `ctxkit.sessions.list`, `ctxkit.sessions.show`, `ctxkit.policy.get`, `ctxkit.policy.validate`, `ctxkit.memory.search`.
+
+### Any CLI Agent (wrapper)
+
+```bash
+ctxkit run --agent claude --budget 8000 -- your-agent-command "fix the bug"
+```
+
+Wraps any CLI agent with context injection via environment variables.
 
 ---
 
@@ -229,6 +322,7 @@ The CLI tool is called `ctxkit`.
 | `ctxkit daemon start\|stop\|status` | Manage the background daemon |
 | `ctxkit dashboard` | Open the inspection dashboard |
 | `ctxkit run <cmd...>` | Wrap an agent command with context injection |
+| `ctxkit codex sync-agents` | Generate `AGENTS.md` files from `.ctx` hierarchy |
 
 ### Detailed Command Reference
 
@@ -259,6 +353,7 @@ Build a context pack for a given request. Discovers `.ctx` files, merges the hie
 ctxkit inject --request "fix the login timeout bug" --budget 4000
 ctxkit inject --request "explain auth flow" --cwd src/auth/ --budget 8000
 ctxkit inject --request "add rate limiting" --preview    # show what would be injected
+ctxkit inject --request "fix auth bug" --json            # JSON output for scripting
 ```
 
 | Flag | Description | Default |
@@ -267,6 +362,7 @@ ctxkit inject --request "add rate limiting" --preview    # show what would be in
 | `--cwd` | Working directory for locality scoring | `.` |
 | `--budget` | Maximum token budget | `4096` |
 | `--preview` | Show the pack without injecting | `false` |
+| `--json` | Output as structured JSON | `false` |
 
 #### `ctxkit propose <ctx-path>`
 
@@ -282,6 +378,7 @@ ctxkit propose .ctx --daemon    # submit via daemon API
 |------|-------------|---------|
 | `--check-files` | Include file existence checks in proposal | `false` |
 | `--daemon` | Submit proposal via the daemon | `false` |
+| `--json` | Output as structured JSON | `false` |
 
 #### `ctxkit apply <proposal-id>`
 
@@ -314,6 +411,7 @@ ctxkit sessions --daemon
 | `--status` | Filter by status (`active`, `completed`) | all |
 | `--limit` | Maximum number of sessions to list | `20` |
 | `--daemon` | Query the daemon API | `false` |
+| `--json` | Output as structured JSON | `false` |
 
 #### `ctxkit drift [path]`
 
@@ -347,6 +445,25 @@ Open the inspection dashboard in a browser. Requires the daemon to be running.
 ctxkit dashboard
 ctxkit dashboard --port 7420
 ```
+
+#### `ctxkit codex sync-agents`
+
+Generate `AGENTS.md` files from the `.ctx` hierarchy for Codex integration. Codex automatically reads `AGENTS.md` files from each directory, providing zero-config context injection.
+
+```bash
+ctxkit codex sync-agents
+ctxkit codex sync-agents --budget 12000
+ctxkit codex sync-agents --dry-run    # show what would be written
+ctxkit codex sync-agents --repo-root /path/to/repo
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--repo-root` | Repository root path | auto-detected |
+| `--budget` | Max tokens per AGENTS.md file | `8000` |
+| `--dry-run` | Preview without writing files | `false` |
+
+Generated files include `<!-- CTXKIT:BEGIN -->` / `<!-- CTXKIT:END -->` markers. Content outside these markers is preserved across re-runs. Re-running on unchanged `.ctx` files produces zero-diff output (idempotent).
 
 #### `ctxkit run <cmd...>`
 
@@ -495,10 +612,14 @@ The daemon exposes a REST API for programmatic access. All endpoints are prefixe
 | `GET` | `/api/v1/sessions` | List sessions (supports `?status=` and `?limit=` query params) |
 | `GET` | `/api/v1/sessions/:id` | Get session details including request timeline |
 | `PATCH` | `/api/v1/sessions/:id` | Update session status (e.g., mark completed) |
+| `POST` | `/api/v1/sessions/:id/events` | Log a tool event to the session timeline |
 | `POST` | `/api/v1/proposals` | Submit a `.ctx` update proposal |
 | `GET` | `/api/v1/proposals` | List pending proposals |
 | `PATCH` | `/api/v1/proposals/:id` | Update proposal status |
 | `POST` | `/api/v1/proposals/:id/apply` | Apply an approved proposal to the `.ctx` file |
+| `GET` | `/api/v1/config` | Get effective workspace configuration |
+| `POST` | `/api/v1/config/validate` | Validate a configuration object against the schema |
+| `GET` | `/api/v1/memory/search` | Search `.ctx` entries by keyword |
 | `GET` | `/api/v1/drift` | Run drift detection across all tracked `.ctx` files |
 | `GET` | `/api/v1/audit` | Query the audit log (supports `?from=`, `?to=`, `?path=`) |
 
@@ -568,9 +689,9 @@ pnpm build
 ### Commands
 
 ```bash
-pnpm build          # Build all packages
-pnpm test           # Run integration tests (39 tests)
-pnpm test:e2e       # Run end-to-end tests (37 tests)
+pnpm build          # Build all packages (6 packages)
+pnpm test           # Run integration tests (147 tests)
+pnpm test:e2e       # Run end-to-end tests (79 tests)
 pnpm test:watch     # Run tests in watch mode
 pnpm lint           # Lint all packages
 pnpm lint:fix       # Lint and auto-fix
@@ -595,20 +716,31 @@ ctxl/
         types/           Shared type definitions
     daemon/              @ctxl/daemon -- HTTP API + storage
       src/
-        routes/          Hono route handlers
+        routes/          Hono route handlers (context-pack, sessions, events, config, memory, proposals, drift, audit)
         store/           SQLite persistence layer
         scheduler/       Background task scheduling
     cli/                 @ctxl/cli -- ctxkit command-line tool
       src/
-        commands/        Commander.js command definitions
+        commands/        Commander.js command definitions (inject, propose, sessions, drift, codex, ...)
+        services/        Service layer (agents-md generator)
+    mcp/                 @ctxl/mcp -- MCP server
+      src/
+        tools/           MCP tool registrations (context-pack, events, proposals, sessions, policy, memory)
+        client.ts        Daemon HTTP client
+        server.ts        McpServer instance and transport
+    claude-plugin/       @ctxl/claude-plugin -- Claude Code plugin
+      scripts/           Hook handler scripts (session-start, user-prompt-submit, pre-tool-use, ...)
+      hooks/             hooks.json configuration
+      skills/            /ctxkit skill definition (SKILL.md)
+      .claude-plugin/    Plugin manifest (plugin.json)
     ui/                  @ctxl/ui -- React inspection dashboard
       src/
         components/      Reusable UI components
         pages/           Route-level page components
         services/        API client services
   tests/
-    integration/         Integration test suites
-    e2e/                 End-to-end test suites
+    integration/         Integration test suites (10 files, 147 tests)
+    e2e/                 End-to-end test suites (12 files, 79 tests)
     fixtures/            Test data (golden files, sample repos)
 ```
 

@@ -6,6 +6,8 @@ export default defineConfig({
     alias: {
       '@ctxl/core': resolve(__dirname, 'packages/core/src/index.ts'),
       '@ctxl/daemon': resolve(__dirname, 'packages/daemon/src/index.ts'),
+      '@ctxl/mcp/client': resolve(__dirname, 'packages/mcp/src/client.ts'),
+      '@ctxl/mcp': resolve(__dirname, 'packages/mcp/src/index.ts'),
     },
   },
   test: {
