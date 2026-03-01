@@ -5,6 +5,7 @@ import {
   rmSync,
   mkdirSync,
   writeFileSync,
+  existsSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -115,6 +116,22 @@ describe('E2E: Claude Code Plugin Hook Lifecycle', () => {
   let sessionId: string;
 
   beforeAll(async () => {
+    // Verify compiled hook scripts exist (catches missing build output)
+    const requiredScripts = [
+      'session-start.js', 'session-end.js', 'post-tool-use.js',
+      'post-tool-use-failure.js', 'pre-compact.js', 'pre-tool-use.js',
+      'task-completed.js', 'user-prompt-submit.js',
+    ];
+    for (const s of requiredScripts) {
+      const scriptPath = join(SCRIPTS_DIR, s);
+      if (!existsSync(scriptPath)) {
+        throw new Error(
+          `Compiled hook script not found: ${scriptPath}. ` +
+          `Run 'pnpm build' first. SCRIPTS_DIR=${SCRIPTS_DIR}`,
+        );
+      }
+    }
+
     // Create temp directories
     tmpDir = mkdtempSync(join(tmpdir(), 'ctxl-e2e-plugin-'));
     nonGitDir = join(tmpDir, 'non-git');
@@ -205,7 +222,7 @@ key_files:
       { CTXKIT_API: daemonUrl },
     );
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode, `session-start.js (non-git) exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
     expect(result.parsed).toBeDefined();
     // Should return empty response - no hookSpecificOutput with context
     expect(result.stderr).toContain('Not in a git repository');
@@ -229,7 +246,7 @@ key_files:
       },
     );
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode, `session-start.js exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
     expect(result.parsed).toBeDefined();
 
     // Should have hookSpecificOutput with bootstrap context
@@ -262,7 +279,7 @@ key_files:
       hookEnv(),
     );
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode, `post-tool-use.js exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
     expect(result.parsed).toBeDefined();
     // PostToolUse returns empty response
   });
@@ -280,7 +297,7 @@ key_files:
       hookEnv(),
     );
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode, `post-tool-use-failure.js exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
     expect(result.parsed).toBeDefined();
   });
 
@@ -294,7 +311,7 @@ key_files:
       hookEnv(),
     );
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode, `pre-compact.js exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
     expect(result.parsed).toBeDefined();
 
     const hookOutput = result.parsed?.hookSpecificOutput as
@@ -317,7 +334,7 @@ key_files:
       hookEnv(),
     );
 
-    expect(result.exitCode).toBe(0);
+    expect(result.exitCode, `session-end.js exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
     expect(result.parsed).toBeDefined();
     expect(result.stderr).toContain('closed');
 
@@ -374,7 +391,7 @@ key_files:
         { CTXKIT_API: daemonUrl }, // no CTXKIT_SESSION_ID
       );
 
-      expect(result.exitCode).toBe(0);
+      expect(result.exitCode, `${script} (no-session) exited ${result.exitCode}. stderr: ${result.stderr}`).toBe(0);
       expect(result.parsed).toBeDefined();
       // Should return empty {} — no hookSpecificOutput
       expect(result.parsed!.hookSpecificOutput).toBeUndefined();

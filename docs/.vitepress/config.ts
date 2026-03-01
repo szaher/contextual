@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'ctxl',
   description: 'Local-first context memory for AI coding agents',
-  base: '/ctxl/',
+  base: '/contextual/',
 
   head: [
     ['meta', { name: 'theme-color', content: '#3a7bd5' }],
@@ -64,7 +64,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/szaher/ctxl' },
+      { icon: 'github', link: 'https://github.com/szaher/contextual' },
     ],
 
     footer: {
@@ -77,7 +77,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/szaher/ctxl/edit/main/docs/:path',
+      pattern: 'https://github.com/szaher/contextual/edit/main/docs/:path',
       text: 'Edit this page on GitHub',
     },
 
