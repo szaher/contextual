@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { parseCtxFile } from '@ctxl/core';
+import type { KeyFile, Contract, Decision } from '@ctxl/core';
 
 export const proposeCommand = new Command('propose')
   .description('Generate a .ctx update proposal showing what would change')
@@ -95,9 +96,9 @@ export const proposeCommand = new Command('propose')
     console.log(`  Refs: ${ctx.refs.length}`);
 
     // Show locked entries
-    const lockedFiles = ctx.key_files.filter((kf) => kf.locked);
-    const lockedContracts = ctx.contracts.filter((c) => c.locked);
-    const lockedDecisions = ctx.decisions.filter((d) => d.locked);
+    const lockedFiles = ctx.key_files.filter((kf: KeyFile) => kf.locked);
+    const lockedContracts = ctx.contracts.filter((c: Contract) => c.locked);
+    const lockedDecisions = ctx.decisions.filter((d: Decision) => d.locked);
     const totalLocked = lockedFiles.length + lockedContracts.length + lockedDecisions.length;
     if (totalLocked > 0) {
       console.log(`\n  Locked entries (${totalLocked}):`);

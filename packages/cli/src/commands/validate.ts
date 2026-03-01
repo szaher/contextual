@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import { parseCtxFile, validateCtxFile } from '@ctxl/core';
+import type { ValidationError } from '@ctxl/core';
 
 export const validateCommand = new Command('validate')
   .description('Validate a .ctx file for structural correctness')
@@ -54,8 +55,8 @@ export const validateCommand = new Command('validate')
     }
 
     // Output results
-    const errorCount = errors.filter((e) => e.severity === 'error').length;
-    const warningCount = errors.filter((e) => e.severity === 'warning').length;
+    const errorCount = errors.filter((e: ValidationError) => e.severity === 'error').length;
+    const warningCount = errors.filter((e: ValidationError) => e.severity === 'warning').length;
 
     if (errors.length === 0) {
       console.log(`✓ ${ctxPath} is valid`);

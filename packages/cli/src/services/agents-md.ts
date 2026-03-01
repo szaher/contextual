@@ -6,6 +6,7 @@ import {
   estimateTokens,
   loadProfile,
   type CtxFile,
+  type Decision,
 } from '@ctxl/core';
 
 const CTXKIT_BEGIN = '<!-- CTXKIT:BEGIN - Managed by CtxKit. Do not edit this section. -->';
@@ -95,7 +96,7 @@ export function generateCtxKitSection(
   }
 
   // Decisions (only active ones)
-  const activeDecisions = ctx.decisions.filter((d) => d.status === 'accepted');
+  const activeDecisions = ctx.decisions.filter((d: Decision) => d.status === 'accepted');
   if (activeDecisions.length > 0) {
     lines.push('### Decisions');
     for (const d of activeDecisions) {

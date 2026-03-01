@@ -7,13 +7,17 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "@ctxl/core": ["../core/dist/index.d.ts", "../core/src/index.ts"],
+      "@ctxl/mcp/client": ["../mcp/dist/client.d.ts", "../mcp/src/client.ts"],
+      "@ctxl/mcp/client.js": ["../mcp/dist/client.d.ts", "../mcp/src/client.ts"]
+    }
   },
   "include": ["src/**/*", "scripts/**/*"],
   "exclude": ["node_modules", "dist"]
