@@ -300,7 +300,7 @@ codex mcp add ctxkit -- ctxkit-mcp
 
 Verify the registration by typing `/mcp` in the Codex TUI. You should see `ctxkit (connected)` with all 10 tools listed.
 
-For best results, provide Codex with usage instructions. See the [codex-instructions.md](/packages/mcp/templates/codex-instructions.md) template for a ready-to-use directive that tells Codex to:
+For best results, provide Codex with usage instructions. See the [codex-instructions.md](https://github.com/szaher/contextual/blob/main/packages/mcp/templates/codex-instructions.md) template for a ready-to-use directive that tells Codex to:
 - Call `ctxkit.context_pack(mode=turn)` before responding to user prompts
 - Call `ctxkit.context_pack(mode=tool)` before running shell or file operations
 - Call `ctxkit.log_event` after each tool invocation

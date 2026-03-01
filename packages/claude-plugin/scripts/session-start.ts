@@ -43,7 +43,7 @@ runHook<SessionStartInput>('SessionStart', async (input) => {
   }
 
   // 2. Create daemon client
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
 
   // 3. Check daemon health
   const healthy = await client.healthCheck();

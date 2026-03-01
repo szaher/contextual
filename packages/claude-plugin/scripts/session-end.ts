@@ -47,7 +47,7 @@ runHook<SessionEndInput>('SessionEnd', async (input) => {
   );
 
   // Create daemon client and close the session
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
   await client.closeSession(sessionId);
 
   console.error(`[ctxkit:SessionEnd] Session ${sessionId} closed`);

@@ -637,7 +637,7 @@ codex mcp add ctxkit -- ctxkit-mcp
 
 The MCP server exposes 10 tools including `ctxkit.context_pack`,
 `ctxkit.memory.search`, `ctxkit.log_event`, and `ctxkit.propose_update`.
-See [Example 16](../../examples/16-mcp-server) for the full tool list
+See [Example 16](https://github.com/szaher/contextual/tree/main/examples/16-mcp-server) for the full tool list
 and example call flows.
 
 ### Running with the Agent Integration

@@ -49,7 +49,7 @@ runHook<UserPromptSubmitInput>('UserPromptSubmit', async (input) => {
   const { cwd, prompt } = input;
 
   // Build context pack from the daemon
-  const client = createConfiguredClient();
+  const client = await createConfiguredClient();
   const pack = (await client.buildContextPack({
     session_id: sessionId,
     request_text: prompt,
