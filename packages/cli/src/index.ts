@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { injectCommand } from './commands/inject';
-import { initCommand } from './commands/init';
-import { validateCommand } from './commands/validate';
-import { proposeCommand } from './commands/propose';
-import { applyCommand } from './commands/apply';
-import { sessionsCommand } from './commands/sessions';
-import { driftCommand } from './commands/drift';
-import { daemonCommand, dashboardCommand } from './commands/daemon';
-import { runCommand } from './commands/run';
-import { codexCommand } from './commands/codex';
+import { injectCommand } from './commands/inject.js';
+import { initCommand } from './commands/init.js';
+import { validateCommand } from './commands/validate.js';
+import { proposeCommand } from './commands/propose.js';
+import { applyCommand } from './commands/apply.js';
+import { sessionsCommand } from './commands/sessions.js';
+import { driftCommand } from './commands/drift.js';
+import { daemonCommand, dashboardCommand } from './commands/daemon.js';
+import { runCommand } from './commands/run.js';
+import { codexCommand } from './commands/codex.js';
 
 const program = new Command();
 

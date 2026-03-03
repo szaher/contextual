@@ -33,14 +33,20 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: pnpm build
+        run: pnpm -r --stream run build
 
       - name: Verify build output
         run: |
-          echo "=== claude-plugin dist structure ==="
-          find packages/claude-plugin/dist -type f -name '*.js' | sort || echo "No dist found!"
-          echo "=== mcp dist structure ==="
-          ls packages/mcp/dist/*.js 2>/dev/null || echo "No mcp dist found!"
+          echo "=== Workspace packages ==="
+          pnpm -r exec -- pwd
+          echo "=== claude-plugin dist ==="
+          find packages/claude-plugin/dist -type f -name '*.js' | sort || echo "WARNING: No claude-plugin dist found!"
+          if [ ! -f packages/claude-plugin/dist/scripts/session-start.js ]; then
+            echo "=== Rebuilding claude-plugin explicitly ==="
+            pnpm --filter @ctxl/claude-plugin... run build
+            echo "=== After explicit rebuild ==="
+            find packages/claude-plugin/dist -type f -name '*.js' | sort || echo "STILL NO DIST!"
+          fi
 
       - name: Run linting
         run: pnpm lint
