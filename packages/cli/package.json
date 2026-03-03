@@ -1,15 +1,34 @@
 {
   "name": "@ctxl/cli",
   "version": "0.1.0",
-  "private": true,
+  "description": "CLI tool for ctxl context management (ctxkit)",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/szaher/contextual.git",
+    "directory": "packages/cli"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
     "ctxkit": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "tsc"
   },
   "dependencies": {
     "@ctxl/core": "workspace:*",

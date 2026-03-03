@@ -104,7 +104,7 @@ jobs:
 
       - name: Publish to npm
         if: ${{ !inputs.dry_run }}
-        run: pnpm -r --filter './packages/*' publish --access public --no-git-checks
+        run: pnpm -r --filter './packages/*' --filter '!@ctxl/ui' publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -1,13 +1,37 @@
 {
   "name": "@ctxl/claude-plugin",
   "version": "0.1.0",
-  "private": true,
+  "description": "Claude Code plugin with 8 hooks and interactive /ctxkit skill",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/szaher/contextual.git",
+    "directory": "packages/claude-plugin"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "main": "dist/src/utils.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/utils.d.ts",
+      "default": "./dist/src/utils.js"
+    }
+  },
+  "files": [
+    "dist",
+    ".claude-plugin",
+    "hooks",
+    "skills",
+    ".mcp.json",
+    "scripts/add-shebangs.js"
+  ],
   "scripts": {
     "build": "tsc && node scripts/add-shebangs.js",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "tsc && node scripts/add-shebangs.js"
   },
   "dependencies": {
     "@ctxl/core": "workspace:*",

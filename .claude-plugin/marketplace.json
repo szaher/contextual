@@ -1,0 +1,15 @@
+{
+  "name": "ctxl",
+  "description": "CtxKit context and memory management plugins for Claude Code",
+  "owner": {
+    "name": "ctxl"
+  },
+  "plugins": [
+    {
+      "name": "ctxkit",
+      "description": "Context and memory management for Claude Code — 8 hooks, /ctxkit skill, and MCP server",
+      "source": "./packages/claude-plugin",
+      "version": "0.1.0"
+    }
+  ]
+}

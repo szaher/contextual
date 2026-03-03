@@ -10,6 +10,7 @@ import { driftCommand } from './commands/drift.js';
 import { daemonCommand, dashboardCommand } from './commands/daemon.js';
 import { runCommand } from './commands/run.js';
 import { codexCommand } from './commands/codex.js';
+import { pluginCommand } from './commands/plugin.js';
 
 const program = new Command();
 
@@ -30,5 +31,6 @@ program.addCommand(daemonCommand);
 program.addCommand(dashboardCommand);
 program.addCommand(runCommand);
 program.addCommand(codexCommand);
+program.addCommand(pluginCommand);
 
 program.parse();
