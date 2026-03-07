@@ -1,7 +1,11 @@
 import { Command } from 'commander';
 import { execSync, spawn } from 'node:child_process';
 import { readFileSync, existsSync, unlinkSync, mkdirSync, writeFileSync, openSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const PID_FILE = join(process.env.HOME || '~', '.ctxl', 'daemon.pid');
 

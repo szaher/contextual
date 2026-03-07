@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-03-01
 
 ## Active Technologies
+- TypeScript 5.x / Node.js 20+ + Hono 4.7, better-sqlite3 11.8, commander 13, zod 3.25, @modelcontextprotocol/sdk 1.27 (003-gap-remediation)
+- SQLite via better-sqlite3 (WAL mode, single file at `~/.ctxl/data/ctxl.db`) (003-gap-remediation)
 
 - TypeScript 5.x / Node.js 20+
 - Hono (HTTP framework), better-sqlite3 (SQLite storage)
@@ -53,3 +55,6 @@ pnpm lint           # Lint all packages
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
+
+## Recent Changes
+- 003-gap-remediation: Added TypeScript 5.x / Node.js 20+ + Hono 4.7, better-sqlite3 11.8, commander 13, zod 3.25, @modelcontextprotocol/sdk 1.27
