@@ -1,14 +1,33 @@
 {
   "name": "@ctxl/core",
   "version": "0.1.0",
-  "private": true,
+  "description": "Context engine for parsing, scoring, packing, diffing, and redacting code context",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/szaher/contextual.git",
+    "directory": "packages/core"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "tsc"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
