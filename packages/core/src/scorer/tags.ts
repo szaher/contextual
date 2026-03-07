@@ -22,15 +22,19 @@ export function scoreTags(
   let matches = 0;
   for (const tag of normalizedTags) {
     if (normalizedKeywords.has(tag)) {
+      // Exact match: +1.0, skip partial matching for this tag
       matches++;
+      continue;
     }
-    // Also check if any keyword contains the tag or vice versa
+    // Partial match: cap contribution per tag to 0.5
+    let partialContribution = 0;
     for (const keyword of normalizedKeywords) {
       if (keyword !== tag && (keyword.includes(tag) || tag.includes(keyword))) {
-        matches += 0.5;
+        partialContribution = 0.5;
         break;
       }
     }
+    matches += partialContribution;
   }
 
   // Score is the ratio of matched tags to total tags, capped at 1.0

@@ -41,7 +41,7 @@ export function scoreEntries(
 
     // Score key_files
     for (const kf of ctx.key_files) {
-      const entry = scoreKeyFile(kf, sourcePath, locality, keywords, touchedFiles);
+      const entry = scoreKeyFile(kf, sourcePath, locality, keywords, touchedFiles, repoRoot);
       entries.push(entry);
     }
 
@@ -110,9 +110,10 @@ function scoreKeyFile(
   locality: number,
   keywords: string[],
   touchedFiles: string[],
+  repoRoot: string,
 ): ScoredEntry {
   const tagScore = scoreTags(keywords, kf.tags);
-  const recency = scoreRecency(kf.verified_at, false);
+  const recency = scoreRecency(kf.verified_at, repoRoot);
   const reasons: ReasonCode[] = [];
 
   let score = locality * 0.4 + tagScore * 0.3 + recency * 0.2;

@@ -46,6 +46,7 @@ export interface ContextPack {
   total_tokens: number;
   budget_tokens: number;
   budget_used_pct: number;
+  warnings: string[];
 }
 
 export interface ContextPackResult {

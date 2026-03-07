@@ -15,6 +15,11 @@ export const injectCommand = new Command('inject')
     const repoRoot = findRepoRoot(workingDir);
     const budgetTokens = parseInt(options.budget, 10);
 
+    if (isNaN(budgetTokens) || budgetTokens <= 0) {
+      console.error('Error: Invalid budget: must be a positive number');
+      process.exit(1);
+    }
+
     const result = buildContextPack({
       workingDir,
       repoRoot,

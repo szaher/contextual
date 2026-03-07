@@ -34,8 +34,9 @@ export function detectSecrets(text: string): SecretMatch[] {
   for (let lineNum = 0; lineNum < lines.length; lineNum++) {
     const line = lines[lineNum];
     for (const { name, pattern } of SECRET_PATTERNS) {
-      const match = pattern.exec(line);
-      if (match) {
+      const globalPattern = new RegExp(pattern.source, pattern.flags.includes('i') ? 'gi' : 'g');
+      let match: RegExpExecArray | null;
+      while ((match = globalPattern.exec(line)) !== null) {
         matches.push({
           name,
           index: match.index,

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, sep } from 'node:path';
 import { detectDrift, detectAllDrift } from '@ctxl/core';
 import type { AppEnv } from '../types.js';
 
@@ -18,14 +18,19 @@ drift.get('/drift', (c) => {
   }
 
   if (ctxPathParam) {
-    const absCtxPath = resolve(repoRoot, ctxPathParam);
-    if (!existsSync(absCtxPath)) {
+    const resolvedPath = resolve(repoRoot, ctxPathParam);
+    const normalizedRoot = resolve(repoRoot) + sep;
+    if (!resolvedPath.startsWith(normalizedRoot) && resolvedPath !== resolve(repoRoot)) {
+      return c.json({ error: 'ctx_path resolves outside repository root' }, 400);
+    }
+
+    if (!existsSync(resolvedPath)) {
       return c.json(
         { error: { code: 'NOT_FOUND', message: `No .ctx file found at ${ctxPathParam}` } },
         404,
       );
     }
-    const result = detectDrift(absCtxPath, repoRoot);
+    const result = detectDrift(resolvedPath, repoRoot);
     return c.json({ results: [result] }, 200);
   }
 

@@ -47,6 +47,9 @@ export function mergeCtxHierarchy(options: MergeOptions): MergedContext {
         if (pattern.endsWith('*')) {
           return relPath.startsWith(pattern.slice(0, -1));
         }
+        if (pattern.endsWith('/')) {
+          return relPath === pattern.slice(0, -1) || relPath.startsWith(pattern);
+        }
         return relPath === pattern;
       });
     });
@@ -133,7 +136,9 @@ function loadWithRefs(
   let ctx: CtxFile;
   try {
     const content = readFileSync(resolved, 'utf-8');
-    ctx = parseCtxFile(content);
+    const result = parseCtxFile(content);
+    ctx = result.ctx;
+    warnings.push(...result.warnings);
   } catch (err) {
     warnings.push(`Failed to load ${relative(repoRoot, resolved)}: ${(err as Error).message}`);
     return [];

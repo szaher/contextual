@@ -12,6 +12,7 @@ export interface MemoryDiff {
   created_at: string;
   resolved_at: string | null;
   resolved_by: string | null;
+  source_hash: string | null;
 }
 
 export interface InsertDiffParams {
@@ -20,6 +21,7 @@ export interface InsertDiffParams {
   ctx_path: string;
   diff_content: string;
   provenance: string;
+  source_hash?: string | null;
 }
 
 export interface DiffQueryOptions {
@@ -37,10 +39,11 @@ export interface DiffQueryResult {
 export function insertDiff(db: Database.Database, params: InsertDiffParams): MemoryDiff {
   const id = `diff_${randomUUID().slice(0, 8)}`;
   const created_at = new Date().toISOString();
+  const source_hash = params.source_hash ?? null;
 
   db.prepare(
-    `INSERT INTO memory_diffs (id, session_id, event_id, ctx_path, diff_content, provenance, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, 'proposed', ?)`,
+    `INSERT INTO memory_diffs (id, session_id, event_id, ctx_path, diff_content, provenance, status, created_at, source_hash)
+     VALUES (?, ?, ?, ?, ?, ?, 'proposed', ?, ?)`,
   ).run(
     id,
     params.session_id ?? null,
@@ -49,6 +52,7 @@ export function insertDiff(db: Database.Database, params: InsertDiffParams): Mem
     params.diff_content,
     params.provenance,
     created_at,
+    source_hash,
   );
 
   return {
@@ -62,6 +66,7 @@ export function insertDiff(db: Database.Database, params: InsertDiffParams): Mem
     created_at,
     resolved_at: null,
     resolved_by: null,
+    source_hash,
   };
 }
 

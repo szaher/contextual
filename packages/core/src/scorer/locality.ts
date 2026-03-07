@@ -30,7 +30,8 @@ export function scoreLocality(
 
   // If source is a parent of working dir (upCount === 0), it's close
   // If we need to go up (..), it's farther away
-  const distance = upCount > 0 ? depth : depth;
+  // Sibling/cousin paths (upCount > 0) require backtracking — penalize extra
+  const distance = upCount > 0 ? depth + upCount * 0.5 : depth;
 
   // Decay: 1.0 for distance=0, 0.8 for distance=1, 0.6, 0.4, etc.
   // Minimum score: 0.1

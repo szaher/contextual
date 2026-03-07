@@ -20,7 +20,7 @@ export const proposeCommand = new Command('propose')
     }
 
     const content = readFileSync(ctxPath, 'utf-8');
-    const ctx = parseCtxFile(content);
+    const { ctx } = parseCtxFile(content);
     const ctxDir = dirname(ctxPath);
 
     if (options.json) {

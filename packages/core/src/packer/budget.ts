@@ -19,6 +19,7 @@ export function applyBudget(
   const budget = options.budgetTokens ?? DEFAULT_BUDGET_TOKENS;
   const items: PackItem[] = [];
   const omitted: OmittedItem[] = [];
+  const warnings: string[] = [];
   let totalTokens = 0;
 
   // Partition: contracts first (they get budget priority)
@@ -38,8 +39,8 @@ export function applyBudget(
       totalTokens += tokens;
     } else {
       // Contract exceeds budget — include with warning
-      console.warn(
-        `[ctxl] Budget stretch: contract "${entry.entry_id}" requires ${tokens} tokens, budget remaining: ${budget - totalTokens}`,
+      warnings.push(
+        `Budget stretch: contract "${entry.entry_id}" requires ${tokens} tokens, budget remaining: ${budget - totalTokens}`,
       );
       items.push(createPackItem(entry, tokens));
       totalTokens += tokens;
@@ -76,6 +77,7 @@ export function applyBudget(
     total_tokens: totalTokens,
     budget_tokens: budget,
     budget_used_pct: Math.round((totalTokens / budget) * 1000) / 10,
+    warnings,
   };
 }
 

@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname } from 'node:path';
 
 const SCHEMA_SQL = `
@@ -18,8 +19,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS request_events (
   id TEXT PRIMARY KEY,
   session_id TEXT NOT NULL REFERENCES sessions(id),
-  request_text TEXT NOT NULL,
-  context_pack TEXT NOT NULL,
+  request_text TEXT,
+  context_pack TEXT,
   omitted_items TEXT,
   token_count INTEGER NOT NULL,
   budget INTEGER NOT NULL,
@@ -43,7 +44,8 @@ CREATE TABLE IF NOT EXISTS memory_diffs (
   status TEXT NOT NULL DEFAULT 'proposed',
   created_at TEXT NOT NULL,
   resolved_at TEXT,
-  resolved_by TEXT
+  resolved_by TEXT,
+  source_hash TEXT
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (
@@ -85,6 +87,5 @@ export function openDatabase(dbPath: string): Database.Database {
  * Default database path: ~/.ctxl/data/ctxl.db
  */
 export function defaultDbPath(): string {
-  const home = process.env.HOME || process.env.USERPROFILE || '~';
-  return `${home}/.ctxl/data/ctxl.db`;
+  return `${homedir()}/.ctxl/data/ctxl.db`;
 }

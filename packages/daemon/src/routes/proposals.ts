@@ -1,7 +1,17 @@
 import { Hono } from 'hono';
+import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { resolve, sep } from 'node:path';
 import { insertDiff, getDiffById, queryDiffs, updateDiffStatus } from '../store/diffs.js';
 import { insertAuditEntry } from '../store/audit.js';
 import type { AppEnv } from '../types.js';
+
+/**
+ * Compute SHA-256 hex digest of a string.
+ */
+function sha256(content: string): string {
+  return createHash('sha256').update(content, 'utf8').digest('hex');
+}
 
 const proposals = new Hono<AppEnv>();
 
@@ -10,7 +20,7 @@ proposals.post('/proposals', async (c) => {
   const db = c.get('db');
   const body = await c.req.json();
 
-  const { session_id, event_id, ctx_path, diff_content, provenance } = body;
+  const { session_id, event_id, ctx_path, diff_content, provenance, repo_root } = body;
 
   if (!ctx_path || !diff_content || !provenance) {
     return c.json(
@@ -24,16 +34,27 @@ proposals.post('/proposals', async (c) => {
     );
   }
 
+  // T031: Compute source_hash from the current .ctx file if it exists
+  let source_hash: string | null = null;
+  if (repo_root) {
+    const resolvedPath = resolve(repo_root, ctx_path);
+    if (existsSync(resolvedPath)) {
+      const currentContent = readFileSync(resolvedPath, 'utf8');
+      source_hash = sha256(currentContent);
+    }
+  }
+
   const diff = insertDiff(db, {
     session_id: session_id || null,
     event_id: event_id || null,
     ctx_path,
     diff_content,
     provenance: typeof provenance === 'string' ? provenance : JSON.stringify(provenance),
+    source_hash,
   });
 
   return c.json(
-    { id: diff.id, status: diff.status, created_at: diff.created_at },
+    { id: diff.id, status: diff.status, created_at: diff.created_at, source_hash: diff.source_hash },
     201,
   );
 });
@@ -116,6 +137,8 @@ proposals.patch('/proposals/:id', async (c) => {
 proposals.post('/proposals/:id/apply', async (c) => {
   const db = c.get('db');
   const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const { repo_root: repoRoot } = body as { repo_root?: string };
 
   const diff = getDiffById(db, id);
   if (!diff) {
@@ -137,10 +160,59 @@ proposals.post('/proposals/:id/apply', async (c) => {
     );
   }
 
-  // Apply the diff to the .ctx file
-  // For now, we use a simple approach: the diff_content is stored as the new content
-  // In a production system, this would apply the unified diff patch
+  // T032-T035: Full proposal apply with conflict detection and file I/O
   try {
+    // If repo_root is provided, perform actual file apply with conflict detection
+    if (repoRoot) {
+      // T035: Path validation — ensure ctx_path resolves within repo root
+      const resolvedPath = resolve(repoRoot, diff.ctx_path);
+      const normalizedRoot = resolve(repoRoot) + sep;
+      if (!resolvedPath.startsWith(normalizedRoot) && resolvedPath !== resolve(repoRoot)) {
+        return c.json(
+          { error: { code: 'BAD_REQUEST', message: 'ctx_path outside repository root' } },
+          400,
+        );
+      }
+
+      // T034: File-not-found handling
+      if (!existsSync(resolvedPath)) {
+        return c.json(
+          {
+            error: {
+              code: 'NOT_FOUND',
+              message: 'Target .ctx file not found',
+              ctx_path: diff.ctx_path,
+            },
+          },
+          404,
+        );
+      }
+
+      // T033: Conflict detection — compare current file hash with stored source_hash
+      const currentContent = readFileSync(resolvedPath, 'utf8');
+      const currentHash = sha256(currentContent);
+
+      if (diff.source_hash && currentHash !== diff.source_hash) {
+        return c.json(
+          {
+            error: {
+              code: 'CONFLICT',
+              message: 'File has been modified since proposal was created',
+              ctx_path: diff.ctx_path,
+              expected_hash: diff.source_hash,
+              actual_hash: currentHash,
+            },
+          },
+          409,
+        );
+      }
+
+      // T032: Atomic write — temp file then rename
+      const tmpPath = resolvedPath + '.tmp';
+      writeFileSync(tmpPath, diff.diff_content, 'utf8');
+      renameSync(tmpPath, resolvedPath);
+    }
+
     const audit = insertAuditEntry(db, {
       ctx_path: diff.ctx_path,
       change_type: 'update',

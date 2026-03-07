@@ -1,12 +1,14 @@
 import { serve } from '@hono/node-server';
 import { createApp } from './server.js';
 import { openDatabase, defaultDbPath } from './store/db.js';
+import { startRetentionScheduler } from './scheduler/retention.js';
 
 const PORT = 3742;
 const HOST = '127.0.0.1';
 
 export async function startDaemon(dbPath?: string): Promise<void> {
   const db = openDatabase(dbPath ?? defaultDbPath());
+  const stopRetention = startRetentionScheduler(db);
   const startedAt = new Date();
 
   const app = createApp({ db, startedAt });
@@ -22,6 +24,7 @@ export async function startDaemon(dbPath?: string): Promise<void> {
   // Graceful shutdown
   const shutdown = () => {
     console.log('Shutting down daemon...');
+    stopRetention();
     db.close();
     if (server) {
       server.close();

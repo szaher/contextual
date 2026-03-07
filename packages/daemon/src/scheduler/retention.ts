@@ -40,8 +40,8 @@ export function runRetentionCleanup(
   const cleanup = db.transaction(() => {
     // 1. Find old session IDs
     const oldSessions = db
-      .prepare('SELECT id FROM sessions WHERE created_at < ? OR started_at < ?')
-      .all(sessionsCutoff, sessionsCutoff) as { id: string }[];
+      .prepare('SELECT id FROM sessions WHERE started_at < ?')
+      .all(sessionsCutoff) as { id: string }[];
 
     const sessionIds = oldSessions.map((s) => s.id);
 
@@ -101,7 +101,7 @@ export function startRetentionScheduler(
   // Run immediately on startup
   const result = runRetentionCleanup(db, config);
   if (result.purgedSessions > 0 || result.purgedAudit > 0) {
-    console.log(
+    console.error(
       `Retention cleanup: ${result.purgedSessions} sessions, ${result.purgedEvents} events, ${result.purgedDiffs} diffs, ${result.purgedAudit} audit entries purged`,
     );
   }
@@ -111,7 +111,7 @@ export function startRetentionScheduler(
     try {
       const r = runRetentionCleanup(db, config);
       if (r.purgedSessions > 0 || r.purgedAudit > 0) {
-        console.log(
+        console.error(
           `Retention cleanup: ${r.purgedSessions} sessions, ${r.purgedEvents} events, ${r.purgedDiffs} diffs, ${r.purgedAudit} audit entries purged`,
         );
       }

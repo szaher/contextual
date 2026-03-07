@@ -83,8 +83,8 @@ export function insertToolEvent(
   ).run(
     id,
     event.session_id,
-    event.tool_name,
-    event.tool_input,
+    null,
+    null,
     null,
     0,
     0,

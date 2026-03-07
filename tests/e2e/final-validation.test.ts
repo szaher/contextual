@@ -155,7 +155,7 @@ tags: ["typescript", "auth", "security"]
 
     // Step 3: Validate .ctx
     const ctxContent = readFileSync(join(tmpDir, '.ctx'), 'utf-8');
-    const parsed = parseCtxFile(ctxContent);
+    const { ctx: parsed } = parseCtxFile(ctxContent);
     const allIssues = validateCtxFile(parsed);
     // Only check for hard errors, not warnings (e.g., missing purpose field)
     const errors = allIssues.filter(e => e.severity === 'error');
