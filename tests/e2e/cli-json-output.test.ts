@@ -433,7 +433,7 @@ describe('E2E: CLI --json Output Validation (T049)', () => {
   describe('propose --json output schema', () => {
     it('should produce valid JSON with expected fields from parseCtxFile', () => {
       const content = CTX_YAML;
-      const ctx = parseCtxFile(content);
+      const { ctx } = parseCtxFile(content);
 
       // Simulate the propose --json output as done by the CLI
       const result: Record<string, unknown> = {
@@ -475,7 +475,7 @@ describe('E2E: CLI --json Output Validation (T049)', () => {
     });
 
     it('should include correct counts matching .ctx content', () => {
-      const ctx = parseCtxFile(CTX_YAML);
+      const { ctx } = parseCtxFile(CTX_YAML);
 
       const result: Record<string, unknown> = {
         path: ctxFilePath,
@@ -502,7 +502,7 @@ describe('E2E: CLI --json Output Validation (T049)', () => {
     });
 
     it('should include dead_references when --check-files equivalent is used', () => {
-      const ctx = parseCtxFile(CTX_YAML);
+      const { ctx } = parseCtxFile(CTX_YAML);
       const ctxDir = resolve(fixtureDir);
 
       const result: Record<string, unknown> = {
@@ -580,7 +580,7 @@ ignore:
       const deadCtxPath = join(fixtureDir, '.ctx-dead-test');
       writeFileSync(deadCtxPath, ctxWithDeadRef);
 
-      const ctx = parseCtxFile(ctxWithDeadRef);
+      const { ctx } = parseCtxFile(ctxWithDeadRef);
       const ctxDir = resolve(fixtureDir);
 
       // existsSync imported at top
@@ -623,7 +623,7 @@ ignore:
     });
 
     it('should produce valid parseCtxFile output that is fully JSON-serializable', () => {
-      const ctx = parseCtxFile(CTX_YAML);
+      const { ctx } = parseCtxFile(CTX_YAML);
 
       // The full CtxFile object should be JSON-serializable
       const jsonStr = JSON.stringify(ctx, null, 2);

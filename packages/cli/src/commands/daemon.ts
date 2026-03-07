@@ -1,9 +1,11 @@
 import { Command } from 'commander';
 import { execSync, spawn } from 'node:child_process';
 import { readFileSync, existsSync, unlinkSync, mkdirSync, writeFileSync, openSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { createRequire } from 'node:module';
 
-const PID_FILE = join(process.env.HOME || '~', '.ctxl', 'daemon.pid');
+const PID_FILE = join(homedir(), '.ctxl', 'daemon.pid');
 
 export const daemonCommand = new Command('daemon')
   .description('Manage the ctxl daemon');
@@ -26,15 +28,16 @@ daemonCommand
     }
 
     // Ensure ~/.ctxl/ directory exists
-    const ctxlDir = join(process.env.HOME || '~', '.ctxl');
+    const ctxlDir = join(homedir(), '.ctxl');
     mkdirSync(ctxlDir, { recursive: true });
 
     const logFile = join(ctxlDir, 'daemon.log');
     const out = openSync(logFile, 'a');
     const err = openSync(logFile, 'a');
 
-    // Find daemon entry point - resolve relative to CLI package
-    const daemonEntry = resolve(__dirname, '../../daemon/dist/index.js');
+    // Find daemon entry point via package resolution
+    const require = createRequire(import.meta.url);
+    const daemonEntry = require.resolve('@ctxl/daemon');
 
     const child = spawn('node', [daemonEntry], {
       detached: true,

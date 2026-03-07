@@ -59,6 +59,12 @@ export function buildContextPack(options: PackOptions): ContextPackResult {
             return entry.source.startsWith(pattern.slice(0, -1)) ||
                    entry.entry_id.startsWith(pattern.slice(0, -1));
           }
+          if (pattern.endsWith('/')) {
+            return entry.source === pattern.slice(0, -1) ||
+                   entry.source.startsWith(pattern) ||
+                   entry.entry_id === pattern.slice(0, -1) ||
+                   entry.entry_id.startsWith(pattern);
+          }
           return entry.source === pattern || entry.entry_id === pattern;
         });
       });

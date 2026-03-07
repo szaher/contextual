@@ -1,4 +1,5 @@
 import { readFileSync, existsSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { load as yamlLoad } from 'js-yaml';
 import type { WorkspaceProfile, GlobalProfile, BudgetConfig, ScoringConfig, AutoApproveConfig, RetentionConfig } from '../types/config.js';
@@ -59,7 +60,7 @@ export function loadProfile(
 
   // Layer 1: Global profile (~/.ctxl/config.yaml)
   const globalPath = join(
-    process.env.HOME || process.env.USERPROFILE || '~',
+    homedir(),
     GLOBAL_CONFIG_DIR,
     GLOBAL_CONFIG_FILE,
   );

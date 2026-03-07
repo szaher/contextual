@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
 import { logger } from 'hono/logger';
 import { serveStatic } from '@hono/node-server/serve-static';
 import type Database from 'better-sqlite3';
@@ -23,6 +24,9 @@ export function createApp(ctx: AppContext): Hono<AppEnv> {
 
   // Request logging
   app.use(logger());
+
+  // Body size limit (10 MB)
+  app.use('*', bodyLimit({ maxSize: 10 * 1024 * 1024 }));
 
   // Inject app context into all routes
   app.use('*', async (c, next) => {

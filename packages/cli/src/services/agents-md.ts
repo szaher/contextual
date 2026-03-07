@@ -247,7 +247,8 @@ export function syncAgents(options: SyncOptions): SyncResult[] {
     let ctx: CtxFile;
     try {
       const raw = readFileSync(ctxPath, 'utf-8');
-      ctx = parseCtxFile(raw);
+      const result = parseCtxFile(raw);
+      ctx = result.ctx;
     } catch {
       continue; // Skip invalid .ctx files
     }

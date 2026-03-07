@@ -31,7 +31,13 @@ export const validateCommand = new Command('validate')
 
     let ctx;
     try {
-      ctx = parseCtxFile(content);
+      const result = parseCtxFile(content);
+      ctx = result.ctx;
+      if (result.warnings.length > 0) {
+        for (const w of result.warnings) {
+          console.error(`Warning: ${w}`);
+        }
+      }
     } catch (err) {
       console.error(`Parse error: ${(err as Error).message}`);
       process.exitCode = 1;

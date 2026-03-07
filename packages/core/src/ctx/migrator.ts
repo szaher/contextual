@@ -65,7 +65,7 @@ export function migrateCtx(ctx: CtxFile): MigrationResult {
  */
 export function migrateCtxFile(filePath: string): MigrationResult {
   const content = readFileSync(filePath, 'utf-8');
-  const ctx = parseCtxFile(content);
+  const { ctx } = parseCtxFile(content);
 
   if (ctx.version >= CURRENT_CTX_VERSION) {
     return {

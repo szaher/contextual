@@ -92,7 +92,7 @@ export function scanForDeadReferences(
   }
 
   const content = readFileSync(ctxPath, 'utf-8');
-  const ctx = parseCtxFile(content);
+  const { ctx } = parseCtxFile(content);
   const ctxDir = dirname(ctxPath);
 
   // Check key_files for dead references

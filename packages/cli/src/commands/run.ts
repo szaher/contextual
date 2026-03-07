@@ -19,6 +19,11 @@ export const runCommand = new Command('run')
     const budgetTokens = parseInt(options.budget, 10);
     const daemonUrl = options.daemon;
 
+    if (isNaN(budgetTokens) || budgetTokens <= 0) {
+      console.error('Error: Invalid budget: must be a positive number');
+      process.exit(1);
+    }
+
     // Step 1: Create session on daemon
     let sessionId: string | null = null;
     try {

@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { resolve } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { resolve, join } from 'node:path';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import {
   buildContextPack,
   mergeCtxHierarchy,
@@ -182,6 +184,252 @@ describe('Context Pack Assembly Integration', () => {
       expect(result.deep_read).not.toBeNull();
       expect(result.deep_read?.triggered).toBe(true);
       expect(result.deep_read?.rationale).toContain('deep analysis');
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────────
+  // T051: Budget stretch produces warnings in result, not console
+  // ──────────────────────────────────────────────────────────────────
+
+  describe('T051: budget stretch warnings', () => {
+    it('should place budget stretch warnings in pack.warnings array', () => {
+      const repoRoot = resolve(FIXTURES_DIR, 'nested');
+      const authDir = resolve(repoRoot, 'src/auth');
+
+      // Use a very small budget so the contract exceeds it,
+      // triggering a budget stretch warning
+      const result = buildContextPack({
+        workingDir: authDir,
+        repoRoot,
+        requestText: 'fix the auth bug',
+        touchedFiles: ['src/auth/handler.ts'],
+        budgetTokens: 1,
+      });
+
+      // The pack should have a warnings array
+      expect(Array.isArray(result.pack.warnings)).toBe(true);
+
+      // If any contract was included that exceeded the budget,
+      // there should be a warning about budget stretch
+      const hasContract = result.pack.items.some(
+        (item) => item.reason_codes.includes(ReasonCode.CONTRACT_REQUIRED),
+      );
+
+      if (hasContract && result.pack.total_tokens > result.pack.budget_tokens) {
+        expect(result.pack.warnings.length).toBeGreaterThan(0);
+        expect(result.pack.warnings.some((w) => w.includes('Budget stretch'))).toBe(true);
+      }
+    });
+
+    it('should have empty warnings array when budget is sufficient', () => {
+      const repoRoot = resolve(FIXTURES_DIR, 'simple');
+
+      const result = buildContextPack({
+        workingDir: repoRoot,
+        repoRoot,
+        requestText: 'fix the config loader',
+        budgetTokens: 100000,
+      });
+
+      // With a huge budget, no stretch warnings should appear
+      expect(result.pack.warnings).toEqual([]);
+    });
+
+    it('should include warnings field as an array in the ContextPack', () => {
+      const repoRoot = resolve(FIXTURES_DIR, 'simple');
+
+      const result = buildContextPack({
+        workingDir: repoRoot,
+        repoRoot,
+        requestText: 'fix the config loader',
+        budgetTokens: 4000,
+      });
+
+      // The warnings field should always be present and be an array
+      expect(result.pack).toHaveProperty('warnings');
+      expect(Array.isArray(result.pack.warnings)).toBe(true);
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────────
+  // T054: Ignore patterns respect directory boundaries
+  // ──────────────────────────────────────────────────────────────────
+
+  describe('T054: ignore patterns directory boundaries', () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+      tmpDir = mkdtempSync(join(tmpdir(), 'ctxl-ignore-boundary-'));
+    });
+
+    afterEach(() => {
+      rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('should exclude src/ directory but NOT src_backup/ with never_read: ["src/"]', () => {
+      // Create directory structure:
+      //   <root>/.ctx           (root context)
+      //   <root>/src/.ctx       (should be excluded by "src/" pattern)
+      //   <root>/src/api/.ctx   (should be excluded — inside src/)
+      //   <root>/src_backup/.ctx (should NOT be excluded)
+
+      // Root .ctx
+      writeFileSync(
+        join(tmpDir, '.ctx'),
+        `version: 1
+summary: "Root context"
+key_files: []
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: [root]
+refs: []
+ignore:
+  never_read: ["src/"]
+  never_log: []
+`,
+      );
+
+      // src/.ctx (should be excluded)
+      mkdirSync(join(tmpDir, 'src'), { recursive: true });
+      writeFileSync(
+        join(tmpDir, 'src', '.ctx'),
+        `version: 1
+summary: "Source context"
+key_files:
+  - path: src/index.ts
+    purpose: Entry point
+    tags: [entry]
+    verified_at: ""
+    locked: false
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: [source]
+refs: []
+ignore:
+  never_read: []
+  never_log: []
+`,
+      );
+
+      // src/api/.ctx (should be excluded — inside src/)
+      mkdirSync(join(tmpDir, 'src', 'api'), { recursive: true });
+      writeFileSync(
+        join(tmpDir, 'src', 'api', '.ctx'),
+        `version: 1
+summary: "API context"
+key_files: []
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: [api]
+refs: []
+ignore:
+  never_read: []
+  never_log: []
+`,
+      );
+
+      // src_backup/.ctx (should NOT be excluded)
+      mkdirSync(join(tmpDir, 'src_backup'), { recursive: true });
+      writeFileSync(
+        join(tmpDir, 'src_backup', '.ctx'),
+        `version: 1
+summary: "Backup context"
+key_files:
+  - path: src_backup/data.ts
+    purpose: Backup data file
+    tags: [backup]
+    verified_at: ""
+    locked: false
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: [backup]
+refs: []
+ignore:
+  never_read: []
+  never_log: []
+`,
+      );
+
+      // Merge from src_backup/ with the ignore policy from root
+      const merged = mergeCtxHierarchy({
+        workingDir: join(tmpDir, 'src_backup'),
+        repoRoot: tmpDir,
+        ignorePolicy: { never_read: ['src/'], never_log: [] },
+      });
+
+      // src_backup/.ctx should be included (NOT matched by "src/" pattern)
+      expect(merged.sources.some((s) => s.includes('src_backup'))).toBe(true);
+
+      // Merge from src/ with the ignore policy — src/.ctx should be excluded
+      const mergedFromSrc = mergeCtxHierarchy({
+        workingDir: join(tmpDir, 'src'),
+        repoRoot: tmpDir,
+        ignorePolicy: { never_read: ['src/'], never_log: [] },
+      });
+
+      // src/.ctx should be excluded by the "src/" pattern
+      const srcSources = mergedFromSrc.sources.filter(
+        (s) => s === 'src/.ctx',
+      );
+      expect(srcSources).toHaveLength(0);
+    });
+
+    it('should exclude src/api/.ctx when never_read includes "src/"', () => {
+      // Root .ctx
+      writeFileSync(
+        join(tmpDir, '.ctx'),
+        `version: 1
+summary: "Root context"
+key_files: []
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: []
+refs: []
+ignore:
+  never_read: []
+  never_log: []
+`,
+      );
+
+      // src/api/.ctx
+      mkdirSync(join(tmpDir, 'src', 'api'), { recursive: true });
+      writeFileSync(
+        join(tmpDir, 'src', 'api', '.ctx'),
+        `version: 1
+summary: "API context"
+key_files: []
+contracts: []
+decisions: []
+commands: {}
+gotchas: []
+tags: [api]
+refs: []
+ignore:
+  never_read: []
+  never_log: []
+`,
+      );
+
+      const merged = mergeCtxHierarchy({
+        workingDir: join(tmpDir, 'src', 'api'),
+        repoRoot: tmpDir,
+        ignorePolicy: { never_read: ['src/'], never_log: [] },
+      });
+
+      // src/api/.ctx path is "src/api/.ctx" which starts with "src/"
+      // so it should be excluded
+      const apiSources = merged.sources.filter((s) => s.includes('src/api'));
+      expect(apiSources).toHaveLength(0);
     });
   });
 });

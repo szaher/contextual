@@ -40,6 +40,7 @@ export {
 
 // Ctx operations
 export { parseCtxFile, serializeCtxFile } from './ctx/parser.js';
+export type { ParseResult } from './ctx/parser.js';
 export { validateCtxFile } from './ctx/validator.js';
 export type { ValidationError } from './ctx/validator.js';
 export { mergeCtxHierarchy } from './ctx/merger.js';
@@ -65,7 +66,7 @@ export type { TokenEstimator } from './packer/tokens.js';
 // Differ
 export { generateDiff, diffCtxFiles, scanForDeadReferences } from './differ/differ.js';
 export type { DiffResult, PruneProposal, PruneResult } from './differ/differ.js';
-export { detectDrift, detectAllDrift } from './differ/drift.js';
+export { detectDrift, detectAllDrift, isValidVerifiedAt } from './differ/drift.js';
 export type { StaleEntry, DriftResult } from './differ/drift.js';
 
 // Config

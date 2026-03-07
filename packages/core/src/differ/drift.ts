@@ -1,5 +1,5 @@
-import { execSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { parseCtxFile } from '../ctx/parser.js';
 
@@ -20,6 +20,26 @@ export interface DriftResult {
 }
 
 /**
+ * Validate a verified_at value. Accepts:
+ * - Empty string (treated as stale)
+ * - Git commit hash: /^[a-f0-9]{4,40}$/
+ * - ISO 8601 date: parseable by new Date() with valid getTime()
+ */
+export function isValidVerifiedAt(value: string): boolean {
+  // Empty string is valid (treated as stale)
+  if (value === '') return true;
+
+  // Git commit hash: 4-40 lowercase hex characters
+  if (/^[a-f0-9]{4,40}$/.test(value)) return true;
+
+  // ISO 8601 date
+  const date = new Date(value);
+  if (!isNaN(date.getTime())) return true;
+
+  return false;
+}
+
+/**
  * Detect drift for a single .ctx file by checking if referenced files
  * have changed since their verified_at commit.
  */
@@ -32,7 +52,7 @@ export function detectDrift(ctxPath: string, repoRoot: string): DriftResult {
   }
 
   const content = readFileSync(ctxPath, 'utf-8');
-  const ctx = parseCtxFile(content);
+  const { ctx } = parseCtxFile(content);
   const currentCommit = getCurrentCommit(repoRoot);
 
   // Check key_files
@@ -110,9 +130,20 @@ function checkEntryDrift(
 
   // Check if file was modified since verified_at
   if (verifiedAt && verifiedAt.length > 0) {
+    // Validate verified_at before using in git operations
+    if (!isValidVerifiedAt(verifiedAt)) {
+      return {
+        verified_at: verifiedAt,
+        current_commit: currentCommit,
+        reason: 'commit_unknown',
+        details: `Invalid verified_at format: ${verifiedAt}`,
+      };
+    }
+
     try {
-      const hasChanges = execSync(
-        `git log --oneline ${verifiedAt}..HEAD -- "${relPath}" 2>/dev/null | head -1`,
+      const hasChanges = execFileSync(
+        'git',
+        ['log', '--oneline', `${verifiedAt}..HEAD`, '--', relPath],
         { cwd: repoRoot, encoding: 'utf-8' },
       ).trim();
 
@@ -151,9 +182,19 @@ function checkVerifiedAt(
     return null;
   }
 
+  // Validate verified_at before using in git operations
+  if (!isValidVerifiedAt(verifiedAt)) {
+    return {
+      verified_at: verifiedAt,
+      current_commit: currentCommit,
+      reason: 'commit_unknown',
+      details: `Invalid verified_at format: ${verifiedAt} for ${entryId}`,
+    };
+  }
+
   try {
     // Check if the commit exists
-    execSync(`git cat-file -t ${verifiedAt} 2>/dev/null`, {
+    execFileSync('git', ['cat-file', '-t', verifiedAt], {
       cwd: repoRoot,
       encoding: 'utf-8',
     });
@@ -171,7 +212,7 @@ function checkVerifiedAt(
 
 function getCurrentCommit(repoRoot: string): string {
   try {
-    return execSync('git rev-parse --short HEAD 2>/dev/null', {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
       cwd: repoRoot,
       encoding: 'utf-8',
     }).trim();
@@ -182,12 +223,19 @@ function getCurrentCommit(repoRoot: string): string {
 
 function detectRename(filePath: string, sinceCommit: string, repoRoot: string): string | null {
   if (!sinceCommit) return null;
+
+  // Validate sinceCommit before using in git operations
+  if (!isValidVerifiedAt(sinceCommit)) return null;
+
   try {
-    const output = execSync(
-      `git log --follow --diff-filter=R --format="" --name-only ${sinceCommit}..HEAD -- "${filePath}" 2>/dev/null | head -1`,
+    const output = execFileSync(
+      'git',
+      ['log', '--follow', '--diff-filter=R', '--format=', '--name-only', `${sinceCommit}..HEAD`, '--', filePath],
       { cwd: repoRoot, encoding: 'utf-8' },
     ).trim();
-    return output || null;
+    // Take only the first line (equivalent to | head -1)
+    const firstLine = output.split('\n')[0]?.trim() || '';
+    return firstLine || null;
   } catch {
     return null;
   }
@@ -195,12 +243,17 @@ function detectRename(filePath: string, sinceCommit: string, repoRoot: string): 
 
 function findAllCtxFiles(repoRoot: string): string[] {
   try {
-    const output = execSync(
-      'find . -name ".ctx" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null',
-      { cwd: repoRoot, encoding: 'utf-8' },
-    ).trim();
-    if (!output) return [];
-    return output.split('\n').map((p) => resolve(repoRoot, p));
+    const entries = readdirSync(repoRoot, { recursive: true, encoding: 'utf-8' });
+    return entries
+      .filter((entry) => {
+        // Skip node_modules and .git directories
+        if (entry.includes('node_modules') || entry.includes('.git')) return false;
+        // Match files named ".ctx"
+        const parts = entry.split('/');
+        const fileName = parts[parts.length - 1];
+        return fileName === '.ctx';
+      })
+      .map((entry) => resolve(repoRoot, entry));
   } catch {
     return [];
   }

@@ -148,14 +148,14 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
   // ---------------------------------------------------------------
   describe('generateCtxKitSection', () => {
     it('should include summary in generated section', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('A test project for integration testing');
     });
 
     it('should list key files with paths and purposes', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('### Key Files');
@@ -166,7 +166,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
     });
 
     it('should list only accepted decisions', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('### Decisions');
@@ -177,7 +177,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
     });
 
     it('should list gotchas', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('### Gotchas');
@@ -186,7 +186,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
     });
 
     it('should list contracts', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('### Contracts');
@@ -195,7 +195,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
     });
 
     it('should include CtxKit Usage Policy section', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('## CtxKit Usage Policy');
@@ -206,7 +206,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
     });
 
     it('should include generated timestamp comment', () => {
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toMatch(/<!-- Generated: .+ \| Source: \.ctx hierarchy -->/);
@@ -214,7 +214,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
 
     it('should handle .ctx with empty optional fields', () => {
       const minimalYaml = `version: 1\nsummary: "Minimal project"\n`;
-      const ctx = parseCtxFile(minimalYaml);
+      const { ctx } = parseCtxFile(minimalYaml);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).toContain('## CtxKit Project Context');
@@ -236,7 +236,7 @@ describe('Integration: AGENTS.md Generation (T046)', () => {
 summary: "Connect with api_key=sk_live_abcdefghijklmnopqrstuv"
 key_files: []
 `;
-      const ctx = parseCtxFile(yamlWithSecret);
+      const { ctx } = parseCtxFile(yamlWithSecret);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).not.toContain('sk_live_abcdefghijklmnopqrstuv');
@@ -250,7 +250,7 @@ key_files:
   - path: deploy.ts
     purpose: "Uses AKIAIOSFODNN7EXAMPLE for deployment"
 `;
-      const ctx = parseCtxFile(yamlWithAwsKey);
+      const { ctx } = parseCtxFile(yamlWithAwsKey);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).not.toContain('AKIAIOSFODNN7EXAMPLE');
@@ -267,7 +267,7 @@ decisions:
     date: "2026-01-01"
     rationale: "CI automation"
 `;
-      const ctx = parseCtxFile(yamlWithGhToken);
+      const { ctx } = parseCtxFile(yamlWithGhToken);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).not.toContain('ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkl');
@@ -280,7 +280,7 @@ summary: "DB project"
 gotchas:
   - text: "Default connection is postgres://admin:s3cret@db.example.com:5432/mydb"
 `;
-      const ctx = parseCtxFile(yamlWithConnStr);
+      const { ctx } = parseCtxFile(yamlWithConnStr);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).not.toContain('postgres://admin:s3cret@db.example.com:5432/mydb');
@@ -296,7 +296,7 @@ contracts:
       paths: ["src/crypto/*"]
     content: "Stored at -----BEGIN RSA PRIVATE KEY----- for signing"
 `;
-      const ctx = parseCtxFile(yamlWithPem);
+      const { ctx } = parseCtxFile(yamlWithPem);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
 
       expect(section).not.toContain('-----BEGIN RSA PRIVATE KEY-----');
@@ -497,7 +497,7 @@ contracts:
       writeCtxFixture(tmpDir, BASIC_CTX_YAML);
 
       // Generate section and manually create the AGENTS.md with it
-      const ctx = parseCtxFile(BASIC_CTX_YAML);
+      const { ctx } = parseCtxFile(BASIC_CTX_YAML);
       const section = generateCtxKitSection(ctx, tmpDir, tmpDir, 8000);
       const agentsPath = join(tmpDir, 'AGENTS.md');
       const fileContent = `${CTXKIT_BEGIN}\n${section}\n${CTXKIT_END}\n`;
