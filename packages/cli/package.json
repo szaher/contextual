@@ -33,7 +33,7 @@
   "dependencies": {
     "@ctxl/core": "workspace:*",
     "@ctxl/daemon": "workspace:*",
-    "commander": "^13.1.0"
+    "commander": "^14.0.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
