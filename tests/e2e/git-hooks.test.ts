@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync, chmodSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync, chmodSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
@@ -88,7 +88,6 @@ exit 0
       chmodSync(hookPath, 0o755);
 
       // Simulate chaining: rename original, create ctxkit wrapper
-      const { renameSync } = require('node:fs');
       renameSync(hookPath, originalPath);
 
       const chainedContent = `#!/bin/sh
@@ -122,7 +121,6 @@ exit 0
       chmodSync(hookPath, 0o755);
 
       // Remove ctxkit hook, restore original
-      const { unlinkSync, renameSync } = require('node:fs');
       unlinkSync(hookPath);
       renameSync(originalPath, hookPath);
 

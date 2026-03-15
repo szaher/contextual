@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { writeFileSync, readFileSync, existsSync, mkdirSync, chmodSync, renameSync, unlinkSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { formatTrailers } from '@ctxkit/core';
 
