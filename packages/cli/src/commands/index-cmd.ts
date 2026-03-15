@@ -116,18 +116,12 @@ function findRepoRoot(startDir: string): string {
   let dir = startDir;
   while (true) {
     try {
-      accessSync(join(dir, '.ctx'));
+      accessSync(join(dir, '.git'));
       return dir;
     } catch {
-      // try .git
-      try {
-        accessSync(join(dir, '.git'));
-        return dir;
-      } catch {
-        const parent = dirname(dir);
-        if (parent === dir) return startDir; // reached root
-        dir = parent;
-      }
+      const parent = dirname(dir);
+      if (parent === dir) return startDir; // reached root
+      dir = parent;
     }
   }
 }

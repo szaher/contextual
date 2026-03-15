@@ -63,8 +63,10 @@ export function parseCtxFile(content: string): ParseResult {
     tags: Array.isArray(r.tags) ? r.tags.map(String) : [],
     refs: Array.isArray(r.refs) ? r.refs.map(normalizeRef) : [],
     ignore: normalizeIgnore(r.ignore),
-    ...(Array.isArray(r._history) && r._history.length > 0
-      ? { _history: r._history.map((item, i) => normalizeHistoryEntry(item, warnings, i)) }
+    ...(Array.isArray(r._history)
+      ? { _history: r._history.length > 0
+          ? r._history.map((item, i) => normalizeHistoryEntry(item, warnings, i))
+          : [] }
       : {}),
   };
 
@@ -91,7 +93,7 @@ export function serializeCtxFile(ctx: CtxFile): string {
   };
 
   // Append _history at the end if present
-  if (ctx._history && ctx._history.length > 0) {
+  if (ctx._history) {
     ordered._history = ctx._history;
   }
 
