@@ -5,6 +5,8 @@ Auto-generated from all feature plans. Last updated: 2026-03-01
 ## Active Technologies
 - TypeScript 5.x / Node.js 20+ + Hono 4.7, better-sqlite3 11.8, commander 13, zod 3.25, @modelcontextprotocol/sdk 1.27 (003-gap-remediation)
 - SQLite via better-sqlite3 (WAL mode, single file at `~/.ctxl/data/ctxl.db`) (003-gap-remediation)
+- TypeScript 5.7 / Node.js 20+ (004-ctxl-v2)
+- SQLite via better-sqlite3 (WAL mode, `~/.ctxl/data/ctxl.db`) + filesystem (.ctx YAML, .ctxl YAML, .ctxl.lock YAML, .ctxl.history/ YAML) (004-ctxl-v2)
 
 - TypeScript 5.x / Node.js 20+
 - Hono (HTTP framework), better-sqlite3 (SQLite storage)
@@ -17,12 +19,12 @@ Auto-generated from all feature plans. Last updated: 2026-03-01
 
 ```text
 packages/
-  core/             @ctxl/core -- context engine (parse, score, pack, diff, redact)
-  daemon/           @ctxl/daemon -- HTTP API + SQLite storage
-  cli/              @ctxl/cli -- ctxkit CLI tool
-  mcp/              @ctxl/mcp -- MCP server (10 tools over stdio)
-  claude-plugin/    @ctxl/claude-plugin -- Claude Code plugin (8 hooks + /ctxkit skill)
-  ui/               @ctxl/ui -- React inspection dashboard
+  core/             @ctxkit/core -- context engine (parse, score, pack, diff, redact)
+  daemon/           @ctxkit/daemon -- HTTP API + SQLite storage
+  cli/              @ctxkit/cli -- ctxkit CLI tool
+  mcp/              @ctxkit/mcp -- MCP server (10 tools over stdio)
+  claude-plugin/    @ctxkit/claude-plugin -- Claude Code plugin (8 hooks + /ctxkit skill)
+  ui/               @ctxkit/ui -- React inspection dashboard
 tests/
   integration/      147 integration tests (10 files)
   e2e/              79 E2E tests (12 files)
@@ -49,12 +51,13 @@ pnpm lint           # Lint all packages
 
 ## Key Packages
 
-- **@ctxl/mcp**: stdio-based MCP server (`ctxkit-mcp`). 10 tools: context_pack, log_event, propose_update, apply_proposal, reject_proposal, sessions.list, sessions.show, policy.get, policy.validate, memory.search
-- **@ctxl/claude-plugin**: 8 hooks (SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PostToolUseFailure, TaskCompleted, PreCompact, SessionEnd). Interactive `/ctxkit` skill.
-- **@ctxl/cli**: Commands include `inject`, `propose`, `apply`, `sessions`, `drift`, `daemon`, `dashboard`, `run`, `codex sync-agents`. All output commands support `--json`.
+- **@ctxkit/mcp**: stdio-based MCP server (`ctxkit-mcp`). 10 tools: context_pack, log_event, propose_update, apply_proposal, reject_proposal, sessions.list, sessions.show, policy.get, policy.validate, memory.search
+- **@ctxkit/claude-plugin**: 8 hooks (SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PostToolUseFailure, TaskCompleted, PreCompact, SessionEnd). Interactive `/ctxkit` skill.
+- **@ctxkit/cli**: Commands include `inject`, `propose`, `apply`, `sessions`, `drift`, `daemon`, `dashboard`, `run`, `codex sync-agents`. All output commands support `--json`.
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
 
 ## Recent Changes
+- 004-ctxl-v2: Added TypeScript 5.7 / Node.js 20+
 - 003-gap-remediation: Added TypeScript 5.x / Node.js 20+ + Hono 4.7, better-sqlite3 11.8, commander 13, zod 3.25, @modelcontextprotocol/sdk 1.27

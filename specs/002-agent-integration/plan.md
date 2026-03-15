@@ -10,8 +10,8 @@ Build two first-class agent adapters (Claude Code plugin + Codex adapter) and a 
 ## Technical Context
 
 **Language/Version**: TypeScript 5.x / Node.js 20+
-**Primary Dependencies**: `@modelcontextprotocol/sdk` ^1.27 (MCP server), `zod` ^3.25 (schema validation), `@ctxl/core` (workspace dependency), `commander` ^13 (CLI extensions)
-**Storage**: Existing better-sqlite3 via `@ctxl/daemon` (no new storage layer)
+**Primary Dependencies**: `@modelcontextprotocol/sdk` ^1.27 (MCP server), `zod` ^3.25 (schema validation), `@ctxkit/core` (workspace dependency), `commander` ^13 (CLI extensions)
+**Storage**: Existing better-sqlite3 via `@ctxkit/daemon` (no new storage layer)
 **Testing**: Vitest (integration + E2E), real filesystem temp dirs, spawned daemon processes
 **Target Platform**: macOS / Linux (local developer machines)
 **Project Type**: Monorepo packages (library + CLI extension + plugin)
@@ -33,9 +33,9 @@ Build two first-class agent adapters (Claude Code plugin + Codex adapter) and a 
 ### II. Repository Truth Over Guessing — PASS
 
 - MCP server wraps existing daemon API routes (sessions, context-pack, proposals, drift, audit). No new data access patterns invented.
-- Hook scripts call existing `@ctxl/core` functions via the daemon HTTP API.
+- Hook scripts call existing `@ctxkit/core` functions via the daemon HTTP API.
 - `AGENTS.md` generation reads existing `.ctx` files — no invented content.
-- Reuses existing `buildContextPack`, `loadProfile`, `detectSecrets`, `redactSecrets` from `@ctxl/core`.
+- Reuses existing `buildContextPack`, `loadProfile`, `detectSecrets`, `redactSecrets` from `@ctxkit/core`.
 
 ### III. Transparent, Inspectable Context Injection — PASS
 
@@ -98,7 +98,7 @@ packages/
 │       └── commands/
 │           └── codex.ts         # New: sync-agents subcommand
 ├── ui/                  # Existing — no changes needed
-├── mcp/                 # NEW PACKAGE: @ctxl/mcp
+├── mcp/                 # NEW PACKAGE: @ctxkit/mcp
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
@@ -113,7 +113,7 @@ packages/
 │       │   └── memory.ts
 │       ├── client.ts            # HTTP client for daemon API
 │       └── types.ts             # MCP-specific types
-└── claude-plugin/       # NEW PACKAGE: @ctxl/claude-plugin
+└── claude-plugin/       # NEW PACKAGE: @ctxkit/claude-plugin
     ├── package.json
     ├── .claude-plugin/
     │   └── plugin.json          # Plugin manifest
@@ -143,7 +143,7 @@ tests/
     └── codex-sync.test.ts       # AGENTS.md generation E2E
 ```
 
-**Structure Decision**: Two new packages (`@ctxl/mcp`, `@ctxl/claude-plugin`) added to the existing monorepo alongside the four Feature 001 packages. The CLI package is extended (not replaced) with the `codex sync-agents` subcommand. This follows the monorepo pattern established in Feature 001 and keeps each adapter self-contained.
+**Structure Decision**: Two new packages (`@ctxkit/mcp`, `@ctxkit/claude-plugin`) added to the existing monorepo alongside the four Feature 001 packages. The CLI package is extended (not replaced) with the `codex sync-agents` subcommand. This follows the monorepo pattern established in Feature 001 and keeps each adapter self-contained.
 
 ## Complexity Tracking
 

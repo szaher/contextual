@@ -37,7 +37,7 @@ daemonCommand
 
     // Find daemon entry point via package resolution
     const require = createRequire(import.meta.url);
-    const daemonEntry = require.resolve('@ctxl/daemon');
+    const daemonEntry = require.resolve('@ctxkit/daemon');
 
     const child = spawn('node', [daemonEntry], {
       detached: true,

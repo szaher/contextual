@@ -1,0 +1,54 @@
+# A v1 .ctx file -- no _version, no _history, no checksums.
+# This is what a typical v1 .ctx file looks like before migration.
+
+version: 1
+
+summary: |
+  Authentication module for the platform. Handles user login,
+  registration, JWT token management, and role-based access control.
+
+tags: [auth, jwt, security, login]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth HTTP handler: login, register, refresh, logout endpoints."
+    tags: [auth, handler]
+    verified_at: "abc1234"
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT issuance and validation. Token expiry: access=15m, refresh=7d."
+    tags: [jwt, token, security]
+    verified_at: "abc1234"
+
+  - path: src/auth/middleware.ts
+    why: "Express middleware for route protection and role checks."
+    tags: [auth, middleware]
+    verified_at: "abc1234"
+
+contracts:
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, security]
+    content: |
+      SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt (cost factor >= 12).
+      2. JWT secrets MUST come from environment variables, never hardcoded.
+      3. Refresh tokens MUST be stored server-side and revocable.
+    verified_at: "abc1234"
+    locked: true
+
+decisions:
+  - id: d001
+    title: "JWT over session cookies for API authentication"
+    status: accepted
+    date: "2025-06-15"
+    rationale: |
+      JWT allows stateless authentication for the REST API.
+    alternatives:
+      - name: "Session cookies"
+        reason_rejected: "Requires shared session store"
+    verified_at: "abc1234"
+
+commands:
+  test: "pnpm test --filter=auth"

@@ -17,10 +17,10 @@ export const pluginCommand = new Command('plugin')
   .description('Manage the Claude Code ctxkit plugin');
 
 /**
- * Locate the @ctxl/claude-plugin package directory (has .claude-plugin/plugin.json).
+ * Locate the @ctxkit/claude-plugin package directory (has .claude-plugin/plugin.json).
  */
 function resolvePluginPkg(): string | null {
-  // CLI at <root>/@ctxl/cli/dist/commands/plugin.js  (global npm)
+  // CLI at <root>/@ctxkit/cli/dist/commands/plugin.js  (global npm)
   //     or <root>/packages/cli/dist/commands/plugin.js (monorepo)
   const relative = resolve(__dirname, '../../../claude-plugin');
   if (existsSync(join(relative, '.claude-plugin', 'plugin.json'))) {
@@ -255,8 +255,8 @@ pluginCommand
     // Fallback: direct install (copy plugin to cache, write config)
     const pluginDir = resolvePluginPkg();
     if (!pluginDir) {
-      console.error('Could not locate @ctxl/claude-plugin package.');
-      console.error('Make sure it is installed (npm install -g @ctxl/claude-plugin).');
+      console.error('Could not locate @ctxkit/claude-plugin package.');
+      console.error('Make sure it is installed (npm install -g @ctxkit/claude-plugin).');
       process.exit(1);
     }
 

@@ -6,7 +6,7 @@ import {
   buildContextPack,
   mergeCtxHierarchy,
   ReasonCode,
-} from '@ctxl/core';
+} from '@ctxkit/core';
 
 const FIXTURES_DIR = resolve(import.meta.dirname, '../fixtures/repos');
 

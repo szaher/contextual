@@ -185,7 +185,7 @@ export class DaemonClient {
     }
   }
 
-  private async get<T>(path: string): Promise<T> {
+  async get<T>(path: string): Promise<T> {
     const res = await this.fetch(path, {
       method: 'GET',
       headers: { Accept: 'application/json' },
@@ -196,7 +196,7 @@ export class DaemonClient {
     return res.json() as Promise<T>;
   }
 
-  private async post<T>(path: string, body: unknown): Promise<T> {
+  async post<T>(path: string, body: unknown): Promise<T> {
     const res = await this.fetch(path, {
       method: 'POST',
       headers: {
@@ -211,7 +211,7 @@ export class DaemonClient {
     return res.json() as Promise<T>;
   }
 
-  private async patch<T>(path: string, body: unknown): Promise<T> {
+  async patch<T>(path: string, body: unknown): Promise<T> {
     const res = await this.fetch(path, {
       method: 'PATCH',
       headers: {

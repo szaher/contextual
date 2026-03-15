@@ -16,7 +16,7 @@ import { resolve, join } from 'node:path';
 import { mkdtempSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import type { HookOutput } from '@ctxl/core';
+import type { HookOutput } from '@ctxkit/core';
 
 // Path to compiled hook handler scripts
 const SCRIPTS_DIR = resolve(

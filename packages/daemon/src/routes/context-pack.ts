@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { buildContextPack } from '@ctxl/core';
+import { buildContextPack } from '@ctxkit/core';
 import { insertRequestEvent } from '../store/events.js';
 import type { AppEnv } from '../types.js';
 

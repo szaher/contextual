@@ -5,6 +5,14 @@ export enum ReasonCode {
   RECENT_EDIT = 'RECENT_EDIT',
   CONTRACT_REQUIRED = 'CONTRACT_REQUIRED',
   DEEP_READ = 'DEEP_READ',
+  /** Selected because of dependency graph edge */
+  DEPENDENCY = 'DEPENDENCY',
+  /** Selected because it is a cwd ancestor */
+  CWD_ANCESTOR = 'CWD_ANCESTOR',
+  /** Score boosted by manual weight in .ctxl entry */
+  WEIGHT_BOOST = 'WEIGHT_BOOST',
+  /** Pinned via .ctxl index selector input */
+  PINNED_INDEX = 'PINNED_INDEX',
 }
 
 export enum ExclusionReason {

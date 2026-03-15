@@ -1,0 +1,110 @@
+# Sample session record showing the raw data collected during a coding session.
+# This data is stored by the ctxl daemon and used to generate PR context.
+
+session:
+  id: "sess_abc123"
+  agent: "claude-code"
+  start: "2026-03-14T09:00:00Z"
+  end: "2026-03-14T10:15:00Z"
+  branch: "feat/add-oauth-support"
+  cwd: "src/auth"
+
+  # User prompts captured by the UserPromptSubmit hook
+  prompts:
+    - index: 1
+      timestamp: "2026-03-14T09:00:15Z"
+      text: "Add OAuth2 support with Google and GitHub providers"
+    - index: 2
+      timestamp: "2026-03-14T09:05:30Z"
+      text: "Use PKCE flow for security"
+    - index: 3
+      timestamp: "2026-03-14T09:12:00Z"
+      text: "Create a separate service file for OAuth logic"
+    - index: 4
+      timestamp: "2026-03-14T09:20:00Z"
+      text: "Add the callback handler to handler.ts"
+    - index: 5
+      timestamp: "2026-03-14T09:30:00Z"
+      text: "Add types for OAuth providers and tokens"
+    - index: 6
+      timestamp: "2026-03-14T09:45:00Z"
+      text: "Write integration tests for the OAuth flow"
+    - index: 7
+      timestamp: "2026-03-14T10:00:00Z"
+      text: "Update the .ctx file with the new oauth.ts entry"
+    - index: 8
+      timestamp: "2026-03-14T10:10:00Z"
+      text: "Add a gotcha about the RS256/HS256 mismatch in tests"
+
+  # Tool calls captured by PreToolUse/PostToolUse hooks
+  tool_calls:
+    - index: 1
+      tool: "Write"
+      path: "src/auth/oauth.ts"
+      result: "success"
+      timestamp: "2026-03-14T09:08:00Z"
+    - index: 2
+      tool: "Edit"
+      path: "src/auth/handler.ts"
+      result: "success"
+      timestamp: "2026-03-14T09:22:00Z"
+    - index: 3
+      tool: "Edit"
+      path: "src/auth/types.ts"
+      result: "success"
+      timestamp: "2026-03-14T09:32:00Z"
+    # ... (42 total tool calls)
+
+  # Decisions made during the session
+  decisions:
+    - title: "OAuth2 with PKCE flow"
+      rationale: "PKCE provides better security for public clients. Aligns with OAuth 2.1."
+      timestamp: "2026-03-14T09:06:00Z"
+    - title: "Separate oauth.ts service"
+      rationale: "Keeps handler focused on HTTP, service on OAuth protocol logic."
+      timestamp: "2026-03-14T09:13:00Z"
+
+  # File changes tracked during the session
+  file_changes:
+    - path: "src/auth/oauth.ts"
+      action: "created"
+      timestamp: "2026-03-14T09:08:00Z"
+    - path: "src/auth/handler.ts"
+      action: "modified"
+      timestamp: "2026-03-14T09:22:00Z"
+    - path: "src/auth/types.ts"
+      action: "modified"
+      timestamp: "2026-03-14T09:32:00Z"
+    - path: "tests/auth/oauth.test.ts"
+      action: "created"
+      timestamp: "2026-03-14T09:50:00Z"
+
+  # .ctx updates applied during the session
+  ctx_updates:
+    - file: "src/auth/.ctx"
+      proposal_id: "diff_012"
+      change: "Added key_files entry for oauth.ts"
+      timestamp: "2026-03-14T10:02:00Z"
+    - file: "src/auth/.ctx"
+      proposal_id: "diff_013"
+      change: "Added gotcha about RS256/HS256 mismatch"
+      timestamp: "2026-03-14T10:12:00Z"
+    - file: "src/auth/.ctx"
+      proposal_id: "diff_014"
+      change: "Updated summary to mention OAuth"
+      timestamp: "2026-03-14T10:13:00Z"
+
+  # Context that was injected during the session
+  context_injected:
+    - source: "src/auth/.ctx"
+      entry: "summary"
+      score: 0.92
+    - source: "src/auth/.ctx"
+      entry: "key_files/handler.ts"
+      score: 0.90
+    - source: "src/auth/.ctx"
+      entry: "contracts/auth-security-requirements"
+      score: 0.95
+    - source: ".ctx"
+      entry: "contracts/const-002-jwt-auth"
+      score: 0.95

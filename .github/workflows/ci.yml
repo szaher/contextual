@@ -43,7 +43,7 @@ jobs:
           find packages/claude-plugin/dist -type f -name '*.js' | sort || echo "WARNING: No claude-plugin dist found!"
           if [ ! -f packages/claude-plugin/dist/scripts/session-start.js ]; then
             echo "=== Rebuilding claude-plugin explicitly ==="
-            pnpm --filter @ctxl/claude-plugin... run build
+            pnpm --filter @ctxkit/claude-plugin... run build
             echo "=== After explicit rebuild ==="
             find packages/claude-plugin/dist -type f -name '*.js' | sort || echo "STILL NO DIST!"
           fi

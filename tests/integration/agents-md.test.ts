@@ -16,7 +16,7 @@ import {
   extractManagedSection,
   syncAgents,
 } from '../../packages/cli/src/services/agents-md.js';
-import { parseCtxFile } from '@ctxl/core';
+import { parseCtxFile } from '@ctxkit/core';
 
 const CTXKIT_BEGIN = '<!-- CTXKIT:BEGIN - Managed by CtxKit. Do not edit this section. -->';
 const CTXKIT_END = '<!-- CTXKIT:END -->';

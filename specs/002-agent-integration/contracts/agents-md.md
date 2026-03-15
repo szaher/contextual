@@ -125,7 +125,7 @@ The sync command walks the `.ctx` hierarchy:
 1. Start at repo root
 2. Find all directories containing `.ctx` files
 3. For each directory:
-   a. Read `.ctx` file(s) via `parseCtxFile` from `@ctxl/core`
+   a. Read `.ctx` file(s) via `parseCtxFile` from `@ctxkit/core`
    b. Apply `redactSecrets` to all content
    c. Apply ignore policies (skip `never_read` paths)
    d. Generate summary within token budget
@@ -153,7 +153,7 @@ Implementation:
 
 ## Secret Redaction
 
-All generated content passes through `detectSecrets` and `redactSecrets` from `@ctxl/core`:
+All generated content passes through `detectSecrets` and `redactSecrets` from `@ctxkit/core`:
 - API keys, tokens, passwords, connection strings → replaced with `[REDACTED]`
 - `.env` file contents → never included
 - Paths matching `never_read` or `never_log` ignore policies → excluded entirely

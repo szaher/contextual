@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { resolve } from 'node:path';
-import { buildContextPack, ReasonCode } from '@ctxl/core';
+import { buildContextPack, ReasonCode } from '@ctxkit/core';
 
 const FIXTURES_DIR = resolve(import.meta.dirname, '../fixtures/repos');
 

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { existsSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
-import { detectDrift, detectAllDrift } from '@ctxl/core';
+import { detectDrift, detectAllDrift } from '@ctxkit/core';
 import type { AppEnv } from '../types.js';
 
 const drift = new Hono<AppEnv>();

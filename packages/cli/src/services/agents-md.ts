@@ -7,7 +7,7 @@ import {
   loadProfile,
   type CtxFile,
   type Decision,
-} from '@ctxl/core';
+} from '@ctxkit/core';
 
 const CTXKIT_BEGIN = '<!-- CTXKIT:BEGIN - Managed by CtxKit. Do not edit this section. -->';
 const CTXKIT_END = '<!-- CTXKIT:END -->';

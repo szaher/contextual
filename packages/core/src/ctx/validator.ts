@@ -1,11 +1,14 @@
 import type { CtxFile } from '../types/ctx.js';
-import { CURRENT_CTX_VERSION } from '../types/ctx.js';
 
 export interface ValidationError {
   path: string;
   message: string;
   severity: 'error' | 'warning';
 }
+
+const CHECKSUM_PATTERN = /^sha256:[0-9a-f]{64}$/;
+const AUTHOR_PATTERN = /^(agent:.+|developer:.+)$/;
+const ISO_8601_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 
 /**
  * Validate a parsed CtxFile for structural correctness.
@@ -14,11 +17,11 @@ export interface ValidationError {
 export function validateCtxFile(ctx: CtxFile): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  // Version check
-  if (ctx.version < 1 || ctx.version > CURRENT_CTX_VERSION) {
+  // Version check — accept any positive integer (v2: content revision counter)
+  if (!Number.isInteger(ctx.version) || ctx.version < 1) {
     errors.push({
       path: 'version',
-      message: `Unknown version ${ctx.version}. Expected 1-${CURRENT_CTX_VERSION}.`,
+      message: `Invalid version ${ctx.version}. Must be a positive integer.`,
       severity: 'error',
     });
   }
@@ -146,5 +149,67 @@ export function validateCtxFile(ctx: CtxFile): ValidationError[] {
     }
   }
 
+  // _history validation (v2)
+  if (ctx._history) {
+    validateHistory(ctx._history, errors);
+  }
+
   return errors;
+}
+
+/**
+ * Validate _history entries for v2 .ctx files.
+ */
+function validateHistory(history: unknown[], errors: ValidationError[]): void {
+  if (!Array.isArray(history)) return;
+
+  for (let i = 0; i < history.length; i++) {
+    const entry = history[i] as Record<string, unknown>;
+    const prefix = `_history[${i}]`;
+
+    // version: positive integer
+    if (!Number.isInteger(entry.version) || (entry.version as number) < 1) {
+      errors.push({
+        path: `${prefix}.version`,
+        message: `History entry version must be a positive integer, got ${entry.version}.`,
+        severity: 'error',
+      });
+    }
+
+    // timestamp: ISO 8601
+    if (typeof entry.timestamp !== 'string' || !ISO_8601_PATTERN.test(entry.timestamp)) {
+      errors.push({
+        path: `${prefix}.timestamp`,
+        message: `History entry timestamp must be ISO 8601, got "${entry.timestamp}".`,
+        severity: 'error',
+      });
+    }
+
+    // author: agent:* or developer:*
+    if (typeof entry.author !== 'string' || !AUTHOR_PATTERN.test(entry.author)) {
+      errors.push({
+        path: `${prefix}.author`,
+        message: `History entry author must match agent:* or developer:*, got "${entry.author}".`,
+        severity: 'error',
+      });
+    }
+
+    // reason: ≤200 chars
+    if (typeof entry.reason === 'string' && entry.reason.length > 200) {
+      errors.push({
+        path: `${prefix}.reason`,
+        message: `History entry reason exceeds 200 characters (${entry.reason.length}).`,
+        severity: 'error',
+      });
+    }
+
+    // checksum: sha256:<64-hex>
+    if (typeof entry.checksum === 'string' && !CHECKSUM_PATTERN.test(entry.checksum)) {
+      errors.push({
+        path: `${prefix}.checksum`,
+        message: `History entry checksum must match sha256:<64-hex>, got "${entry.checksum}".`,
+        severity: 'error',
+      });
+    }
+  }
 }

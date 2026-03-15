@@ -1,5 +1,5 @@
 {
-  "name": "@ctxl/cli",
+  "name": "@ctxkit/cli",
   "version": "0.1.0",
   "description": "CLI tool for ctxl context management (ctxkit)",
   "type": "module",
@@ -31,8 +31,9 @@
     "prepublishOnly": "tsc"
   },
   "dependencies": {
-    "@ctxl/core": "workspace:*",
-    "@ctxl/daemon": "workspace:*",
+    "@ctxkit/core": "workspace:*",
+    "@ctxkit/daemon": "workspace:*",
+    "@ctxkit/speckit-bridge": "workspace:*",
     "commander": "^13.1.0"
   },
   "devDependencies": {

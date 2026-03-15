@@ -31,12 +31,12 @@ This feature introduces no new persistent storage entities. It wraps the existin
 - **Used by**: Proposal apply flow (existing)
 
 ### ContextPack (runtime, not persisted)
-- **Type**: `ContextPackResult` from `@ctxl/core`
+- **Type**: `ContextPackResult` from `@ctxkit/core`
 - **Fields**: `pack` (items, omitted, total_tokens, budget_tokens), `deep_read`, `event_id`
 - **Used by**: MCP tool (`context_pack`), UserPromptSubmit hook, PreToolUse hook
 
 ### LoadedProfile (runtime, not persisted)
-- **Type**: `LoadedProfile` from `@ctxl/core`
+- **Type**: `LoadedProfile` from `@ctxkit/core`
 - **Fields**: workspace profile, global profile, effective merged config (budgets, scoring, agent, ignore patterns)
 - **Used by**: MCP tools (`policy.get`, `policy.validate`)
 

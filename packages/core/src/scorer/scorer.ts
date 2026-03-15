@@ -3,6 +3,7 @@ import { scoreRecency } from './recency.js';
 import { scoreTags, extractKeywords } from './tags.js';
 import type { CtxFile, KeyFile, Contract, Decision, Gotcha } from '../types/ctx.js';
 import { ReasonCode } from '../types/pack.js';
+import type { CtxlScoringConfig, CtxlIndex } from '../types/ctxl.js';
 
 export interface ScoredEntry {
   content: string;
@@ -22,6 +23,10 @@ export interface ScoreOptions {
   repoRoot: string;
   requestText: string;
   touchedFiles?: string[];
+  /** Optional configurable scoring weights from .ctxl index */
+  scoringConfig?: CtxlScoringConfig;
+  /** Optional .ctxl index for dependency bonuses and cwd ancestor bonuses */
+  index?: CtxlIndex;
 }
 
 /**
@@ -32,35 +37,72 @@ export function scoreEntries(
   sources: Array<{ path: string; ctx: CtxFile }>,
   options: ScoreOptions,
 ): ScoredEntry[] {
-  const { workingDir, repoRoot, requestText, touchedFiles = [] } = options;
+  const { workingDir, repoRoot, requestText, touchedFiles = [], scoringConfig, index } = options;
   const keywords = extractKeywords(requestText);
   const entries: ScoredEntry[] = [];
+
+  // Use configurable weights if provided, otherwise use hardcoded defaults
+  const wLocality = scoringConfig?.locality_weight ?? 0.4;
+  const wTag = scoringConfig?.tag_match_weight ?? 0.3;
+  const wRecency = scoringConfig?.recency_weight ?? 0.2;
+  const depBonus = scoringConfig?.dependency_bonus ?? 0;
 
   for (const { path: sourcePath, ctx } of sources) {
     const locality = scoreLocality(workingDir, sourcePath, repoRoot);
 
+    // Apply dependency bonus if index is available
+    let sourceDepBonus = 0;
+    if (index && depBonus > 0) {
+      const graphNode = index.graph[sourcePath];
+      if (graphNode && graphNode.depended_by.length > 0) {
+        sourceDepBonus = Math.min(graphNode.depended_by.length * depBonus, 0.3);
+      }
+    }
+
+    // Check if source is a cwd ancestor
+    const cwdRel = workingDir.startsWith(repoRoot) ? workingDir.slice(repoRoot.length + 1) : workingDir;
+    const sourceDir = sourcePath.replace(/\/\.ctx$/, '').replace(/\.ctx$/, '');
+    const isCwdAncestor = cwdRel.startsWith(sourceDir) || sourceDir === '.' || sourceDir === '';
+
     // Score key_files
     for (const kf of ctx.key_files) {
-      const entry = scoreKeyFile(kf, sourcePath, locality, keywords, touchedFiles, repoRoot);
+      const entry = scoreKeyFile(kf, sourcePath, locality, keywords, touchedFiles, repoRoot, wLocality, wTag, wRecency);
+      // Apply dependency and cwd ancestor bonuses
+      if (sourceDepBonus > 0) {
+        entry.score = Math.round(Math.min(1.0, entry.score + sourceDepBonus) * 100) / 100;
+        entry.reason_codes.push(ReasonCode.DEPENDENCY);
+      }
+      if (isCwdAncestor && !entry.reason_codes.includes(ReasonCode.CWD_ANCESTOR)) {
+        entry.score = Math.round(Math.min(1.0, entry.score + 0.1) * 100) / 100;
+        entry.reason_codes.push(ReasonCode.CWD_ANCESTOR);
+      }
       entries.push(entry);
     }
 
     // Score contracts
     for (const contract of ctx.contracts) {
-      const entry = scoreContract(contract, sourcePath, locality, keywords, touchedFiles);
+      const entry = scoreContract(contract, sourcePath, locality, keywords, touchedFiles, wLocality, wTag);
+      if (sourceDepBonus > 0) {
+        entry.score = Math.round(Math.min(1.0, entry.score + sourceDepBonus) * 100) / 100;
+        entry.reason_codes.push(ReasonCode.DEPENDENCY);
+      }
+      if (isCwdAncestor && !entry.reason_codes.includes(ReasonCode.CWD_ANCESTOR)) {
+        entry.score = Math.round(Math.min(1.0, entry.score + 0.1) * 100) / 100;
+        entry.reason_codes.push(ReasonCode.CWD_ANCESTOR);
+      }
       entries.push(entry);
     }
 
     // Score decisions
     for (const decision of ctx.decisions) {
-      const entry = scoreDecision(decision, sourcePath, locality, keywords);
+      const entry = scoreDecision(decision, sourcePath, locality, keywords, wLocality, wTag);
       entries.push(entry);
     }
 
     // Score gotchas
     for (let i = 0; i < ctx.gotchas.length; i++) {
       const gotcha = ctx.gotchas[i];
-      const entry = scoreGotcha(gotcha, i, sourcePath, locality, keywords);
+      const entry = scoreGotcha(gotcha, i, sourcePath, locality, keywords, wLocality, wTag);
       entries.push(entry);
     }
 
@@ -111,12 +153,15 @@ function scoreKeyFile(
   keywords: string[],
   touchedFiles: string[],
   repoRoot: string,
+  wLocality = 0.4,
+  wTag = 0.3,
+  wRecency = 0.2,
 ): ScoredEntry {
   const tagScore = scoreTags(keywords, kf.tags);
   const recency = scoreRecency(kf.verified_at, repoRoot);
   const reasons: ReasonCode[] = [];
 
-  let score = locality * 0.4 + tagScore * 0.3 + recency * 0.2;
+  let score = locality * wLocality + tagScore * wTag + recency * wRecency;
 
   if (locality >= 0.8) reasons.push(ReasonCode.LOCALITY_HIGH);
   if (tagScore > 0) reasons.push(ReasonCode.TAG_MATCH);
@@ -153,11 +198,13 @@ function scoreContract(
   locality: number,
   keywords: string[],
   touchedFiles: string[],
+  wLocality = 0.3,
+  wTag = 0.3,
 ): ScoredEntry {
   const tagScore = scoreTags(keywords, contract.scope.tags);
   const reasons: ReasonCode[] = [];
 
-  let score = locality * 0.3 + tagScore * 0.3 + 0.3; // contracts have inherent value
+  let score = locality * wLocality + tagScore * wTag + 0.3; // contracts have inherent value
 
   if (locality >= 0.8) reasons.push(ReasonCode.LOCALITY_HIGH);
   if (tagScore > 0) reasons.push(ReasonCode.TAG_MATCH);
@@ -201,12 +248,14 @@ function scoreDecision(
   sourcePath: string,
   locality: number,
   keywords: string[],
+  wLocality = 0.3,
+  wTag = 0.4,
 ): ScoredEntry {
   const titleWords = decision.title.toLowerCase().split(/\s+/);
   const tagScore = scoreTags(keywords, titleWords);
   const reasons: ReasonCode[] = [];
 
-  let score = locality * 0.3 + tagScore * 0.4 + 0.1;
+  let score = locality * wLocality + tagScore * wTag + 0.1;
 
   if (locality >= 0.8) reasons.push(ReasonCode.LOCALITY_HIGH);
   if (tagScore > 0) reasons.push(ReasonCode.TAG_MATCH);
@@ -235,11 +284,13 @@ function scoreGotcha(
   sourcePath: string,
   locality: number,
   keywords: string[],
+  wLocality = 0.3,
+  wTag = 0.4,
 ): ScoredEntry {
   const tagScore = scoreTags(keywords, gotcha.tags);
   const reasons: ReasonCode[] = [];
 
-  const score = locality * 0.3 + tagScore * 0.4 + 0.1;
+  const score = locality * wLocality + tagScore * wTag + 0.1;
 
   if (locality >= 0.8) reasons.push(ReasonCode.LOCALITY_HIGH);
   if (tagScore > 0) reasons.push(ReasonCode.TAG_MATCH);

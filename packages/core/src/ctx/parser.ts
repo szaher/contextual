@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import type { CtxFile, KeyFile, Contract, Decision, Gotcha, CtxRef, IgnorePolicy } from '../types/ctx.js';
+import type { HistoryEntry } from '../types/history.js';
 
 export interface ParseResult {
   ctx: CtxFile;
@@ -62,6 +63,9 @@ export function parseCtxFile(content: string): ParseResult {
     tags: Array.isArray(r.tags) ? r.tags.map(String) : [],
     refs: Array.isArray(r.refs) ? r.refs.map(normalizeRef) : [],
     ignore: normalizeIgnore(r.ignore),
+    ...(Array.isArray(r._history) && r._history.length > 0
+      ? { _history: r._history.map((item, i) => normalizeHistoryEntry(item, warnings, i)) }
+      : {}),
   };
 
   return { ctx, warnings };
@@ -69,9 +73,29 @@ export function parseCtxFile(content: string): ParseResult {
 
 /**
  * Serialize a CtxFile object to YAML string.
+ * _history is placed after the ignore section, before EOF.
  */
 export function serializeCtxFile(ctx: CtxFile): string {
-  return yaml.dump(ctx, {
+  // Build the serialization object with controlled key order
+  const ordered: Record<string, unknown> = {
+    version: ctx.version,
+    summary: ctx.summary,
+    key_files: ctx.key_files,
+    contracts: ctx.contracts,
+    decisions: ctx.decisions,
+    commands: ctx.commands,
+    gotchas: ctx.gotchas,
+    tags: ctx.tags,
+    refs: ctx.refs,
+    ignore: ctx.ignore,
+  };
+
+  // Append _history at the end if present
+  if (ctx._history && ctx._history.length > 0) {
+    ordered._history = ctx._history;
+  }
+
+  return yaml.dump(ordered, {
     lineWidth: 80,
     noRefs: true,
     sortKeys: false,
@@ -179,6 +203,31 @@ function normalizeIgnore(raw: unknown): IgnorePolicy {
   return {
     never_read: Array.isArray(r.never_read) ? r.never_read.map(String) : [],
     never_log: Array.isArray(r.never_log) ? r.never_log.map(String) : [],
+  };
+}
+
+function normalizeHistoryEntry(raw: unknown, warnings: string[], index: number): HistoryEntry {
+  if (!raw || typeof raw !== 'object') {
+    warnings.push(`Skipped _history[${index}]: expected object, got ${typeof raw}`);
+    return {
+      version: 0,
+      timestamp: '',
+      author: '',
+      session_id: null,
+      reason: '',
+      checksum: '',
+      diff_summary: '',
+    };
+  }
+  const r = raw as Record<string, unknown>;
+  return {
+    version: typeof r.version === 'number' ? r.version : 0,
+    timestamp: typeof r.timestamp === 'string' ? r.timestamp : '',
+    author: typeof r.author === 'string' ? r.author : '',
+    session_id: typeof r.session_id === 'string' ? r.session_id : null,
+    reason: typeof r.reason === 'string' ? r.reason : '',
+    checksum: typeof r.checksum === 'string' ? r.checksum : '',
+    diff_summary: typeof r.diff_summary === 'string' ? r.diff_summary : '',
   };
 }
 

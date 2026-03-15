@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { buildContextPack, scoreEntries } from '@ctxl/core';
+import { buildContextPack, scoreEntries } from '@ctxkit/core';
 
 describe('Integration: Context Contracts & Guardrails', () => {
   let tmpDir: string;

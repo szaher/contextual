@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
-import { parseCtxFile } from '@ctxl/core';
-import type { KeyFile, Contract, Decision } from '@ctxl/core';
+import { parseCtxFile } from '@ctxkit/core';
+import type { KeyFile, Contract, Decision } from '@ctxkit/core';
 
 export const proposeCommand = new Command('propose')
   .description('Generate a .ctx update proposal showing what would change')

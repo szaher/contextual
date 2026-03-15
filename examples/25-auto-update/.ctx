@@ -1,0 +1,57 @@
+# Sample .ctx file demonstrating entries that become stale during a session.
+# When the agent modifies handler.ts or jwt-service.ts, ctxl marks the
+# corresponding entries as stale and generates update proposals.
+
+version: 2
+_version: 3
+
+summary: |
+  Authentication module. Handles login, registration, JWT token
+  management, and role-based access control.
+
+tags: [auth, jwt, security, login]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth HTTP handler: login, register, refresh, logout endpoints."
+    tags: [auth, handler]
+    verified_at: "def5678"
+    locked: false
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT issuance and validation. Token expiry: access=15m, refresh=7d."
+    tags: [jwt, token, security]
+    verified_at: "def5678"
+    locked: false
+
+  - path: src/auth/middleware.ts
+    why: "Express middleware for route protection and role checks."
+    tags: [auth, middleware]
+    verified_at: "def5678"
+    locked: false
+
+contracts:
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, security]
+    content: |
+      SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt (cost factor >= 12).
+      2. JWT secrets MUST come from environment variables, never hardcoded.
+      3. Refresh tokens MUST be stored server-side and revocable.
+    verified_at: "def5678"
+    locked: true
+    owner: security
+
+commands:
+  test: "pnpm test --filter=auth"
+
+_history:
+  - version: 3
+    timestamp: "2026-03-12T14:30:00Z"
+    author: "developer"
+    session_id: null
+    reason: "Verified all entries after code review"
+    checksum: "sha256:aabb1122..."
+    diff_summary: "updated verified_at on all key_files entries"

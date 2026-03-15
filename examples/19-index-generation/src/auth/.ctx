@@ -1,0 +1,72 @@
+# Authentication module context.
+# Contains key files, security contracts, and architectural decisions.
+
+version: 2
+
+summary: |
+  Authentication and authorization module. Handles login, registration,
+  JWT token issuance and validation, password reset, and role-based
+  access control. Uses bcrypt for hashing and jsonwebtoken for JWT.
+
+tags: [auth, jwt, bcrypt, security, login]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth HTTP handler: login, register, refresh, logout endpoints."
+    tags: [auth, handler, api]
+    verified_at: "def5678"
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT issuance and validation. Token expiry: access=15m, refresh=7d."
+    tags: [jwt, token, security]
+    verified_at: "def5678"
+
+  - path: src/auth/middleware.ts
+    why: "Express middleware for route protection and role checks."
+    tags: [auth, middleware]
+    verified_at: "def5678"
+
+  - path: src/auth/types.ts
+    why: "Shared types: User, Session, TokenPayload, Role."
+    tags: [types, auth]
+    verified_at: "def5678"
+
+contracts:
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, security]
+    content: |
+      SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt (cost factor >= 12).
+      2. JWT secrets MUST come from environment variables, never hardcoded.
+      3. Refresh tokens MUST be stored server-side and revocable.
+      4. Failed login attempts MUST be rate-limited (max 5 per minute per IP).
+      5. All auth endpoints MUST use HTTPS in production.
+    verified_at: "def5678"
+    locked: true
+    owner: security
+
+decisions:
+  - id: d001
+    title: "JWT over session cookies for API authentication"
+    status: accepted
+    date: "2025-06-15"
+    rationale: |
+      JWT allows stateless authentication for the REST API. Mobile clients
+      and third-party integrations benefit from bearer tokens. Session
+      cookies would require sticky sessions or a shared session store.
+    alternatives:
+      - name: "Session cookies"
+        reason_rejected: "Requires shared session store for horizontal scaling"
+      - name: "OAuth2 with external provider only"
+        reason_rejected: "Need to support username/password for existing users"
+    verified_at: "def5678"
+
+gotchas:
+  - warning: "jwt-service.ts uses RS256 in production but HS256 in test. Do not mix."
+    tags: [jwt, testing]
+
+commands:
+  test: "pnpm test --filter=auth"
+  test:watch: "pnpm test --filter=auth --watch"

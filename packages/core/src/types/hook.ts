@@ -1,5 +1,5 @@
 /**
- * Shared hook types used by both @ctxl/mcp and @ctxl/claude-plugin.
+ * Shared hook types used by both @ctxkit/mcp and @ctxkit/claude-plugin.
  */
 
 /** Common input fields received by all hook handlers on stdin. */

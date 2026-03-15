@@ -1,0 +1,110 @@
+# Sample activity log from a coding session.
+# This shows the events that ctxl records as the agent works.
+# Each event has a type, timestamp, and relevant data.
+
+session_id: "sess_abc123"
+agent: "claude-code"
+branch: "feat/add-oauth-support"
+
+events:
+  - type: SELECT
+    timestamp: "2026-03-14T09:00:02Z"
+    data:
+      entries_selected: 8
+      tokens_used: 1840
+      budget: 4000
+      top_entries:
+        - source: "src/auth/.ctx"
+          entry: "contracts/auth-security-requirements"
+          score: 0.95
+        - source: "src/auth/.ctx"
+          entry: "key_files/handler.ts"
+          score: 0.90
+        - source: "src/auth/.ctx"
+          entry: "key_files/jwt-service.ts"
+          score: 0.87
+
+  - type: READ
+    timestamp: "2026-03-14T09:02:15Z"
+    data:
+      path: "src/auth/handler.ts"
+      tracked: true
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files[0]"
+
+  - type: READ
+    timestamp: "2026-03-14T09:05:30Z"
+    data:
+      path: "src/auth/jwt-service.ts"
+      tracked: true
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files[1]"
+
+  - type: STALE
+    timestamp: "2026-03-14T09:08:00Z"
+    data:
+      path: "src/auth/handler.ts"
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files[0]"
+      previous_verified_at: "def5678"
+      modification: "Agent added OAuth callback endpoint"
+
+  - type: STALE
+    timestamp: "2026-03-14T09:12:00Z"
+    data:
+      path: "src/auth/jwt-service.ts"
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files[1]"
+      previous_verified_at: "def5678"
+      modification: "Agent updated token validation logic"
+
+  - type: READ
+    timestamp: "2026-03-14T09:15:00Z"
+    data:
+      path: "src/auth/oauth.ts"
+      tracked: false
+      note: "New file, not yet in any .ctx"
+
+  - type: PROPOSE
+    timestamp: "2026-03-14T09:30:01Z"
+    data:
+      proposal_id: "diff_015"
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files[0]"
+      changes:
+        - field: "verified_at"
+          old: "def5678"
+          new: "eee9999"
+        - field: "why"
+          old: "Auth HTTP handler: login, register, refresh, logout endpoints."
+          new: "Auth handler with OAuth callback endpoint. Login, register, refresh, logout."
+      policy: "require_review"
+
+  - type: PROPOSE
+    timestamp: "2026-03-14T09:30:02Z"
+    data:
+      proposal_id: "diff_016"
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files[1]"
+      changes:
+        - field: "verified_at"
+          old: "def5678"
+          new: "eee9999"
+      policy: "require_review"
+
+  - type: PROPOSE
+    timestamp: "2026-03-14T09:30:03Z"
+    data:
+      proposal_id: "diff_017"
+      ctx_source: "src/auth/.ctx"
+      ctx_entry: "key_files (new)"
+      changes:
+        - field: "path"
+          new: "src/auth/oauth.ts"
+        - field: "why"
+          new: "OAuth2 provider integration (Google, GitHub)."
+        - field: "tags"
+          new: ["oauth", "auth"]
+        - field: "verified_at"
+          new: "eee9999"
+      policy: "require_review"

@@ -155,7 +155,7 @@ Deep-read decisions are logged in the session timeline and visible in the dashbo
 
 ## MCP Tools
 
-ctxl exposes its capabilities as 10 JSON-RPC tools through the `@ctxl/mcp` package, following the [Model Context Protocol](https://modelcontextprotocol.io) standard. The MCP server runs over stdio transport, meaning any MCP-compatible agent can discover and call these tools without custom integration code.
+ctxl exposes its capabilities as 10 JSON-RPC tools through the `@ctxkit/mcp` package, following the [Model Context Protocol](https://modelcontextprotocol.io) standard. The MCP server runs over stdio transport, meaning any MCP-compatible agent can discover and call these tools without custom integration code.
 
 The tools are:
 
@@ -184,7 +184,7 @@ All tool inputs are validated with Zod schemas. Invalid calls receive structured
 
 ## Hooks
 
-The `@ctxl/claude-plugin` package integrates ctxl with Claude Code through 8 lifecycle hooks. Hooks fire automatically at specific points in the Claude Code session lifecycle -- no developer action is required beyond installing the plugin.
+The `@ctxkit/claude-plugin` package integrates ctxl with Claude Code through 8 lifecycle hooks. Hooks fire automatically at specific points in the Claude Code session lifecycle -- no developer action is required beyond installing the plugin.
 
 The hooks are:
 

@@ -1,17 +1,17 @@
 # Core Library Reference
 
-The `@ctxl/core` package provides all context engine functionality: parsing, scoring, packing, diffing, drift detection, configuration, and secret redaction. This page documents every exported function and type.
+The `@ctxkit/core` package provides all context engine functionality: parsing, scoring, packing, diffing, drift detection, configuration, and secret redaction. This page documents every exported function and type.
 
 ## Installation
 
 ```bash
-pnpm add @ctxl/core
+pnpm add @ctxkit/core
 ```
 
 Or import from the monorepo:
 
 ```typescript
-import { parseCtxFile, buildContextPack, scoreEntries } from '@ctxl/core'
+import { parseCtxFile, buildContextPack, scoreEntries } from '@ctxkit/core'
 ```
 
 ---
@@ -23,7 +23,7 @@ import { parseCtxFile, buildContextPack, scoreEntries } from '@ctxl/core'
 Parse a `.ctx` YAML string into a typed `CtxFile` object. Applies sensible defaults for missing optional fields.
 
 ```typescript
-import { parseCtxFile } from '@ctxl/core'
+import { parseCtxFile } from '@ctxkit/core'
 
 const ctx = parseCtxFile(`
 version: 1
@@ -49,7 +49,7 @@ Throws an `Error` if the input is not valid YAML or is not a mapping.
 Serialize a `CtxFile` object to a YAML string. Uses double-quoting, 80-character line width, and preserves key order.
 
 ```typescript
-import { serializeCtxFile } from '@ctxl/core'
+import { serializeCtxFile } from '@ctxkit/core'
 
 const yaml = serializeCtxFile(ctx)
 // version: 1
@@ -62,7 +62,7 @@ const yaml = serializeCtxFile(ctx)
 Validate a parsed `CtxFile` for structural correctness. Returns an array of errors and warnings.
 
 ```typescript
-import { parseCtxFile, validateCtxFile } from '@ctxl/core'
+import { parseCtxFile, validateCtxFile } from '@ctxkit/core'
 
 const ctx = parseCtxFile(content)
 const errors = validateCtxFile(ctx)
@@ -89,7 +89,7 @@ interface ValidationError {
 Load and merge `.ctx` files hierarchically from `workingDir` up to `repoRoot`. Follows refs with cycle detection.
 
 ```typescript
-import { mergeCtxHierarchy } from '@ctxl/core'
+import { mergeCtxHierarchy } from '@ctxkit/core'
 
 const merged = mergeCtxHierarchy({
   workingDir: '/path/to/repo/src/auth',
@@ -125,7 +125,7 @@ interface MergedContext {
 Score all entries from merged `.ctx` sources. Returns entries sorted by score (highest first) with deterministic tiebreakers.
 
 ```typescript
-import { scoreEntries } from '@ctxl/core'
+import { scoreEntries } from '@ctxkit/core'
 
 const scored = scoreEntries(
   [{ path: '.ctx', ctx: parsedCtx }],
@@ -169,7 +169,7 @@ interface ScoredEntry {
 Compute locality score based on directory distance. Returns 1.0 for same directory, decays by 0.2 per level, minimum 0.1.
 
 ```typescript
-import { scoreLocality } from '@ctxl/core'
+import { scoreLocality } from '@ctxkit/core'
 
 scoreLocality('/repo/src/auth', '/repo/src/auth/.ctx', '/repo')  // 1.0
 scoreLocality('/repo/src/auth', '/repo/src/.ctx', '/repo')       // 0.8
@@ -181,7 +181,7 @@ scoreLocality('/repo/src/auth', '/repo/.ctx', '/repo')           // 0.6
 Compute recency score based on verification status.
 
 ```typescript
-import { scoreRecency } from '@ctxl/core'
+import { scoreRecency } from '@ctxkit/core'
 
 scoreRecency('abc1234', false)  // 0.9 (verified, not stale)
 scoreRecency('', false)          // 0.5 (no verification data)
@@ -193,7 +193,7 @@ scoreRecency('abc1234', true)    // 0.3 (marked stale)
 Compute tag matching score. Returns ratio of matched tags to total tags.
 
 ```typescript
-import { scoreTags } from '@ctxl/core'
+import { scoreTags } from '@ctxkit/core'
 
 scoreTags(['auth', 'login'], ['auth', 'login'])   // 1.0
 scoreTags(['auth'], ['auth', 'login'])              // 0.5
@@ -205,7 +205,7 @@ scoreTags(['database'], ['auth', 'login'])          // 0.0
 Extract keywords from request text for tag matching. Tokenizes, lowercases, filters short words and stop words.
 
 ```typescript
-import { extractKeywords } from '@ctxl/core'
+import { extractKeywords } from '@ctxkit/core'
 
 extractKeywords('fix the auth bug in login handler')
 // ['fix', 'auth', 'bug', 'login', 'handler']
@@ -220,7 +220,7 @@ extractKeywords('fix the auth bug in login handler')
 Assemble a complete Context Pack for a request. This is the main entry point that orchestrates merging, scoring, budget application, and deep-read fallback.
 
 ```typescript
-import { buildContextPack } from '@ctxl/core'
+import { buildContextPack } from '@ctxkit/core'
 
 const result = buildContextPack({
   workingDir: '/path/to/repo/src/auth',
@@ -258,7 +258,7 @@ interface ContextPackResult {
 Apply token budget to scored entries. Contracts get priority. Returns a `ContextPack` with included items and omitted items list.
 
 ```typescript
-import { applyBudget } from '@ctxl/core'
+import { applyBudget } from '@ctxkit/core'
 
 const pack = applyBudget(scoredEntries, { budgetTokens: 4000 })
 ```
@@ -274,7 +274,7 @@ interface BudgetOptions {
 Estimate token count for a text string.
 
 ```typescript
-import { estimateTokens } from '@ctxl/core'
+import { estimateTokens } from '@ctxkit/core'
 
 const tokens = estimateTokens('This is some content')
 ```
@@ -292,7 +292,7 @@ Create a token estimator instance (for custom implementations).
 Generate a unified diff between old and new content. Automatically redacts secrets.
 
 ```typescript
-import { generateDiff } from '@ctxl/core'
+import { generateDiff } from '@ctxkit/core'
 
 const result = generateDiff(oldYaml, newYaml, 'src/auth/.ctx')
 
@@ -314,7 +314,7 @@ interface DiffResult {
 Generate a diff between two `CtxFile` objects. Serializes both to YAML first, then computes the unified diff.
 
 ```typescript
-import { diffCtxFiles } from '@ctxl/core'
+import { diffCtxFiles } from '@ctxkit/core'
 
 const result = diffCtxFiles(oldCtx, newCtx, '.ctx')
 ```
@@ -324,7 +324,7 @@ const result = diffCtxFiles(oldCtx, newCtx, '.ctx')
 Scan a `.ctx` file for dead references (deleted/renamed files and missing ref targets). Returns proposals for fixing them.
 
 ```typescript
-import { scanForDeadReferences } from '@ctxl/core'
+import { scanForDeadReferences } from '@ctxkit/core'
 
 const result = scanForDeadReferences('/path/to/.ctx', '/path/to/repo')
 
@@ -362,7 +362,7 @@ interface PruneProposal {
 Detect drift for a single `.ctx` file by checking referenced files against git history.
 
 ```typescript
-import { detectDrift } from '@ctxl/core'
+import { detectDrift } from '@ctxkit/core'
 
 const result = detectDrift('/path/to/src/auth/.ctx', '/path/to/repo')
 
@@ -376,7 +376,7 @@ for (const entry of result.stale_entries) {
 Detect drift for all `.ctx` files in a repository. Finds `.ctx` files recursively (excluding `node_modules/` and `.git/`).
 
 ```typescript
-import { detectAllDrift } from '@ctxl/core'
+import { detectAllDrift } from '@ctxkit/core'
 
 const results = detectAllDrift('/path/to/repo')
 
@@ -413,7 +413,7 @@ interface StaleEntry {
 Load the configuration profile with the full precedence chain: defaults -> global -> workspace -> agent -> request overrides.
 
 ```typescript
-import { loadProfile } from '@ctxl/core'
+import { loadProfile } from '@ctxkit/core'
 
 const profile = loadProfile('/path/to/repo', {
   budgetTokens: 8000,
@@ -453,7 +453,7 @@ interface ProfileOverrides {
 Scan text for potential secrets. Returns an array of matches with pattern name, position, and line number.
 
 ```typescript
-import { detectSecrets } from '@ctxl/core'
+import { detectSecrets } from '@ctxkit/core'
 
 const matches = detectSecrets(content)
 for (const match of matches) {
@@ -475,7 +475,7 @@ interface SecretMatch {
 Redact all detected secrets from text, replacing with `[REDACTED:<type>]` markers.
 
 ```typescript
-import { redactSecrets } from '@ctxl/core'
+import { redactSecrets } from '@ctxkit/core'
 
 const safe = redactSecrets('api_key = sk-abcdefghijklmnop123456789012345678901234')
 // 'api_key = [REDACTED:api_key]'
@@ -486,7 +486,7 @@ const safe = redactSecrets('api_key = sk-abcdefghijklmnop12345678901234567890123
 Check if text contains any potential secrets. Returns `true` if any pattern matches.
 
 ```typescript
-import { containsSecrets } from '@ctxl/core'
+import { containsSecrets } from '@ctxkit/core'
 
 if (containsSecrets(proposedContent)) {
   console.warn('Content contains potential secrets')
@@ -495,7 +495,507 @@ if (containsSecrets(proposedContent)) {
 
 ---
 
+## Index
+
+### `generateIndex(repoRoot): IndexFile`
+
+Scan all `.ctx` files in a repository and generate the `.ctxl` index.
+
+```typescript
+import { generateIndex } from '@ctxkit/core'
+
+const index = generateIndex('/path/to/repo')
+
+console.log(index.entries.length)    // Number of .ctx files found
+console.log(index.generated_at)      // ISO 8601 timestamp
+```
+
+### `writeIndex(repoRoot, index): void`
+
+Write an `IndexFile` to the `.ctxl` file at the repository root.
+
+```typescript
+import { generateIndex, writeIndex } from '@ctxkit/core'
+
+const index = generateIndex('/path/to/repo')
+writeIndex('/path/to/repo', index)
+```
+
+### `readIndex(repoRoot): IndexFile | null`
+
+Read the `.ctxl` index file. Returns `null` if no index exists.
+
+```typescript
+import { readIndex } from '@ctxkit/core'
+
+const index = readIndex('/path/to/repo')
+if (index) {
+  for (const entry of index.entries) {
+    console.log(`${entry.path}: ${entry.token_estimate} tokens`)
+  }
+}
+```
+
+### `selectFromIndex(index, criteria): IndexEntry[]`
+
+Select index entries matching the given criteria (tags, path prefix, budget).
+
+```typescript
+import { readIndex, selectFromIndex } from '@ctxkit/core'
+
+const index = readIndex('/path/to/repo')
+const selected = selectFromIndex(index, {
+  tags: ['auth', 'security'],
+  pathPrefix: 'src/',
+  budgetTokens: 2000,
+})
+```
+
+### `computeChecksum(content): string`
+
+Compute the SHA-256 checksum of `.ctx` file content, excluding `_history` fields.
+
+```typescript
+import { computeChecksum } from '@ctxkit/core'
+
+const checksum = computeChecksum(ctxFileContent)
+// "sha256:a1b2c3d4e5f6..."
+```
+
+```typescript
+interface IndexFile {
+  version: number;
+  generated_at: string;
+  entries: IndexEntry[];
+}
+
+interface IndexEntry {
+  path: string;
+  summary: string;
+  tags: string[];
+  depth: number;
+  ctx_version: number;
+  last_modified: string;
+  checksum: string;
+  dependencies: {
+    depends_on: string[];
+    depended_by: string[];
+  };
+  weight: number;
+  sections: string[];
+  token_estimate: number;
+}
+```
+
+---
+
+## Versioning
+
+### `bumpVersion(ctx, options): CtxFile`
+
+Increment the `ctx_version` field and add a history entry.
+
+```typescript
+import { bumpVersion } from '@ctxkit/core'
+
+const updated = bumpVersion(ctx, {
+  author: 'claude:sess_abc123',
+  session_id: 'sess_abc123',
+  reason: 'Added new key_file for refactored handler',
+  diff_summary: '+key_files/sign-in.ts, ~summary',
+})
+
+console.log(updated.ctx_version)  // previous + 1
+```
+
+### `generateDiffSummary(oldCtx, newCtx): string`
+
+Generate a compact diff summary string describing what changed between two `CtxFile` versions.
+
+```typescript
+import { generateDiffSummary } from '@ctxkit/core'
+
+const summary = generateDiffSummary(oldCtx, newCtx)
+// "+key_files/sign-in.ts, ~summary, -gotchas/old-warning"
+```
+
+### `archiveHistory(ctxPath): void`
+
+Move overflow history entries (beyond 20) to the `.ctxl.history/` archive directory.
+
+```typescript
+import { archiveHistory } from '@ctxkit/core'
+
+archiveHistory('/path/to/src/auth/.ctx')
+// Creates or appends to src/auth/.ctxl.history/
+```
+
+### `readMergedHistory(ctxPath): HistoryEntry[]`
+
+Read the complete history for a `.ctx` file, merging inline `_history` with archived entries. Returns entries sorted by version (ascending).
+
+```typescript
+import { readMergedHistory } from '@ctxkit/core'
+
+const history = readMergedHistory('/path/to/src/auth/.ctx')
+for (const entry of history) {
+  console.log(`v${entry.version}: ${entry.reason} (${entry.author})`)
+}
+```
+
+### `diffCtxVersions(ctxPath, fromVersion, toVersion): string`
+
+Generate a unified diff between two historical versions of a `.ctx` file.
+
+```typescript
+import { diffCtxVersions } from '@ctxkit/core'
+
+const diff = diffCtxVersions('/path/to/src/auth/.ctx', 1, 5)
+console.log(diff)  // Unified diff output
+```
+
+```typescript
+interface HistoryEntry {
+  version: number;
+  timestamp: string;
+  author: string;
+  session_id: string | null;
+  reason: string;
+  checksum: string;
+  diff_summary: string;
+}
+```
+
+---
+
+## Conflicts
+
+### `threeWayMerge(base, ours, theirs): MergeResult`
+
+Perform a three-way merge on `.ctx` files. Returns the merged result with any unresolvable conflicts marked.
+
+```typescript
+import { threeWayMerge } from '@ctxkit/core'
+
+const result = threeWayMerge(baseCtx, oursCtx, theirsCtx)
+
+if (result.has_conflicts) {
+  console.log(`${result.conflicts.length} conflicts found`)
+} else {
+  console.log('Merge successful')
+}
+```
+
+### `resolveConflict(mergeResult, pick): CtxFile`
+
+Resolve all conflicts in a merge result by picking a side.
+
+```typescript
+import { threeWayMerge, resolveConflict } from '@ctxkit/core'
+
+const result = threeWayMerge(base, ours, theirs)
+const resolved = resolveConflict(result, 'ours')
+```
+
+### `extractConflicts(mergeResult): ConflictEntry[]`
+
+Extract conflict entries from a merge result.
+
+```typescript
+import { threeWayMerge, extractConflicts } from '@ctxkit/core'
+
+const result = threeWayMerge(base, ours, theirs)
+const conflicts = extractConflicts(result)
+for (const conflict of conflicts) {
+  console.log(`${conflict.section}: ours="${conflict.ours}" theirs="${conflict.theirs}"`)
+}
+```
+
+### `acquireLock(ctxPath, options): LockResult`
+
+Acquire an advisory lock on a `.ctx` file to prevent concurrent modification.
+
+```typescript
+import { acquireLock } from '@ctxkit/core'
+
+const lock = acquireLock('/path/to/.ctx', {
+  session_id: 'sess_abc123',
+  agent_id: 'claude',
+})
+
+if (lock.acquired) {
+  // Safe to modify
+} else {
+  console.log(`Held by ${lock.holder.agent_id}`)
+}
+```
+
+### `releaseLock(ctxPath, lockId): void`
+
+Release a previously acquired lock.
+
+```typescript
+import { acquireLock, releaseLock } from '@ctxkit/core'
+
+const lock = acquireLock(ctxPath, options)
+// ... modify the file ...
+releaseLock(ctxPath, lock.id)
+```
+
+```typescript
+interface MergeResult {
+  ctx: CtxFile;
+  has_conflicts: boolean;
+  conflicts: ConflictEntry[];
+}
+
+interface ConflictEntry {
+  section: string;
+  ours: any;
+  theirs: any;
+  base: any;
+  created_at: string;
+  session_ours: string;
+  session_theirs: string;
+}
+
+interface LockResult {
+  acquired: boolean;
+  id: string;
+  holder: {
+    session_id: string;
+    agent_id: string;
+    acquired_at: string;
+  };
+}
+```
+
+---
+
+## Bootstrap
+
+### `analyzeDirectory(dirPath, options?): DirectoryAnalysis`
+
+Inspect a directory's contents and extract metadata for `.ctx` generation.
+
+```typescript
+import { analyzeDirectory } from '@ctxkit/core'
+
+const analysis = analyzeDirectory('/path/to/repo/src/auth', {
+  mode: 'full',
+})
+
+console.log(analysis.summary)      // "Authentication module"
+console.log(analysis.key_files)    // [{path: 'login.ts', purpose: '...'}]
+console.log(analysis.tags)         // ['auth', 'typescript']
+console.log(analysis.commands)     // {test: 'vitest run'}
+```
+
+### `generateProposal(analysis): CtxFile`
+
+Generate a `.ctx` file proposal from a directory analysis result.
+
+```typescript
+import { analyzeDirectory, generateProposal } from '@ctxkit/core'
+
+const analysis = analyzeDirectory('/path/to/src/auth', { mode: 'quick' })
+const ctx = generateProposal(analysis)
+```
+
+### `applyProposals(repoRoot, proposals, options?): ApplyResult[]`
+
+Write `.ctx` files and generate the index.
+
+```typescript
+import { applyProposals } from '@ctxkit/core'
+
+const results = applyProposals('/path/to/repo', proposals, {
+  skipExisting: true,
+  dryRun: false,
+})
+
+for (const result of results) {
+  console.log(`${result.path}: ${result.action}`)  // "created" or "skipped"
+}
+```
+
+```typescript
+interface DirectoryAnalysis {
+  dirPath: string;
+  summary: string;
+  key_files: Array<{ path: string; purpose: string }>;
+  tags: string[];
+  commands: Record<string, string>;
+  contracts: Array<{ name: string; content: string }>;
+}
+
+interface ApplyResult {
+  path: string;
+  action: 'created' | 'updated' | 'skipped';
+}
+```
+
+---
+
+## PR Context
+
+### `collectPrContext(options): PrContext`
+
+Collect session data for PR context generation.
+
+```typescript
+import { collectPrContext } from '@ctxkit/core'
+
+const context = await collectPrContext({
+  daemonUrl: 'http://localhost:3742',
+  branch: 'feature/auth-refactor',
+  sessionId: 'sess_abc123',
+})
+```
+
+### `renderPrMarkdown(context): string`
+
+Render PR context as a markdown string.
+
+```typescript
+import { collectPrContext, renderPrMarkdown } from '@ctxkit/core'
+
+const context = await collectPrContext(options)
+const md = renderPrMarkdown(context)
+```
+
+### `renderPrJson(context): object`
+
+Render PR context as a structured JSON object.
+
+```typescript
+import { collectPrContext, renderPrJson } from '@ctxkit/core'
+
+const context = await collectPrContext(options)
+const json = renderPrJson(context)
+```
+
+### `renderGhBody(context): string`
+
+Render PR context formatted for GitHub PR descriptions, with collapsible sections.
+
+```typescript
+import { collectPrContext, renderGhBody } from '@ctxkit/core'
+
+const context = await collectPrContext(options)
+const body = renderGhBody(context)
+```
+
+```typescript
+interface PrContext {
+  summary: string;
+  prompt_chain: Array<{ index: number; text: string; timestamp: string }>;
+  decisions: Array<{ description: string; rationale: string }>;
+  file_changes: Array<{ path: string; action: string; lines_added: number; lines_removed: number }>;
+  context_used: Array<{ source: string; section: string; entry_id: string; score: number; reason_codes: string[] }>;
+  stats: {
+    session_id: string;
+    duration_seconds: number;
+    request_count: number;
+    tokens_used: number;
+    tokens_budget: number;
+    files_changed: number;
+    ctx_files_updated: number;
+  };
+}
+```
+
+---
+
+## Auto-Update
+
+### `StalenessTracker`
+
+Tracks which directories have been modified during a session.
+
+```typescript
+import { StalenessTracker } from '@ctxkit/core'
+
+const tracker = new StalenessTracker()
+
+tracker.markStale('/path/to/src/auth', {
+  file: 'login.ts',
+  action: 'modified',
+  timestamp: new Date().toISOString(),
+})
+
+tracker.isStale('/path/to/src/auth')         // true
+tracker.getStaleDirectories()                 // [{ dir: '...', files: [...], lastModified: '...' }]
+tracker.clearAll()                            // Reset
+```
+
+### `extractModifiedPath(event): string | null`
+
+Extract the file path modified by a tool event.
+
+```typescript
+import { extractModifiedPath } from '@ctxkit/core'
+
+const path = extractModifiedPath({
+  tool_name: 'file_edit',
+  tool_input: { file_path: '/path/to/src/auth/login.ts' },
+})
+// '/path/to/src/auth/login.ts'
+```
+
+### `generateUpdateProposals(staleDirectories, repoRoot): Proposal[]`
+
+Generate `.ctx` update proposals for directories that have been modified.
+
+```typescript
+import { StalenessTracker, generateUpdateProposals } from '@ctxkit/core'
+
+const tracker = new StalenessTracker()
+// ... after session modifications ...
+
+const proposals = generateUpdateProposals(
+  tracker.getStaleDirectories(),
+  '/path/to/repo',
+)
+
+for (const proposal of proposals) {
+  console.log(`${proposal.ctx_path}: ${proposal.diff_summary}`)
+}
+```
+
+---
+
 ## Migration
+
+### `needsV2Init(ctx): boolean`
+
+Check if a `CtxFile` needs v2 initialization (has `version: 1` or is missing v2 fields).
+
+```typescript
+import { parseCtxFile, needsV2Init } from '@ctxkit/core'
+
+const ctx = parseCtxFile(content)
+if (needsV2Init(ctx)) {
+  // File needs migration
+}
+```
+
+### `initV2Features(ctx, options): CtxFile`
+
+Initialize v2 features on a v1 `CtxFile`: sets `version: 2`, adds `ctx_version`, `_history`, and computes the checksum.
+
+```typescript
+import { parseCtxFile, needsV2Init, initV2Features } from '@ctxkit/core'
+
+const ctx = parseCtxFile(content)
+if (needsV2Init(ctx)) {
+  const migrated = initV2Features(ctx, {
+    author: 'migration',
+    reason: 'Migrated from v1 to v2',
+  })
+  // Write migrated file
+}
+```
 
 ### `migrateCtx(content): string`
 
@@ -510,7 +1010,7 @@ Migrate a parsed `CtxFile` object to the latest version.
 Check if a `CtxFile` needs migration to a newer version.
 
 ```typescript
-import { parseCtxFile, needsMigration, migrateCtxFile } from '@ctxl/core'
+import { parseCtxFile, needsMigration, migrateCtxFile } from '@ctxkit/core'
 
 const ctx = parseCtxFile(content)
 if (needsMigration(ctx)) {
@@ -580,11 +1080,12 @@ enum ExclusionReason {
 ### Constants
 
 ```typescript
-const CURRENT_CTX_VERSION = 1;
+const CURRENT_CTX_VERSION = 2;
 const DEFAULT_BUDGET_TOKENS = 4000;
 const DEFAULT_SCORING_MODE = 'lexical';
 const DEFAULT_SESSIONS_RETENTION_DAYS = 30;
 const DEFAULT_AUDIT_RETENTION_DAYS = 90;
+const MAX_INLINE_HISTORY = 20;
 ```
 
 For complete type definitions, see the source files in `packages/core/src/types/`.

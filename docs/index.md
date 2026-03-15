@@ -24,12 +24,26 @@ features:
     details: ctxl watches for stale .ctx entries by checking referenced files against git history. Deleted files, renames, and modifications since the last verification are surfaced as actionable warnings with proposed fixes.
   - title: Secret Redaction
     details: Eight built-in patterns detect AWS keys, API tokens, PEM keys, connection strings, GitHub tokens, bearer tokens, and more. Secrets are automatically redacted from diffs and proposals before they reach disk.
+  - title: Index System
+    details: A YAML index file at the repo root catalogs every .ctx file with summaries, tags, checksums, dependency edges, and token estimates. The index powers fast selection, dependency graphing, and category-budgeted packing.
+  - title: Version Tracking
+    details: Every .ctx modification is automatically versioned with inline history entries recording timestamp, author, session, reason, and diff summary. Overflow entries archive to .ctxl.history/ for full auditability.
+  - title: Conflict Resolution
+    details: When multiple agents edit the same .ctx file concurrently, a three-way merge algorithm resolves changes at the section level. A lock manager with 5-minute TTL prevents write races, and unresolvable conflicts are surfaced for manual resolution.
+  - title: Auto-Update
+    details: A staleness tracker watches file edits during sessions and automatically generates .ctx update proposals when tasks complete. Proposals can be auto-applied or queued for human review based on policy.
+  - title: Bootstrap
+    details: Analyze any directory to generate .ctx files from package.json, tsconfig, and source files. Bootstrap creates summaries, key_files, tags, and commands in a single pass, with dry-run support and skip-existing safety.
+  - title: Spec-Kit Bridge
+    details: Import constitution MUST/SHALL clauses as locked decisions and contracts, import component specs as contracts and gotchas, export .ctx to markdown or YAML spec format, and keep both sides in sync with bidirectional validation.
+  - title: PR Context
+    details: Generate rich pull request descriptions from session data including prompt chains, agent decisions, file changes, and context usage statistics. Output as markdown, JSON, or directly as a GitHub PR body.
   - title: Dashboard
-    details: A local React-based inspection dashboard lets you browse sessions, inspect injected context per request, review proposals with diff preview, and audit every memory change with full attribution.
+    details: A local React-based inspection dashboard lets you browse sessions, inspect injected context per request, review proposals with diff preview, view dependency graphs, monitor real-time activity, and audit every memory change with full attribution.
   - title: MCP Server
-    details: 10 structured JSON-RPC tools exposed over stdio for any MCP-compatible agent. Tools cover context packing, event logging, proposal lifecycle, session inspection, policy validation, and memory search -- all discoverable via the standard MCP handshake.
+    details: 16 structured JSON-RPC tools exposed over stdio for any MCP-compatible agent. Tools cover context packing, event logging, proposal lifecycle, session inspection, policy validation, memory search, index operations, conflict resolution, and version history -- all discoverable via the standard MCP handshake.
   - title: Claude Code Plugin
-    details: Automatic context injection via 8 lifecycle hooks with zero developer action required. The plugin injects context at session start, logs tool usage, validates proposals before file writes, and compacts memory at the end of each session.
+    details: Automatic context injection via 8 lifecycle hooks with zero developer action required. The plugin injects context at session start, logs tool usage, validates proposals before file writes, tracks staleness for auto-update, and compacts memory at the end of each session.
 ---
 
 ## Why ctxl?
@@ -42,22 +56,29 @@ The result: deterministic, inspectable context injection. Same input, same outpu
 
 ## Architecture
 
-ctxl is a TypeScript monorepo with six packages:
+ctxl is a TypeScript monorepo with seven packages:
 
 | Package | Description |
 |---------|-------------|
-| `@ctxl/core` | Parser, scorer, packer, differ, drift detector, config loader, secret redaction |
-| `@ctxl/daemon` | Hono HTTP server with SQLite storage for sessions, events, proposals, and audit |
-| `@ctxl/cli` | The `ctxkit` command-line tool for all operations |
-| `@ctxl/ui` | React-based local inspection dashboard |
-| `@ctxl/mcp` | MCP server exposing 10 JSON-RPC tools over stdio (`ctxkit-mcp` command) |
-| `@ctxl/claude-plugin` | Claude Code plugin with 8 lifecycle hooks and `/ctxkit` skill |
+| `@ctxkit/core` | Parser, scorer, packer, differ, drift detector, config loader, secret redaction, index engine, versioning, conflict resolution, bootstrap |
+| `@ctxkit/daemon` | Hono HTTP server with SQLite storage for sessions, events, proposals, audit, index, conflicts, and activity |
+| `@ctxkit/cli` | The `ctxkit` command-line tool for all operations |
+| `@ctxkit/ui` | React-based local inspection dashboard |
+| `@ctxkit/mcp` | MCP server exposing 16 JSON-RPC tools over stdio (`ctxkit-mcp` command) |
+| `@ctxkit/claude-plugin` | Claude Code plugin with 8 lifecycle hooks and `/ctxkit` skill |
+| `@ctxkit/speckit-bridge` | Bidirectional sync between .ctx files and Spec-Kit specifications |
 
 ## Quick Example
 
 ```bash
 # Initialize context in your project
 ctxkit init
+
+# Bootstrap .ctx files for the entire repo
+ctxkit bootstrap --mode full
+
+# Generate the .ctxl index
+ctxkit index generate
 
 # See what context would be injected for a request
 ctxkit inject --request "fix the auth bug in login handler"
@@ -76,4 +97,13 @@ codex mcp add ctxkit -- ctxkit-mcp
 
 # Generate AGENTS.md for Codex from .ctx files
 ctxkit codex sync-agents
+
+# View version history for a .ctx file
+ctxkit history src/auth/.ctx --diff 1..5
+
+# Generate a PR description from session data
+ctxkit pr --format md
+
+# Migrate v1 .ctx files to v2
+ctxkit migrate
 ```

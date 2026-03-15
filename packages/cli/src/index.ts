@@ -11,6 +11,14 @@ import { daemonCommand, dashboardCommand } from './commands/daemon.js';
 import { runCommand } from './commands/run.js';
 import { codexCommand } from './commands/codex.js';
 import { pluginCommand } from './commands/plugin.js';
+import { indexCommand } from './commands/index-cmd.js';
+import { historyCommand } from './commands/history-cmd.js';
+import { conflictsCommand } from './commands/conflicts-cmd.js';
+import { bootstrapCommand } from './commands/bootstrap-cmd.js';
+import { migrateCommand } from './commands/migrate-cmd.js';
+import { hooksCommand } from './commands/hooks-cmd.js';
+import { speckitCommand } from './commands/speckit-cmd.js';
+import { prContextCommand } from './commands/pr-context-cmd.js';
 
 const program = new Command();
 
@@ -32,5 +40,13 @@ program.addCommand(dashboardCommand);
 program.addCommand(runCommand);
 program.addCommand(codexCommand);
 program.addCommand(pluginCommand);
+program.addCommand(indexCommand);
+program.addCommand(historyCommand);
+program.addCommand(conflictsCommand);
+program.addCommand(bootstrapCommand);
+program.addCommand(migrateCommand);
+program.addCommand(hooksCommand);
+program.addCommand(speckitCommand);
+program.addCommand(prContextCommand);
 
 program.parse();

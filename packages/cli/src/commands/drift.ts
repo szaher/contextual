@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { resolve, join, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
-import { detectDrift, detectAllDrift } from '@ctxl/core';
+import { detectDrift, detectAllDrift } from '@ctxkit/core';
 
 export const driftCommand = new Command('drift')
   .description('Check .ctx files for stale references and drift')

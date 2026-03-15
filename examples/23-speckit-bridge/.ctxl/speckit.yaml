@@ -1,0 +1,36 @@
+# Spec-kit bridge configuration.
+# Defines how spec-kit documents map to .ctx files and contracts.
+
+speckit:
+  # Path to spec-kit documents
+  specs_dir: "specs/"
+
+  # Mapping rules: which specs map to which .ctx files
+  mappings:
+    - spec: "specs/constitution.md"
+      target: ".ctx"
+      prefix: "CONST-"
+      contract_prefix: "const-"
+      locked: true
+      owner: "speckit"
+
+    - spec: "specs/auth.md"
+      target: "src/auth/.ctx"
+      prefix: "FR-AUTH-"
+      contract_prefix: "fr-auth-"
+      locked: true
+      owner: "speckit"
+
+  # Sync settings
+  sync:
+    # How often to check for drift (when daemon is running)
+    interval_minutes: 60
+
+    # What to do when a conflict is detected
+    on_conflict: "warn"   # options: warn, fail, auto-merge
+
+    # Whether to auto-import new specs found in specs_dir
+    auto_import: false
+
+  # Last sync timestamp (updated automatically)
+  last_sync: "2026-03-15T10:10:00Z"

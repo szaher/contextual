@@ -68,10 +68,10 @@ fi
 
 if [ -n "$PM" ]; then
   info "Uninstalling global packages with $PM..."
-  $SUDO $PM uninstall -g @ctxl/cli @ctxl/mcp @ctxl/claude-plugin 2>/dev/null || true
+  $SUDO $PM uninstall -g @ctxkit/cli @ctxkit/mcp @ctxkit/claude-plugin 2>/dev/null || true
 else
   warn "Neither npm nor pnpm found — skipping package removal"
-  warn "Manually remove @ctxl/cli, @ctxl/mcp, and @ctxl/claude-plugin"
+  warn "Manually remove @ctxkit/cli, @ctxkit/mcp, and @ctxkit/claude-plugin"
 fi
 
 # ---------------------------------------------------------------------------

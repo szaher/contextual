@@ -5,7 +5,7 @@
 
 ## Summary
 
-Remediate 17 bugs, 3 feature gaps, and 4 scoring improvements identified in the ctxl gap analysis. The work spans 4 packages (`@ctxl/core`, `@ctxl/daemon`, `@ctxl/cli`, `@ctxl/claude-plugin`) and covers: eliminating a critical command injection vector, fixing path traversal, correcting scoring algorithms (locality, recency, tags), completing the proposal apply workflow with full-file replacement and conflict detection, integrating the retention scheduler, hardening API inputs, and fixing convention violations. No new packages or external dependencies are introduced.
+Remediate 17 bugs, 3 feature gaps, and 4 scoring improvements identified in the ctxl gap analysis. The work spans 4 packages (`@ctxkit/core`, `@ctxkit/daemon`, `@ctxkit/cli`, `@ctxkit/claude-plugin`) and covers: eliminating a critical command injection vector, fixing path traversal, correcting scoring algorithms (locality, recency, tags), completing the proposal apply workflow with full-file replacement and conflict detection, integrating the retention scheduler, hardening API inputs, and fixing convention violations. No new packages or external dependencies are introduced.
 
 ## Technical Context
 

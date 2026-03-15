@@ -111,12 +111,36 @@ runHook<SessionStartInput>('SessionStart', async (input) => {
     }
   }
 
-  // 7. Return bootstrap context
+  // 7. Index-based context selection (v2)
+  let indexContext = '';
+  try {
+    const { existsSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const ctxlPath = join(gitRoot, '.ctxl');
+    if (existsSync(ctxlPath)) {
+      console.error('[ctxkit:SessionStart] .ctxl index found — using index-based selection');
+      const indexResult = await client.post<{ selected?: Array<{ path: string }> }>('/api/v1/index/select', {
+        repo_root: gitRoot,
+        prompt: `Session starting in ${cwd}`,
+        cwd,
+        budget_tokens: 4000,
+      });
+      if (indexResult && indexResult.selected) {
+        const selectedPaths = indexResult.selected.map((s) => s.path);
+        indexContext = `\n[CtxKit v2] Selected ${selectedPaths.length} context files via index.`;
+      }
+    }
+  } catch (err) {
+    console.error(`[ctxkit:SessionStart] Index selection failed (non-blocking): ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  // 8. Return bootstrap context
   const bootstrapContext = [
     `[CtxKit] Session ${session.id} active.`,
     `Repository: ${gitRoot}`,
     branch ? `Branch: ${branch}` : null,
     `Status: ${session.status}`,
+    indexContext || null,
   ]
     .filter(Boolean)
     .join('\n');

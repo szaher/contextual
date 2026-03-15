@@ -1,0 +1,50 @@
+# Base version (v3) -- the common ancestor before Agent A and Agent B diverged.
+
+version: 2
+_version: 3
+
+summary: |
+  Authentication module. Handles user login, registration,
+  and JWT token management.
+
+tags: [auth, jwt, security]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth handler."
+    tags: [auth, handler]
+    verified_at: "aaa1111"
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT token management."
+    tags: [jwt, token]
+    verified_at: "aaa1111"
+
+  - path: src/auth/middleware.ts
+    why: "Route protection middleware."
+    tags: [auth, middleware]
+    verified_at: "aaa1111"
+
+contracts:
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, security]
+    content: |
+      SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt (cost factor >= 12).
+      2. JWT secrets MUST come from environment variables.
+    verified_at: "aaa1111"
+    locked: true
+
+commands:
+  test: "pnpm test --filter=auth"
+
+_history:
+  - version: 3
+    timestamp: "2026-03-10T11:00:00Z"
+    author: "developer"
+    session_id: null
+    reason: "Added middleware key_file entry"
+    checksum: "sha256:333ccc..."
+    diff_summary: "added key_files[2]: middleware.ts"

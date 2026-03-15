@@ -3,9 +3,9 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { detectSecrets, containsSecrets, redactSecrets } from '@ctxl/core';
-import { buildContextPack } from '@ctxl/core';
-import { generateDiff } from '@ctxl/core';
+import { detectSecrets, containsSecrets, redactSecrets } from '@ctxkit/core';
+import { buildContextPack } from '@ctxkit/core';
+import { generateDiff } from '@ctxkit/core';
 
 describe('E2E: Security — Secret Detection', () => {
   let tmpDir: string;

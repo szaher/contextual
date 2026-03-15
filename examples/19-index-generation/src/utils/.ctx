@@ -1,0 +1,24 @@
+# Shared utilities context.
+# Small helper modules used across the project.
+
+version: 2
+
+summary: |
+  Shared utility modules: logging, configuration loading, date formatting,
+  and common type guards. No business logic -- purely infrastructure helpers.
+
+tags: [utils, helpers, logging, config]
+
+key_files:
+  - path: src/utils/logger.ts
+    why: "Structured logger (pino). All modules import from here."
+    tags: [logging, pino]
+    verified_at: "jkl3456"
+
+  - path: src/utils/config.ts
+    why: "Loads and validates env vars with zod. Throws on missing required vars."
+    tags: [config, env, zod]
+    verified_at: "jkl3456"
+
+commands:
+  test: "pnpm test --filter=utils"

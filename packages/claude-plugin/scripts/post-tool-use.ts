@@ -69,5 +69,25 @@ runHook<PostToolUseInput>('post-tool-use', async (input) => {
     duration_ms: undefined,
   });
 
+  // v2: Track stale directories when Edit/Write tools modify files
+  const modifyingTools = ['Edit', 'Write', 'NotebookEdit'];
+  if (modifyingTools.includes(input.tool_name)) {
+    const modifiedPath = (input.tool_input.file_path ?? input.tool_input.notebook_path) as string | undefined;
+    if (modifiedPath) {
+      try {
+        await client.post('/api/v1/activity', {
+          session_id: sessionId,
+          event_type: 'FILE_MODIFIED',
+          ctx_path: modifiedPath,
+          agent_id: 'claude-code',
+          details: { tool_name: input.tool_name },
+        });
+        console.error(`[ctxkit:post-tool-use] Tracked stale file: ${modifiedPath}`);
+      } catch (err) {
+        console.error(`[ctxkit:post-tool-use] Staleness tracking failed (non-blocking): ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+  }
+
   writeEmptyResponse();
 }, TIMEOUT_MS);

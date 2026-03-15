@@ -127,7 +127,7 @@ specs/001-context-memory-manager/
 
 ```text
 packages/
-├── core/                        # @ctxl/core — context engine
+├── core/                        # @ctxkit/core — context engine
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
@@ -158,7 +158,7 @@ packages/
 │           ├── pack.ts          # Context Pack types
 │           └── config.ts        # Profile/config types
 │
-├── daemon/                      # @ctxl/daemon — local server
+├── daemon/                      # @ctxkit/daemon — local server
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
@@ -180,7 +180,7 @@ packages/
 │       └── scheduler/
 │           └── retention.ts     # Retention cleanup job
 │
-├── cli/                         # @ctxl/cli — ctxkit command
+├── cli/                         # @ctxkit/cli — ctxkit command
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
@@ -196,7 +196,7 @@ packages/
 │           ├── run.ts           # ctxkit run -- <cmd>
 │           └── daemon.ts        # ctxkit daemon start/stop
 │
-└── ui/                          # @ctxl/ui — React dashboard
+└── ui/                          # @ctxkit/ui — React dashboard
     ├── package.json
     ├── tsconfig.json
     ├── vite.config.ts

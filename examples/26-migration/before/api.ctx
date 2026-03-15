@@ -1,0 +1,42 @@
+# A v1 .ctx file for the API layer.
+# Note: some entries are missing verified_at (common in v1 files).
+
+version: 1
+
+summary: |
+  REST API layer built with Hono. Handles HTTP routing, request parsing,
+  response formatting, and error handling. All routes versioned under
+  /api/v1/.
+
+tags: [api, rest, hono, routes]
+
+key_files:
+  - path: src/api/routes.ts
+    why: "Route definitions. All endpoints registered here."
+    tags: [api, routes]
+    verified_at: "abc1234"
+
+  - path: src/api/error-handler.ts
+    why: "Global error handler."
+    tags: [api, errors]
+    # Note: no verified_at -- this is allowed in v1 but results in
+    # a lower recency score during context assembly.
+
+contracts:
+  - name: "api-versioning"
+    scope:
+      paths: ["src/api/*"]
+      tags: [api]
+    content: |
+      API VERSIONING:
+      1. All routes MUST be prefixed with /api/v1/.
+      2. Breaking changes MUST increment the version.
+    verified_at: "abc1234"
+
+gotchas:
+  - warning: "error-handler.ts must be registered LAST in the middleware chain."
+    tags: [api, middleware]
+
+commands:
+  test: "pnpm test --filter=api"
+  dev: "pnpm dev"

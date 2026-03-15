@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { loadProfile } from '@ctxl/core';
+import { loadProfile } from '@ctxkit/core';
 import type { AppEnv } from '../types.js';
 
 const KNOWN_CONFIG_KEYS = [

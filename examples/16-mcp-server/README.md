@@ -10,7 +10,7 @@ agent can invoke through the Model Context Protocol.
 ## Prerequisites
 
 - The ctxl daemon must be running (`ctxkit daemon start`)
-- `ctxkit-mcp` must be on your PATH (installed with the `@ctxl/mcp` package)
+- `ctxkit-mcp` must be on your PATH (installed with the `@ctxkit/mcp` package)
 
 ## Starting the MCP Server
 

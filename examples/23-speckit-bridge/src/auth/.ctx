@@ -1,0 +1,86 @@
+# Auth module .ctx file with contracts imported from spec-kit auth.md.
+# Contracts prefixed with "fr-auth-" are derived from FR-AUTH- requirements.
+
+version: 2
+_version: 2
+
+summary: |
+  Authentication module. Handles login, registration, JWT token management,
+  and role-based access control. Implements spec-kit functional requirements
+  for password hashing, token expiry, and rate limiting.
+
+tags: [auth, jwt, bcrypt, security, login]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth HTTP handler: login, register, refresh, logout."
+    tags: [auth, handler]
+    verified_at: "bbb2222"
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT issuance and validation. Access=15m, Refresh=7d."
+    tags: [jwt, token]
+    verified_at: "bbb2222"
+
+contracts:
+  - name: "fr-auth-001-bcrypt"
+    source: "speckit:specs/auth.md#FR-AUTH-001"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, password, security]
+    content: |
+      FR-AUTH-001: PASSWORD HASHING WITH BCRYPT
+      All user passwords MUST be hashed using bcrypt with a cost factor
+      of at least 12. Plaintext passwords MUST NOT be stored or logged.
+      Password comparison MUST use constant-time comparison.
+    verified_at: "bbb2222"
+    locked: true
+    owner: "speckit"
+
+  - name: "fr-auth-002-token-expiry"
+    source: "speckit:specs/auth.md#FR-AUTH-002"
+    scope:
+      paths: ["src/auth/jwt*"]
+      tags: [jwt, token, expiry]
+    content: |
+      FR-AUTH-002: TOKEN EXPIRY CONFIGURATION
+      Access tokens MUST expire after 15 minutes. Refresh tokens MUST
+      expire after 7 days. Expiry values MUST be configurable via
+      ACCESS_TOKEN_TTL and REFRESH_TOKEN_TTL environment variables.
+    verified_at: "bbb2222"
+    locked: true
+    owner: "speckit"
+
+  - name: "fr-auth-003-rate-limit"
+    source: "speckit:specs/auth.md#FR-AUTH-003"
+    scope:
+      paths: ["src/auth/handler*"]
+      tags: [auth, rate-limit, security]
+    content: |
+      FR-AUTH-003: LOGIN RATE LIMITING
+      Failed login attempts MUST be rate-limited to max 5 attempts per
+      IP per 5-minute window. Exceeded limit returns HTTP 429 with
+      Retry-After header. Rate limit state stored in Redis.
+    verified_at: "bbb2222"
+    locked: true
+    owner: "speckit"
+
+commands:
+  test: "pnpm test --filter=auth"
+
+_history:
+  - version: 2
+    timestamp: "2026-03-15T10:10:00Z"
+    author: "system"
+    session_id: null
+    reason: "Imported FR-AUTH-001, FR-AUTH-002, FR-AUTH-003 from specs/auth.md"
+    checksum: "sha256:dd44ff66..."
+    diff_summary: "added contracts[0..2]: fr-auth-001-bcrypt, fr-auth-002-token-expiry, fr-auth-003-rate-limit"
+
+  - version: 1
+    timestamp: "2026-03-15T10:00:00Z"
+    author: "system"
+    session_id: null
+    reason: "Initial .ctx via bootstrap"
+    checksum: "sha256:cc33ee55..."
+    diff_summary: "initial creation"

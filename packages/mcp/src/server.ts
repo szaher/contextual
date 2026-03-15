@@ -6,6 +6,11 @@ import { registerProposalTools } from './tools/proposals.js';
 import { registerSessionTools } from './tools/sessions.js';
 import { registerPolicyTools } from './tools/policy.js';
 import { registerMemoryTool } from './tools/memory.js';
+import { registerIndexTools } from './tools/index-tools.js';
+import { registerHistoryTools } from './tools/history-tools.js';
+import { registerWriteTools } from './tools/write-tools.js';
+import { registerBootstrapTools } from './tools/bootstrap-tools.js';
+import { registerPrTools } from './tools/pr-tools.js';
 
 const VERSION = '0.1.0';
 
@@ -24,6 +29,11 @@ export function createMcpServer(existingClient?: DaemonClient): McpServer {
   registerSessionTools(server, client);
   registerPolicyTools(server, client);
   registerMemoryTool(server, client);
+  registerIndexTools(server, client);
+  registerHistoryTools(server, client);
+  registerWriteTools(server, client);
+  registerBootstrapTools(server, client);
+  registerPrTools(server, client);
 
   return server;
 }
