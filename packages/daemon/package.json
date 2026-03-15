@@ -34,7 +34,7 @@
     "@ctxkit/speckit-bridge": "workspace:*",
     "hono": "^4.7.0",
     "@hono/node-server": "^1.14.0",
-    "better-sqlite3": "^11.8.0"
+    "better-sqlite3": "^12.8.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
