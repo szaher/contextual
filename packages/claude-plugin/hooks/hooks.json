@@ -1,5 +1,15 @@
 {
   "description": "CtxKit automatic context injection and event logging",
+  "skills": {
+    "ctx": {
+      "description": "Context management (v2) — manage .ctx files, index, versioning, conflicts",
+      "skill_path": "${CLAUDE_PLUGIN_ROOT}/skills/ctx/SKILL.md"
+    },
+    "ctxkit": {
+      "description": "Context management (alias for /ctx)",
+      "skill_path": "${CLAUDE_PLUGIN_ROOT}/skills/ctxkit/SKILL.md"
+    }
+  },
   "hooks": {
     "SessionStart": [
       {

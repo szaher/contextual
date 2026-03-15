@@ -194,7 +194,7 @@ A developer uses ctxl on a system where `HOME` and `USERPROFILE` environment var
 
 #### Convention Compliance
 
-- **FR-018**: Library code in `@ctxl/core` MUST NOT emit `console.warn` or `console.log` as side effects. Warnings MUST be returned in result objects.
+- **FR-018**: Library code in `@ctxkit/core` MUST NOT emit `console.warn` or `console.log` as side effects. Warnings MUST be returned in result objects.
 - **FR-019**: Daemon modules MUST use `console.error` (not `console.log`) for logging, to avoid polluting stdout in IPC scenarios.
 - **FR-020**: Home directory resolution MUST use `os.homedir()` from Node.js standard library as the primary mechanism, not `process.env.HOME || '~'`.
 
@@ -244,4 +244,4 @@ A developer uses ctxl on a system where `HOME` and `USERPROFILE` environment var
 - **SC-007**: All daemon POST/PATCH endpoints reject request bodies exceeding the configured size limit (default 10MB) with a 413 response, verified by integration test.
 - **SC-008**: CLI commands reject non-numeric and non-positive budget values with a clear error message, verified by CLI integration test.
 - **SC-009**: All existing tests (147 integration + 79 E2E) continue to pass after remediation changes, ensuring no regressions.
-- **SC-010**: No `console.warn` or `console.log` output is emitted from `@ctxl/core` library functions during normal operation, verified by capturing stdout/stderr in tests.
+- **SC-010**: No `console.warn` or `console.log` output is emitted from `@ctxkit/core` library functions during normal operation, verified by capturing stdout/stderr in tests.

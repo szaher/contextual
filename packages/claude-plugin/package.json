@@ -1,5 +1,5 @@
 {
-  "name": "@ctxl/claude-plugin",
+  "name": "@ctxkit/claude-plugin",
   "version": "0.1.0",
   "description": "Claude Code plugin with 8 hooks and interactive /ctxkit skill",
   "type": "module",
@@ -34,8 +34,8 @@
     "prepublishOnly": "tsc && node scripts/add-shebangs.js"
   },
   "dependencies": {
-    "@ctxl/core": "workspace:*",
-    "@ctxl/mcp": "workspace:*"
+    "@ctxkit/core": "workspace:*",
+    "@ctxkit/mcp": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

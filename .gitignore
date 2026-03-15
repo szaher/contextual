@@ -30,6 +30,9 @@ coverage/
 # ctxl local data
 .ctxl/data/
 
+# ctxl runtime locks (ephemeral)
+.ctxl.lock
+
 # VitePress
 docs/.vitepress/dist/
 docs/.vitepress/cache/

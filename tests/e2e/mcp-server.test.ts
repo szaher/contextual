@@ -121,9 +121,9 @@ key_files:
     return JSON.parse(content.text);
   }
 
-  it('should list all 10 tools', async () => {
+  it('should list all 16 tools', async () => {
     const result = await mcpClient.listTools();
-    expect(result.tools).toHaveLength(10);
+    expect(result.tools).toHaveLength(16);
   });
 
   it('should create a session via daemon and list via MCP tool', async () => {

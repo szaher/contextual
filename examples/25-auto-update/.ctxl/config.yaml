@@ -1,0 +1,40 @@
+# ctxl configuration with auto-update policy settings.
+# Controls how .ctx files are updated when referenced files change.
+
+budget:
+  default_tokens: 4000
+
+policies:
+  auto_update:
+    # Entries with these owners are auto-updated without review.
+    # "agent" means entries created by an AI agent.
+    auto_owners: ["agent"]
+
+    # Entries with these owners require human review before updating.
+    # These are typically critical entries maintained by specific teams.
+    review_owners: ["security", "infrastructure", "speckit"]
+
+    # Default behavior for entries without an explicit owner.
+    # Options: "auto_update" or "require_review"
+    default: "require_review"
+
+    # Locked entries are never auto-updated, regardless of owner.
+    # This is a safety mechanism for critical invariants.
+    respect_locks: true
+
+    # Maximum number of auto-updates allowed per session.
+    # Prevents runaway updates in large refactoring sessions.
+    max_auto_updates_per_session: 10
+
+    # Whether to propose updates for new files detected during a session.
+    # If true, new files that match existing .ctx tag patterns get
+    # a "add key_file" proposal.
+    propose_new_files: true
+
+    # Minimum score threshold for proposing new file entries.
+    # Only files with a tag overlap score above this threshold get proposed.
+    new_file_threshold: 0.6
+
+  ignore:
+    never_read: [".env", "secrets/*"]
+    never_log: ["*.key", "*.pem"]

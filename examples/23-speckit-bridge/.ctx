@@ -1,0 +1,87 @@
+# Root .ctx file with contracts imported from spec-kit constitution.
+# Contracts prefixed with "const-" are derived from CONST- decisions.
+# These contracts are locked and should not be modified without updating
+# the constitution first.
+
+version: 2
+_version: 3
+
+summary: |
+  E-commerce API backend. TypeScript/Node.js project with authentication,
+  product catalog, and order management. All APIs are RESTful with JWT
+  authentication and zod validation.
+
+tags: [typescript, nodejs, ecommerce, api]
+
+contracts:
+  - name: "const-001-rest-api"
+    source: "speckit:specs/constitution.md#CONST-001"
+    scope:
+      paths: ["src/api/*"]
+      tags: [api, rest]
+    content: |
+      CONST-001: ALL APIs USE REST
+      All public-facing APIs MUST use RESTful conventions with JSON
+      request and response bodies. Endpoints MUST follow the pattern
+      /api/v{N}/{resource}. Breaking changes MUST increment the version.
+    verified_at: "aaa1111"
+    locked: true
+    owner: "speckit"
+
+  - name: "const-002-jwt-auth"
+    source: "speckit:specs/constitution.md#CONST-002"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, jwt]
+    content: |
+      CONST-002: AUTHENTICATION VIA JWT
+      All authenticated API requests MUST use JWT bearer tokens.
+      Access tokens expire after 15 minutes. Refresh tokens expire
+      after 7 days and are stored server-side. Token secrets MUST be
+      loaded from environment variables, never hardcoded.
+    verified_at: "aaa1111"
+    locked: true
+    owner: "speckit"
+
+  - name: "const-003-zod-validation"
+    source: "speckit:specs/constitution.md#CONST-003"
+    scope:
+      paths: ["src/**/*.ts"]
+      tags: [validation, zod]
+    content: |
+      CONST-003: INPUT VALIDATION WITH ZOD
+      All user input MUST be validated using zod schemas before processing.
+      Validation errors MUST return HTTP 400 with a structured error body.
+      Schema definitions MUST be co-located with the handler.
+    verified_at: "aaa1111"
+    locked: true
+    owner: "speckit"
+
+commands:
+  build: "pnpm build"
+  test: "pnpm test"
+
+_history:
+  - version: 3
+    timestamp: "2026-03-15T10:05:00Z"
+    author: "system"
+    session_id: null
+    reason: "Imported CONST-003 from specs/constitution.md"
+    checksum: "sha256:cc33ee55..."
+    diff_summary: "added contracts[2]: const-003-zod-validation"
+
+  - version: 2
+    timestamp: "2026-03-15T10:04:00Z"
+    author: "system"
+    session_id: null
+    reason: "Imported CONST-001, CONST-002 from specs/constitution.md"
+    checksum: "sha256:bb22dd44..."
+    diff_summary: "added contracts[0..1]: const-001-rest-api, const-002-jwt-auth"
+
+  - version: 1
+    timestamp: "2026-03-15T10:00:00Z"
+    author: "system"
+    session_id: null
+    reason: "Initial .ctx via bootstrap"
+    checksum: "sha256:aa11cc33..."
+    diff_summary: "initial creation"

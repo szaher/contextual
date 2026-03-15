@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, join, basename } from 'node:path';
-import { serializeCtxFile } from '@ctxl/core';
-import type { CtxFile, KeyFile } from '@ctxl/core';
+import { serializeCtxFile } from '@ctxkit/core';
+import type { CtxFile, KeyFile } from '@ctxkit/core';
 
 export const initCommand = new Command('init')
   .description('Initialize a .ctx file by scanning directory metadata')

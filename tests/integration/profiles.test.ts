@@ -3,8 +3,8 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { loadProfile } from '@ctxl/core';
-import { buildContextPack } from '@ctxl/core';
+import { loadProfile } from '@ctxkit/core';
+import { buildContextPack } from '@ctxkit/core';
 
 describe('Integration: Workspace Profiles', () => {
   let tmpDir: string;

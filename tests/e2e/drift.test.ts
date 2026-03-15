@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync, unlinkSync } from 'node:
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { detectDrift, scanForDeadReferences } from '@ctxl/core';
+import { detectDrift, scanForDeadReferences } from '@ctxkit/core';
 
 describe('E2E: Drift Detection', () => {
   let tmpDir: string;

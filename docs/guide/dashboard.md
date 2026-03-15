@@ -108,6 +108,59 @@ The diff viewer highlights:
 - Context lines (unchanged)
 - Redacted secrets (marked with `[REDACTED:<type>]`)
 
+### Timeline
+
+The Timeline page at `/timeline` shows the evolution of context memory over time:
+
+- **Memory evolution graph** -- visual timeline showing when `.ctx` files were created, modified, and how their content grew or shrank
+- **Version markers** -- each `ctx_version` bump is plotted on the timeline with author and reason
+- **Filtering** -- filter by `.ctx` file path, author, or date range
+- **Zoom** -- zoom into specific time ranges to inspect rapid changes during agent sessions
+
+The timeline is useful for understanding how context memory has evolved across many sessions and identifying patterns in what agents modify most frequently.
+
+### Dependency Map
+
+The Map page at `/map` provides an interactive dependency graph of all `.ctx` files:
+
+- **Graph visualization** -- nodes represent `.ctx` files, edges represent `depends_on` / `depended_by` relationships from the index
+- **Node details** -- click a node to see the `.ctx` file summary, tags, token count, and version
+- **Highlighting** -- hover over a node to highlight its dependencies and dependents
+- **Layout** -- automatic hierarchical layout with manual repositioning
+- **Search** -- find nodes by path or tag
+
+The dependency map requires the `.ctxl` index to be generated (`ctxkit index generate`).
+
+### Conflicts
+
+The Conflicts page at `/conflicts` provides a visual interface for resolving multi-agent conflicts:
+
+- **Conflict list** -- all `.ctx` files with unresolved conflicts, showing conflict count and creation time
+- **Side-by-side diff** -- view "ours" vs "theirs" for each conflicted section
+- **Resolution controls** -- pick "ours" or "theirs" for each conflict individually
+- **Session context** -- see which agent sessions produced each side of the conflict
+- **Bulk resolution** -- resolve all conflicts in a file at once
+
+### Activity Feed
+
+The Activity page at `/activity` shows a real-time feed of all context operations:
+
+- **Live updates** -- new events appear automatically via Server-Sent Events (SSE)
+- **Event types** -- `.ctx` modifications, proposals created/applied/rejected, conflicts detected, sessions started/ended
+- **Filtering** -- filter by event type, `.ctx` file path, or session
+- **Event details** -- expand an event to see the full diff, author, and reason
+- **Pause/resume** -- pause the live feed to inspect events without scroll jitter
+
+### PR Context Viewer
+
+The PR Context page at `/sessions/:id/pr` renders a preview of the PR context for a specific session:
+
+- **Formatted preview** -- see the markdown output that `ctxkit pr` would generate
+- **Section breakdown** -- summary, prompt chain, decisions, file changes, context used, and stats
+- **Copy button** -- copy the rendered markdown to clipboard for pasting into a PR
+- **Format toggle** -- switch between markdown preview, raw markdown, and JSON views
+- **Export** -- download the PR context as a file
+
 ## Dashboard Architecture
 
 The dashboard is a React single-page application built with Vite:

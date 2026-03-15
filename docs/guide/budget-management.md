@@ -21,7 +21,7 @@ The default budget is **4,000 tokens**, configurable via:
 ctxl estimates token counts using a simple heuristic (character-based approximation). The `estimateTokens` function provides a fast estimate without requiring a full tokenizer:
 
 ```typescript
-import { estimateTokens } from '@ctxl/core'
+import { estimateTokens } from '@ctxkit/core'
 
 const tokens = estimateTokens("Your content here")
 ```
@@ -29,7 +29,7 @@ const tokens = estimateTokens("Your content here")
 For production accuracy, you can replace the default estimator via `createEstimator`:
 
 ```typescript
-import { createEstimator } from '@ctxl/core'
+import { createEstimator } from '@ctxkit/core'
 
 const estimate = createEstimator(/* custom implementation */)
 ```

@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { buildContextPack } from '@ctxl/core';
+import { buildContextPack } from '@ctxkit/core';
 
 describe('E2E: Agent Wrapper', () => {
   let tmpDir: string;

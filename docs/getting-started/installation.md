@@ -34,10 +34,10 @@ pnpm build
 
 This compiles:
 
-1. `@ctxl/core` -- the foundation library (parser, scorer, packer, differ, drift, config, redaction)
-2. `@ctxl/daemon` -- the HTTP daemon (depends on core)
-3. `@ctxl/cli` -- the `ctxkit` CLI (depends on core)
-4. `@ctxl/ui` -- the React dashboard (standalone, served by daemon)
+1. `@ctxkit/core` -- the foundation library (parser, scorer, packer, differ, drift, config, redaction)
+2. `@ctxkit/daemon` -- the HTTP daemon (depends on core)
+3. `@ctxkit/cli` -- the `ctxkit` CLI (depends on core)
+4. `@ctxkit/ui` -- the React dashboard (standalone, served by daemon)
 
 ## Verify the Installation
 
@@ -64,10 +64,10 @@ pnpm test
 ```
 ctxl/
   packages/
-    core/       # @ctxl/core - context engine library
-    daemon/     # @ctxl/daemon - HTTP daemon with SQLite
-    cli/        # @ctxl/cli - ctxkit command-line tool
-    ui/         # @ctxl/ui - React inspection dashboard
+    core/       # @ctxkit/core - context engine library
+    daemon/     # @ctxkit/daemon - HTTP daemon with SQLite
+    cli/        # @ctxkit/cli - ctxkit command-line tool
+    ui/         # @ctxkit/ui - React inspection dashboard
   tests/        # Integration and e2e tests
   docs/         # This documentation site
 ```

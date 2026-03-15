@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { buildContextPack } from '@ctxl/core';
+import { buildContextPack } from '@ctxkit/core';
 import { execSync, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';

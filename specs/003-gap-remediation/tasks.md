@@ -203,7 +203,7 @@
 - [x] T060 Run full integration test suite: `pnpm test` — all existing + new tests must pass (SC-009)
 - [x] T061 Run full E2E test suite: `pnpm test:e2e` — all existing + new tests must pass (SC-009)
 - [x] T062 Run lint: `pnpm lint` — zero violations
-- [x] T063 Verify no `console.warn` or `console.log` in `@ctxl/core` package (grep for occurrences, should be zero)
+- [x] T063 Verify no `console.warn` or `console.log` in `@ctxkit/core` package (grep for occurrences, should be zero)
 
 ---
 

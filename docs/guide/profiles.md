@@ -210,7 +210,7 @@ Patterns support:
 The profile is loaded via the core library:
 
 ```typescript
-import { loadProfile } from '@ctxl/core'
+import { loadProfile } from '@ctxkit/core'
 
 const profile = loadProfile('/path/to/repo', {
   budgetTokens: 8000,        // Optional: per-request override

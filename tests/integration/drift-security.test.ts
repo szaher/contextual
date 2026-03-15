@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
 import { Hono } from 'hono';
-import { detectDrift, isValidVerifiedAt } from '@ctxl/core';
+import { detectDrift, isValidVerifiedAt } from '@ctxkit/core';
 import { resolve, sep } from 'node:path';
 import { existsSync } from 'node:fs';
 

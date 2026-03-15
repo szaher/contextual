@@ -1,0 +1,19 @@
+# Archived history entries for .ctx
+# Entries older than the 20 most recent are moved here automatically.
+# This file is append-only. Do not edit manually.
+
+archived_from: ".ctx"
+entries: []
+# When inline _history exceeds 20 entries, the oldest entries are
+# appended here. This file is currently empty because the example
+# .ctx file has only 5 history entries (below the 20-entry threshold).
+#
+# Example of what an archived entry looks like:
+#
+# - version: 1
+#   timestamp: "2025-01-01T00:00:00Z"
+#   author: "system"
+#   session_id: null
+#   reason: "Initial creation"
+#   checksum: "sha256:aabbccdd..."
+#   diff_summary: "initial creation"

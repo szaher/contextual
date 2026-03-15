@@ -1,0 +1,86 @@
+# Auto-generated ctxl index (created during migration).
+# Do not edit manually -- regenerate with: ctxkit index generate
+# Generated: 2026-03-15T12:00:05Z
+
+version: 2
+
+sources:
+  - path: src/auth/.ctx
+    checksum: "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+  - path: src/api/.ctx
+    checksum: "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+
+entries:
+  contracts:
+    - id: "auth-security-requirements"
+      source: "src/auth/.ctx"
+      scope:
+        paths: ["src/auth/*"]
+        tags: [auth, security]
+      tokens_est: 200
+      locked: true
+
+    - id: "api-versioning"
+      source: "src/api/.ctx"
+      scope:
+        paths: ["src/api/*"]
+        tags: [api]
+      tokens_est: 120
+      locked: false
+
+  key_files:
+    - id: "src/auth/handler.ts"
+      source: "src/auth/.ctx"
+      tags: [auth, handler]
+      tokens_est: 45
+      verified_at: "abc1234"
+
+    - id: "src/auth/jwt-service.ts"
+      source: "src/auth/.ctx"
+      tags: [jwt, token, security]
+      tokens_est: 50
+      verified_at: "abc1234"
+
+    - id: "src/auth/middleware.ts"
+      source: "src/auth/.ctx"
+      tags: [auth, middleware]
+      tokens_est: 40
+      verified_at: "abc1234"
+
+    - id: "src/api/routes.ts"
+      source: "src/api/.ctx"
+      tags: [api, routes]
+      tokens_est: 40
+      verified_at: "abc1234"
+
+    - id: "src/api/error-handler.ts"
+      source: "src/api/.ctx"
+      tags: [api, errors]
+      tokens_est: 30
+      verified_at: null
+
+  decisions:
+    - id: "d001"
+      source: "src/auth/.ctx"
+      title: "JWT over session cookies for API authentication"
+      tags: [auth, jwt]
+      tokens_est: 80
+      verified_at: "abc1234"
+
+  gotchas:
+    - id: "src/api/.ctx#gotchas/0"
+      source: "src/api/.ctx"
+      tags: [api, middleware]
+      tokens_est: 40
+
+graph:
+  edges: []
+
+budget:
+  total_tokens: 4000
+  categories:
+    contracts: 0.20
+    local_ctx: 0.30
+    related_ctx: 0.30
+    history: 0.10
+    reserve: 0.10

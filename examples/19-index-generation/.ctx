@@ -1,0 +1,52 @@
+# Root-level .ctx file for a multi-module project.
+# This file provides the project summary, global contracts, and
+# references to child .ctx files.
+
+version: 2
+
+summary: |
+  E-commerce platform backend. TypeScript/Node.js monorepo with
+  authentication, REST API, and shared utilities. Uses PostgreSQL
+  for storage and Redis for caching.
+
+tags: [ecommerce, typescript, nodejs, backend]
+
+key_files:
+  - path: package.json
+    why: "Root package.json with workspace configuration and scripts."
+    tags: [config, build]
+    verified_at: "abc1234"
+
+  - path: tsconfig.json
+    why: "Base TypeScript config inherited by all packages."
+    tags: [config, typescript]
+    verified_at: "abc1234"
+
+contracts:
+  - name: "input-validation-contract"
+    scope:
+      paths: ["src/api/*", "src/auth/*"]
+      tags: [api, auth]
+    content: |
+      INPUT VALIDATION:
+      1. All user input MUST be validated with zod schemas before processing.
+      2. Validation errors MUST return 400 with a structured error body.
+      3. Never trust client-side validation alone.
+    verified_at: "abc1234"
+    locked: true
+
+refs:
+  - path: src/auth/.ctx
+    reason: "Authentication module context"
+  - path: src/api/.ctx
+    reason: "API layer context"
+
+commands:
+  build: "pnpm build"
+  test: "pnpm test"
+  dev: "pnpm dev"
+  lint: "pnpm lint"
+
+ignore:
+  never_read: [".env", "secrets/*"]
+  never_log: ["*.key", "*.pem"]

@@ -24,10 +24,10 @@
 **Purpose**: Initialize pnpm monorepo with 4 packages and shared tooling
 
 - [x] T001 Create root package.json with pnpm workspaces config and pnpm-workspace.yaml listing packages/*
-- [x] T002 [P] Initialize packages/core with package.json (name: @ctxl/core, deps: js-yaml, proper-lockfile) and tsconfig.json
-- [x] T003 [P] Initialize packages/daemon with package.json (name: @ctxl/daemon, deps: hono, better-sqlite3, @hono/node-server) and tsconfig.json
-- [x] T004 [P] Initialize packages/cli with package.json (name: @ctxl/cli, deps: commander, bin: ctxkit) and tsconfig.json
-- [x] T005 [P] Initialize packages/ui with package.json (name: @ctxl/ui, deps: react, react-dom), vite.config.ts (React plugin), and tsconfig.json
+- [x] T002 [P] Initialize packages/core with package.json (name: @ctxkit/core, deps: js-yaml, proper-lockfile) and tsconfig.json
+- [x] T003 [P] Initialize packages/daemon with package.json (name: @ctxkit/daemon, deps: hono, better-sqlite3, @hono/node-server) and tsconfig.json
+- [x] T004 [P] Initialize packages/cli with package.json (name: @ctxkit/cli, deps: commander, bin: ctxkit) and tsconfig.json
+- [x] T005 [P] Initialize packages/ui with package.json (name: @ctxkit/ui, deps: react, react-dom), vite.config.ts (React plugin), and tsconfig.json
 - [x] T006 [P] Configure shared ESLint + Prettier at repository root with TypeScript rules
 - [x] T007 [P] Configure Vitest as test runner in root vitest.config.ts with workspace support
 

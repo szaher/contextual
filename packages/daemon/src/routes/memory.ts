@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { mergeCtxHierarchy, scoreEntries } from '@ctxl/core';
+import { mergeCtxHierarchy, scoreEntries } from '@ctxkit/core';
 import type { AppEnv } from '../types.js';
 
 const memory = new Hono<AppEnv>();

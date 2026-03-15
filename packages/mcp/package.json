@@ -1,5 +1,5 @@
 {
-  "name": "@ctxl/mcp",
+  "name": "@ctxkit/mcp",
   "version": "0.1.0",
   "description": "MCP server providing 10 context management tools over stdio",
   "type": "module",
@@ -45,7 +45,7 @@
     "prepublishOnly": "tsc"
   },
   "dependencies": {
-    "@ctxl/core": "workspace:*",
+    "@ctxkit/core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.27.0",
     "zod": "^3.25.0"
   },

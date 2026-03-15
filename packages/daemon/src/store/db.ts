@@ -67,6 +67,20 @@ CREATE INDEX IF NOT EXISTS idx_diffs_status ON memory_diffs(status);
 CREATE INDEX IF NOT EXISTS idx_diffs_ctx ON memory_diffs(ctx_path);
 CREATE INDEX IF NOT EXISTS idx_audit_ctx ON audit_log(ctx_path);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at);
+
+CREATE TABLE IF NOT EXISTS activity_events (
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL REFERENCES sessions(id),
+  event_type TEXT NOT NULL,
+  ctx_path TEXT,
+  agent_id TEXT,
+  details TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_activity_session ON activity_events(session_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_activity_type ON activity_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_activity_ctx ON activity_events(ctx_path);
 `;
 
 /**

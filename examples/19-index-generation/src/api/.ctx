@@ -1,0 +1,44 @@
+# API layer context.
+# Describes the REST API routes, versioning contract, and common gotchas.
+
+version: 2
+
+summary: |
+  REST API layer built with Hono. Handles HTTP routing, request parsing,
+  response formatting, and error handling. All routes are versioned
+  under /api/v1/. Uses zod for request validation.
+
+tags: [api, rest, hono, routes]
+
+key_files:
+  - path: src/api/routes.ts
+    why: "Route definitions. All endpoints registered here."
+    tags: [api, routes]
+    verified_at: "ghi9012"
+
+  - path: src/api/error-handler.ts
+    why: "Global error handler. Converts exceptions to structured JSON responses."
+    tags: [api, errors]
+    verified_at: "ghi9012"
+
+contracts:
+  - name: "api-versioning-contract"
+    scope:
+      paths: ["src/api/*"]
+      tags: [api]
+    content: |
+      API VERSIONING:
+      1. All routes MUST be prefixed with /api/v1/.
+      2. Breaking changes MUST increment the version (v2, v3, etc.).
+      3. Deprecated endpoints MUST return a Deprecation header.
+      4. Old versions MUST be supported for at least 6 months.
+    verified_at: "ghi9012"
+    locked: false
+
+gotchas:
+  - warning: "error-handler.ts must be registered LAST in the middleware chain."
+    tags: [api, middleware]
+
+refs:
+  - path: src/auth/.ctx
+    reason: "API routes depend on auth middleware for protected endpoints"

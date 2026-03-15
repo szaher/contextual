@@ -7,7 +7,7 @@ import { serve } from '@hono/node-server';
 import type { ServerType } from '@hono/node-server';
 import { createApp } from '../../packages/daemon/src/server.js';
 import { openDatabase } from '../../packages/daemon/src/store/db.js';
-import { buildContextPack, parseCtxFile } from '@ctxl/core';
+import { buildContextPack, parseCtxFile } from '@ctxkit/core';
 import type Database from 'better-sqlite3';
 
 /**

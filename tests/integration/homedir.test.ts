@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { homedir } from 'node:os';
 import { defaultDbPath } from '../../packages/daemon/src/store/db.js';
-import { loadProfile } from '@ctxl/core';
+import { loadProfile } from '@ctxkit/core';
 
 /**
  * T058: Portable Home Directory Resolution Integration Tests

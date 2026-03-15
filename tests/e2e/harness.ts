@@ -1,5 +1,5 @@
-import { buildContextPack } from '@ctxl/core';
-import type { ContextPack } from '@ctxl/core';
+import { buildContextPack } from '@ctxkit/core';
+import type { ContextPack } from '@ctxkit/core';
 
 export interface RecordedSession {
   id: string;

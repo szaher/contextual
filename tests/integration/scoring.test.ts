@@ -8,8 +8,8 @@ import {
   scoreRecency,
   scoreTags,
   scoreEntries,
-} from '@ctxl/core';
-import type { CtxFile } from '@ctxl/core';
+} from '@ctxkit/core';
+import type { CtxFile } from '@ctxkit/core';
 
 describe('Scoring Bug Fixes (US2)', () => {
   describe('Locality scoring (T015)', () => {

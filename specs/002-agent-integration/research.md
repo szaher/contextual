@@ -54,7 +54,7 @@ The MCP server needs to call the daemon HTTP API. The daemon runs on `localhost:
 | `ctxkit.policy.validate` | `POST /api/v1/config/validate` (new) | POST |
 | `ctxkit.memory.search` | `GET /api/v1/memory/search` (new) | GET |
 
-**Note**: Some endpoints (`log_event`, `policy.get/validate`, `memory.search`) do not exist in the current daemon. These need to be added as new routes in `@ctxl/daemon`. This is a minor extension — the underlying functionality exists in `@ctxl/core` (events store, config loader, ctx merger).
+**Note**: Some endpoints (`log_event`, `policy.get/validate`, `memory.search`) do not exist in the current daemon. These need to be added as new routes in `@ctxkit/daemon`. This is a minor extension — the underlying functionality exists in `@ctxkit/core` (events store, config loader, ctx merger).
 
 ---
 
@@ -209,11 +209,11 @@ args = ["/path/to/packages/mcp/dist/index.js"]
 | Endpoint | Purpose | Implementation |
 |----------|---------|----------------|
 | `POST /api/v1/sessions/:id/events` | Log tool events to session | New route, uses existing `insertRequestEvent` store (extended for tool events) |
-| `GET /api/v1/config` | Return effective merged config | New route, uses existing `loadProfile` from `@ctxl/core` |
+| `GET /api/v1/config` | Return effective merged config | New route, uses existing `loadProfile` from `@ctxkit/core` |
 | `POST /api/v1/config/validate` | Validate config schema | New route, validates against config types |
 | `GET /api/v1/memory/search` | Search `.ctx` entries by query | New route, uses existing `mergeCtxHierarchy` + scoring |
 
-These are thin wrappers around existing `@ctxl/core` functionality. The total new code in `@ctxl/daemon` is estimated at ~200 lines across 3 new route files.
+These are thin wrappers around existing `@ctxkit/core` functionality. The total new code in `@ctxkit/daemon` is estimated at ~200 lines across 3 new route files.
 
 ---
 

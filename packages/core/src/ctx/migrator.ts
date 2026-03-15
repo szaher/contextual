@@ -19,11 +19,9 @@ export interface MigrationResult {
  * Each function receives the raw parsed ctx and returns the migrated version.
  */
 const migrations: Record<number, (ctx: CtxFile) => { ctx: CtxFile; changes: string[] }> = {
-  // Example: When version 2 is introduced, add:
-  // 1: (ctx) => {
-  //   // migrate from v1 to v2
-  //   return { ctx: { ...ctx, version: 2 }, changes: ['Added new_field'] };
-  // },
+  // v1→v2: Initialize _history array for inline versioning support.
+  // Note: version field is a content revision counter, not a schema version.
+  // This migration adds the _history array to v1 files that lack it.
 };
 
 /**
@@ -101,4 +99,48 @@ export function migrateCtxFile(filePath: string): MigrationResult {
  */
 export function needsMigration(ctx: CtxFile): boolean {
   return ctx.version < CURRENT_CTX_VERSION;
+}
+
+/**
+ * Check if a .ctx file needs v2 feature initialization (_history array).
+ * This is separate from schema version migration — v2 features are optional
+ * additions to the v1 schema that enable inline versioning.
+ */
+export function needsV2Init(ctx: CtxFile): boolean {
+  return !ctx._history;
+}
+
+/**
+ * Initialize v2 features on a .ctx file (adds _history array).
+ * Returns a new CtxFile object with _history initialized.
+ * Does not modify the version counter.
+ */
+export function initV2Features(ctx: CtxFile): { ctx: CtxFile; changes: string[] } {
+  const changes: string[] = [];
+  const updated = { ...ctx };
+
+  if (!updated._history) {
+    updated._history = [];
+    changes.push('Initialized _history array for inline versioning');
+  }
+
+  return { ctx: updated, changes };
+}
+
+/**
+ * Initialize v2 features on a .ctx file on disk.
+ * Reads the file, adds _history if missing, and writes back.
+ */
+export function initV2FeaturesFile(filePath: string): { initialized: boolean; changes: string[] } {
+  const content = readFileSync(filePath, 'utf-8');
+  const { ctx } = parseCtxFile(content);
+
+  if (!needsV2Init(ctx)) {
+    return { initialized: false, changes: [] };
+  }
+
+  const result = initV2Features(ctx);
+  writeFileSync(filePath, serializeCtxFile(result.ctx), 'utf-8');
+
+  return { initialized: true, changes: result.changes };
 }

@@ -1,0 +1,53 @@
+# Migrated from v1 to v2 by ctxkit migrate.
+# Added: version bumped to 2, _version initialized, _history created, checksum computed.
+# Note: verified_at on error-handler.ts is still missing (preserved as-is).
+
+version: 2
+_version: 1
+
+summary: |
+  REST API layer built with Hono. Handles HTTP routing, request parsing,
+  response formatting, and error handling. All routes versioned under
+  /api/v1/.
+
+tags: [api, rest, hono, routes]
+
+key_files:
+  - path: src/api/routes.ts
+    why: "Route definitions. All endpoints registered here."
+    tags: [api, routes]
+    verified_at: "abc1234"
+
+  - path: src/api/error-handler.ts
+    why: "Global error handler."
+    tags: [api, errors]
+    # verified_at still missing -- migration preserves existing state.
+    # Run 'ctxkit verify src/api/error-handler.ts' to set it.
+
+contracts:
+  - name: "api-versioning"
+    scope:
+      paths: ["src/api/*"]
+      tags: [api]
+    content: |
+      API VERSIONING:
+      1. All routes MUST be prefixed with /api/v1/.
+      2. Breaking changes MUST increment the version.
+    verified_at: "abc1234"
+
+gotchas:
+  - warning: "error-handler.ts must be registered LAST in the middleware chain."
+    tags: [api, middleware]
+
+commands:
+  test: "pnpm test --filter=api"
+  dev: "pnpm dev"
+
+_history:
+  - version: 1
+    timestamp: "2026-03-15T12:00:00Z"
+    author: "system"
+    session_id: null
+    reason: "Migrated from v1 to v2 by ctxkit migrate"
+    checksum: "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+    diff_summary: "v1->v2 migration: added _version, _history, checksum"

@@ -4,10 +4,10 @@ import { resolve } from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@ctxl/core': resolve(__dirname, 'packages/core/src/index.ts'),
-      '@ctxl/daemon': resolve(__dirname, 'packages/daemon/src/index.ts'),
-      '@ctxl/mcp/client': resolve(__dirname, 'packages/mcp/src/client.ts'),
-      '@ctxl/mcp': resolve(__dirname, 'packages/mcp/src/index.ts'),
+      '@ctxkit/core': resolve(__dirname, 'packages/core/src/index.ts'),
+      '@ctxkit/daemon': resolve(__dirname, 'packages/daemon/src/index.ts'),
+      '@ctxkit/mcp/client': resolve(__dirname, 'packages/mcp/src/client.ts'),
+      '@ctxkit/mcp': resolve(__dirname, 'packages/mcp/src/index.ts'),
     },
   },
   test: {

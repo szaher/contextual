@@ -1,5 +1,5 @@
 {
-  "name": "@ctxl/core",
+  "name": "@ctxkit/core",
   "version": "0.1.0",
   "description": "Context engine for parsing, scoring, packing, diffing, and redacting code context",
   "type": "module",

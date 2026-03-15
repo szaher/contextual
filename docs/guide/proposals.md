@@ -100,7 +100,7 @@ Optional fields:
 Use the core library to scan for dead references:
 
 ```typescript
-import { scanForDeadReferences } from '@ctxl/core'
+import { scanForDeadReferences } from '@ctxkit/core'
 
 const result = scanForDeadReferences('/path/to/.ctx', '/repo/root')
 
@@ -213,7 +213,7 @@ Response:
 Before a diff is presented to the user, ctxl scans it for secrets and redacts them:
 
 ```typescript
-import { generateDiff } from '@ctxl/core'
+import { generateDiff } from '@ctxkit/core'
 
 const result = generateDiff(oldContent, newContent, '.ctx')
 console.log(result.secretsRedacted)  // true if any secrets were found and redacted

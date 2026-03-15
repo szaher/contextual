@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectSecrets, redactSecrets, containsSecrets } from '@ctxl/core';
+import { detectSecrets, redactSecrets, containsSecrets } from '@ctxkit/core';
 
 /**
  * T050: Secret Detection Integration Tests

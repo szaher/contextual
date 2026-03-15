@@ -1,0 +1,100 @@
+# Conflicted state after Agent A's changes were applied (v4) and then
+# Agent B's proposal (based on v3) was attempted.
+# ctxl detected overlapping changes and added the _conflicts field.
+
+version: 2
+_version: 4
+has_conflicts: true
+
+summary: |
+  Authentication and OAuth module. Handles user login, registration,
+  JWT token management, and OAuth2 provider integration.
+
+tags: [auth, jwt, security, oauth, mfa]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth handler with OAuth support."    # CONFLICTED -- see _conflicts below
+    tags: [auth, handler, oauth]
+    verified_at: "bbb2222"
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT token management."
+    tags: [jwt, token]
+    verified_at: "aaa1111"
+
+  - path: src/auth/middleware.ts
+    why: "Route protection middleware."
+    tags: [auth, middleware]
+    verified_at: "aaa1111"
+
+  # Auto-merged: Agent A's addition (no conflict)
+  - path: src/auth/oauth.ts
+    why: "OAuth2 provider integration (Google, GitHub). Handles callback flow."
+    tags: [oauth, auth]
+    verified_at: "bbb2222"
+
+  # Auto-merged: Agent B's addition (no conflict)
+  - path: src/auth/mfa.ts
+    why: "Multi-factor authentication: TOTP and SMS verification."
+    tags: [mfa, auth, security]
+    verified_at: "ccc3333"
+
+contracts:
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, security]
+    content: |
+      SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt (cost factor >= 12).
+      2. JWT secrets MUST come from environment variables.
+    verified_at: "aaa1111"
+    locked: true
+
+  # Auto-merged: Agent B's addition (no conflict)
+  - name: "mfa-requirements"
+    scope:
+      paths: ["src/auth/mfa*"]
+      tags: [mfa, security]
+    content: |
+      MFA REQUIREMENTS:
+      1. TOTP tokens MUST use SHA-256 with 6-digit codes.
+      2. SMS codes MUST expire after 5 minutes.
+      3. Recovery codes MUST be hashed before storage.
+    verified_at: "ccc3333"
+    locked: true
+
+commands:
+  test: "pnpm test --filter=auth"
+
+# Unresolved conflicts requiring human resolution
+_conflicts:
+  - field: "key_files[0].why"
+    base: "Auth handler."
+    ours: "Auth handler with OAuth support."
+    theirs: "Auth handler with MFA support."
+    resolution: null
+
+  - field: "key_files[0].tags"
+    base: ["auth", "handler"]
+    ours: ["auth", "handler", "oauth"]
+    theirs: ["auth", "handler", "mfa"]
+    resolution: null
+
+_history:
+  - version: 4
+    timestamp: "2026-03-15T10:35:00Z"
+    author: "claude-code"
+    session_id: "sess_abc123"
+    reason: "Added OAuth2 support: oauth.ts key_file and summary update"
+    checksum: "sha256:444ddd..."
+    diff_summary: "added key_files[3]: oauth.ts, modified summary, modified key_files[0].why"
+
+  - version: 3
+    timestamp: "2026-03-10T11:00:00Z"
+    author: "developer"
+    session_id: null
+    reason: "Added middleware key_file entry"
+    checksum: "sha256:333ccc..."
+    diff_summary: "added key_files[2]: middleware.ts"

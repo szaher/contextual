@@ -1,0 +1,64 @@
+# Agent A's version -- based on v3.
+# Agent A added oauth.ts to key_files and updated the summary.
+
+version: 2
+_version: 4
+
+summary: |
+  Authentication and OAuth module. Handles user login, registration,
+  JWT token management, and OAuth2 provider integration.
+
+tags: [auth, jwt, security, oauth]
+
+key_files:
+  - path: src/auth/handler.ts
+    why: "Auth handler with OAuth support."
+    tags: [auth, handler, oauth]
+    verified_at: "bbb2222"
+
+  - path: src/auth/jwt-service.ts
+    why: "JWT token management."
+    tags: [jwt, token]
+    verified_at: "aaa1111"
+
+  - path: src/auth/middleware.ts
+    why: "Route protection middleware."
+    tags: [auth, middleware]
+    verified_at: "aaa1111"
+
+  - path: src/auth/oauth.ts
+    why: "OAuth2 provider integration (Google, GitHub). Handles callback flow."
+    tags: [oauth, auth]
+    verified_at: "bbb2222"
+
+contracts:
+  - name: "auth-security-requirements"
+    scope:
+      paths: ["src/auth/*"]
+      tags: [auth, security]
+    content: |
+      SECURITY REQUIREMENTS:
+      1. Passwords MUST be hashed with bcrypt (cost factor >= 12).
+      2. JWT secrets MUST come from environment variables.
+    verified_at: "aaa1111"
+    locked: true
+
+commands:
+  test: "pnpm test --filter=auth"
+
+_history:
+  - version: 4
+    timestamp: "2026-03-15T10:35:00Z"
+    author: "claude-code"
+    session_id: "sess_abc123"
+    reason: "Added OAuth2 support: oauth.ts key_file and summary update"
+    checksum: "sha256:444ddd..."
+    diff_summary: "added key_files[3]: oauth.ts, modified summary, modified key_files[0].why"
+
+  - version: 3
+    timestamp: "2026-03-10T11:00:00Z"
+    author: "developer"
+    session_id: null
+    reason: "Added middleware key_file entry"
+    checksum: "sha256:333ccc..."
+    diff_summary: "added key_files[2]: middleware.ts"

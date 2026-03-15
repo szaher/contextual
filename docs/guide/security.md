@@ -39,7 +39,7 @@ Redaction happens before content reaches:
 ### Check for Secrets
 
 ```typescript
-import { containsSecrets } from '@ctxl/core'
+import { containsSecrets } from '@ctxkit/core'
 
 if (containsSecrets(someContent)) {
   // Content has potential secrets
@@ -49,7 +49,7 @@ if (containsSecrets(someContent)) {
 ### Detect Specific Secrets
 
 ```typescript
-import { detectSecrets } from '@ctxl/core'
+import { detectSecrets } from '@ctxkit/core'
 
 const matches = detectSecrets(fileContent)
 for (const match of matches) {
@@ -71,7 +71,7 @@ interface SecretMatch {
 ### Redact Secrets
 
 ```typescript
-import { redactSecrets } from '@ctxl/core'
+import { redactSecrets } from '@ctxkit/core'
 
 const safe = redactSecrets(unsafeContent)
 // All detected secrets replaced with [REDACTED:<type>]
@@ -82,7 +82,7 @@ const safe = redactSecrets(unsafeContent)
 The `generateDiff` function automatically scans both old and new content for secrets before producing the unified diff:
 
 ```typescript
-import { generateDiff } from '@ctxl/core'
+import { generateDiff } from '@ctxkit/core'
 
 const result = generateDiff(oldContent, newContent, '.ctx')
 

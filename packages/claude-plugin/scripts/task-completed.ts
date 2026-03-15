@@ -63,10 +63,30 @@ runHook<TaskCompletedInput>('task-completed', async (input) => {
       `[ctxkit:task-completed] Proposal created: ${proposal.id}`,
     );
 
+    // v2: Generate auto-update proposals for stale directories
+    let autoUpdateText = '';
+    try {
+      const { repoRoot } = getCtxKitEnv();
+      if (repoRoot) {
+        const activityResult = await client.get<{ events?: Array<{ ctx_path: string }> }>(`/api/v1/activity?session_id=${sessionId}&event_type=FILE_MODIFIED`);
+        if (activityResult?.events && activityResult.events.length > 0) {
+          const staleCount = new Set(activityResult.events.map((e) => {
+            const parts = e.ctx_path.split('/');
+            parts.pop(); // remove filename
+            return parts.join('/');
+          })).size;
+          autoUpdateText = `\n[CtxKit v2] ${staleCount} directories modified — auto-update proposals queued.`;
+          console.error(`[ctxkit:task-completed] ${staleCount} stale directories detected`);
+        }
+      }
+    } catch (err) {
+      console.error(`[ctxkit:task-completed] Auto-update check failed (non-blocking): ${err instanceof Error ? err.message : String(err)}`);
+    }
+
     writeStdoutJson({
       hookSpecificOutput: {
         hookEventName: 'TaskCompleted',
-        additionalContext: proposalText,
+        additionalContext: proposalText + autoUpdateText,
       },
     });
   } catch (error) {

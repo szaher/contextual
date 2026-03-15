@@ -10,7 +10,7 @@ import {
   generateDiff,
   detectDrift,
   loadProfile,
-} from '@ctxl/core';
+} from '@ctxkit/core';
 
 describe('E2E: Final Validation', () => {
   let tmpDir: string;

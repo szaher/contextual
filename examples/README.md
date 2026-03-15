@@ -47,14 +47,23 @@ cp -r examples/01-basic-ctx/* .
 | 16 | [16-mcp-server](16-mcp-server)             | MCP Server                     | Registering and using the CtxKit MCP server with any agent.        |
 | 17 | [17-claude-code-plugin](17-claude-code-plugin) | Claude Code Plugin          | Automatic context injection via hooks, interactive /ctxkit skill.  |
 | 18 | [18-codex-integration](18-codex-integration) | Codex Integration            | MCP registration, AGENTS.md generation, and CLI fallback for Codex.|
+| 19 | [19-index-generation](19-index-generation)   | Index generation              | .ctxl index generation, context selection, scoring formula, and category budgets. |
+| 20 | [20-versioning-history](20-versioning-history) | Versioning and history      | Version tracking, _history field, history archival, and checksum verification. |
+| 21 | [21-conflict-resolution](21-conflict-resolution) | Conflict resolution       | Multi-agent conflict detection, three-way merge, .ctxl.lock, and resolution commands. |
+| 22 | [22-bootstrap](22-bootstrap)                 | Bootstrap                    | Auto-generating .ctx files for new repos from project metadata and source analysis. |
+| 23 | [23-speckit-bridge](23-speckit-bridge)       | Spec-kit integration         | Importing constitutional decisions and functional requirements from spec-kit. |
+| 24 | [24-pr-context](24-pr-context)               | PR context generation        | Generating structured PR descriptions from session data (prompts, decisions, changes). |
+| 25 | [25-auto-update](25-auto-update)             | Auto-update                  | Automatic staleness tracking, update proposals, and policy-controlled auto-updates. |
+| 26 | [26-migration](26-migration)                 | V1 to V2 migration           | Migrating v1 .ctx files to v2 with versioning, history, and checksums. |
 
 ## .ctx File Format Quick Reference
 
-Every `.ctx` file is a YAML document with `version: 1` at the top. All
-sections are optional except `version` and `summary`:
+Every `.ctx` file is a YAML document. V1 files use `version: 1` and v2
+files use `version: 2`. All sections are optional except `version` and
+`summary`:
 
 ```yaml
-version: 1
+version: 2                                  # Schema version (1 or 2)
 summary: "Brief description of this directory's purpose"
 key_files: [...]
 contracts: [...]
@@ -64,6 +73,24 @@ gotchas: [...]
 tags: [...]
 refs: [...]
 ignore: { never_read: [...], never_log: [...] }
+
+# V2 fields (added in ctxl v2):
+_version: 5                                 # File revision number (auto-incremented)
+_history:                                   # Change history (max 20 inline entries)
+  - version: 5
+    timestamp: "2026-03-14T09:15:00Z"
+    author: "claude-code"
+    session_id: "sess_abc123"
+    reason: "Added new key_file entry"
+    checksum: "sha256:..."
+    diff_summary: "added key_files[3]"
+_conflicts:                                 # Unresolved merge conflicts (if any)
+  - field: "key_files[0].why"
+    base: "Original value"
+    ours: "Our change"
+    theirs: "Their change"
+    resolution: null                        # null = unresolved
+has_conflicts: false                        # true when _conflicts is non-empty
 ```
 
 See individual examples for detailed usage of each section.
@@ -85,4 +112,22 @@ ctxkit dashboard                    # Open the local inspection dashboard
 ctxkit run -- <agent-command>       # Wrap an agent with context injection
 ctxkit codex sync-agents            # Generate/update AGENTS.md for Codex
 ctxkit-mcp                          # Start the MCP server (stdio transport)
+
+# V2 commands:
+ctxkit index generate               # Generate .ctxl index from .ctx files
+ctxkit index show                   # Inspect the generated index
+ctxkit index select --prompt "..."  # Test context selection for a prompt
+ctxkit history                      # View version history for .ctx files
+ctxkit history --diff 1..5          # Compare two versions
+ctxkit conflicts list               # List unresolved conflicts
+ctxkit conflicts resolve <path>     # Resolve conflicts interactively
+ctxkit bootstrap                    # Generate .ctx files for a new repo
+ctxkit bootstrap --dry-run          # Preview bootstrap without writing
+ctxkit migrate                      # Migrate v1 .ctx files to v2
+ctxkit migrate --dry-run            # Preview migration without writing
+ctxkit pr --branch                  # Generate PR context from session data
+ctxkit speckit import               # Import spec-kit specs into .ctx
+ctxkit speckit sync                 # Bidirectional sync with spec-kit
+ctxkit lock status                  # View active file locks
+ctxkit lock release <path>          # Release a stale lock
 ```

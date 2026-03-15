@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
-import { parseCtxFile, validateCtxFile } from '@ctxl/core';
-import type { ValidationError } from '@ctxl/core';
+import { parseCtxFile, validateCtxFile } from '@ctxkit/core';
+import type { ValidationError } from '@ctxkit/core';
 
 export const validateCommand = new Command('validate')
   .description('Validate a .ctx file for structural correctness')

@@ -53,10 +53,10 @@ importers:
 
   packages/claude-plugin:
     dependencies:
-      '@ctxl/core':
+      '@ctxkit/core':
         specifier: workspace:*
         version: link:../core
-      '@ctxl/mcp':
+      '@ctxkit/mcp':
         specifier: workspace:*
         version: link:../mcp
     devDependencies:
@@ -69,12 +69,15 @@ importers:
 
   packages/cli:
     dependencies:
-      '@ctxl/core':
+      '@ctxkit/core':
         specifier: workspace:*
         version: link:../core
-      '@ctxl/daemon':
+      '@ctxkit/daemon':
         specifier: workspace:*
         version: link:../daemon
+      '@ctxkit/speckit-bridge':
+        specifier: workspace:*
+        version: link:../speckit-bridge
       commander:
         specifier: ^13.1.0
         version: 13.1.0
@@ -110,9 +113,12 @@ importers:
 
   packages/daemon:
     dependencies:
-      '@ctxl/core':
+      '@ctxkit/core':
         specifier: workspace:*
         version: link:../core
+      '@ctxkit/speckit-bridge':
+        specifier: workspace:*
+        version: link:../speckit-bridge
       '@hono/node-server':
         specifier: ^1.14.0
         version: 1.19.9(hono@4.12.3)
@@ -135,7 +141,7 @@ importers:
 
   packages/mcp:
     dependencies:
-      '@ctxl/core':
+      '@ctxkit/core':
         specifier: workspace:*
         version: link:../core
       '@modelcontextprotocol/sdk':
@@ -145,6 +151,25 @@ importers:
         specifier: ^3.25.0
         version: 3.25.76
     devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.13
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
+  packages/speckit-bridge:
+    dependencies:
+      '@ctxkit/core':
+        specifier: workspace:*
+        version: link:../core
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.13

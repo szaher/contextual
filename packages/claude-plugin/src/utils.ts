@@ -6,9 +6,9 @@
  */
 
 import { execSync } from 'node:child_process';
-import type { HookInputBase, HookOutput } from '@ctxl/core';
+import type { HookInputBase, HookOutput } from '@ctxkit/core';
 
-export type { HookInputBase, HookOutput } from '@ctxl/core';
+export type { HookInputBase, HookOutput } from '@ctxkit/core';
 
 /** Default timeout for hook handlers in milliseconds. */
 const DEFAULT_HOOK_TIMEOUT_MS = 10_000;
@@ -144,12 +144,12 @@ export async function runHook<T extends HookInputBase>(
  * Create a DaemonClient configured from environment variables.
  * Uses CTXKIT_API if set, otherwise falls back to default localhost.
  *
- * Uses dynamic import so that a missing @ctxl/mcp package at install time
+ * Uses dynamic import so that a missing @ctxkit/mcp package at install time
  * does not prevent the hook scripts from loading (the error is caught by
  * runHook's try/catch instead of crashing at module load).
  */
 export async function createConfiguredClient() {
-  const { DaemonClient } = await import('@ctxl/mcp/client');
+  const { DaemonClient } = await import('@ctxkit/mcp/client');
   const { apiUrl } = getCtxKitEnv();
   return new DaemonClient(apiUrl ? { baseUrl: apiUrl } : undefined);
 }

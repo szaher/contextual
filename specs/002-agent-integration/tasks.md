@@ -25,11 +25,11 @@
 
 **Purpose**: Initialize new packages and install dependencies for the agent integration feature
 
-- [X] T001 Create `@ctxl/mcp` package with package.json, tsconfig.json in `packages/mcp/`
-- [X] T002 [P] Create `@ctxl/claude-plugin` package with package.json, tsconfig.json in `packages/claude-plugin/`
+- [X] T001 Create `@ctxkit/mcp` package with package.json, tsconfig.json in `packages/mcp/`
+- [X] T002 [P] Create `@ctxkit/claude-plugin` package with package.json, tsconfig.json in `packages/claude-plugin/`
 - [X] T003 Install `@modelcontextprotocol/sdk` ^1.27 and `zod` ^3.25 as dependencies in `packages/mcp/package.json`
 - [X] T004 [P] Update root `pnpm-workspace.yaml` to include `packages/mcp` and `packages/claude-plugin`
-- [X] T005 [P] Create shared hook types (HookInput, HookOutput) in `packages/core/src/types/hook.ts` and export from `@ctxl/core`; create MCP-specific types (ToolEvent, CompactionSpine, AgentsMdSection) in `packages/mcp/src/types.ts`
+- [X] T005 [P] Create shared hook types (HookInput, HookOutput) in `packages/core/src/types/hook.ts` and export from `@ctxkit/core`; create MCP-specific types (ToolEvent, CompactionSpine, AgentsMdSection) in `packages/mcp/src/types.ts`
 
 ---
 
@@ -42,8 +42,8 @@
 - [X] T006 Extend `request_events` table schema: add `event_type`, `tool_name`, `tool_input`, `tool_response`, `exit_code`, `duration_ms` columns in `packages/daemon/src/store/db.ts`
 - [X] T007 Add `insertToolEvent` and `getToolEventsBySession` functions in `packages/daemon/src/store/events.ts`
 - [X] T008 [P] Create events route (`POST /api/v1/sessions/:id/events`) for tool event logging in `packages/daemon/src/routes/events.ts`
-- [X] T009 [P] Create config route (`GET /api/v1/config`, `POST /api/v1/config/validate`) using `loadProfile` from `@ctxl/core` in `packages/daemon/src/routes/config.ts`
-- [X] T010 [P] Create memory search route (`GET /api/v1/memory/search`) using `mergeCtxHierarchy` + scoring from `@ctxl/core` in `packages/daemon/src/routes/memory.ts`
+- [X] T009 [P] Create config route (`GET /api/v1/config`, `POST /api/v1/config/validate`) using `loadProfile` from `@ctxkit/core` in `packages/daemon/src/routes/config.ts`
+- [X] T010 [P] Create memory search route (`GET /api/v1/memory/search`) using `mergeCtxHierarchy` + scoring from `@ctxkit/core` in `packages/daemon/src/routes/memory.ts`
 - [X] T011 Register new routes (events, config, memory) in `packages/daemon/src/server.ts`
 - [X] T012 Create daemon API HTTP client with `fetch()` wrapper, error handling, and health check in `packages/mcp/src/client.ts`
 - [X] T050 Add hook-specific config settings (`hooks.preToolUse.enabled`, `hooks.preToolUse.allowlist`, `hooks.preToolUse.budget`, `hooks.sessionEnd.close`, `hooks.sessionEnd.propose_final_update`, `hooks.sessionEnd.propose_scope`) to WorkspaceProfile type in `packages/core/src/types/config.ts`
@@ -86,7 +86,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T025 [US2] Create shared hook utilities: stdin JSON reader, stdout JSON writer, graceful error handler, timeout enforcement, and non-git-directory detection in `packages/claude-plugin/src/utils.ts`; import daemon HTTP client from `@ctxl/mcp/client` (no duplicate client)
+- [X] T025 [US2] Create shared hook utilities: stdin JSON reader, stdout JSON writer, graceful error handler, timeout enforcement, and non-git-directory detection in `packages/claude-plugin/src/utils.ts`; import daemon HTTP client from `@ctxkit/mcp/client` (no duplicate client)
 - [X] T026 [US2] Implement `SessionStart` hook: check daemon health, start daemon if needed, create session, write env vars to `CLAUDE_ENV_FILE`, return bootstrap context in `packages/claude-plugin/scripts/session-start.ts`
 - [X] T027 [US2] Implement `SessionEnd` hook: close session via `PATCH /sessions/:id`, optionally trigger final proposal based on config and activity thresholds in `packages/claude-plugin/scripts/session-end.ts`
 - [X] T028 [US2] Implement `UserPromptSubmit` hook: build context pack for prompt text, format as inject text with pack ID header, return as additionalContext in `packages/claude-plugin/scripts/user-prompt-submit.ts`
@@ -189,7 +189,7 @@
 - **US2 Claude Code Plugin (Phase 4)**: Depends on Phase 2 (daemon client) + Phase 3 (MCP server for .mcp.json)
 - **US3 /ctxkit Skill (Phase 5)**: Depends on Phase 4 (plugin package exists)
 - **US4 Codex MCP (Phase 6)**: Depends on Phase 3 (MCP server)
-- **US5 AGENTS.md (Phase 7)**: Depends on Phase 2 only (uses @ctxl/core directly)
+- **US5 AGENTS.md (Phase 7)**: Depends on Phase 2 only (uses @ctxkit/core directly)
 - **US6 CLI Fallback (Phase 8)**: Depends on Phase 2 only (uses existing CLI)
 - **Polish (Phase 9)**: Depends on all user stories being complete
 

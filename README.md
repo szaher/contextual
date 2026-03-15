@@ -3,7 +3,7 @@
 **Local-first context memory for AI coding agents**
 
 [![CI](https://github.com/szaher/ctxl/actions/workflows/ci.yml/badge.svg)](https://github.com/szaher/ctxl/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@ctxl/cli.svg)](https://www.npmjs.com/package/@ctxl/cli)
+[![npm version](https://img.shields.io/npm/v/@ctxkit/cli.svg)](https://www.npmjs.com/package/@ctxkit/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
 
@@ -15,76 +15,92 @@ ctxl (pronounced "contextual") gives AI coding agents -- Claude, Copilot, Cursor
 
 Memory lives in `.ctx` YAML files alongside your code. They are tracked in git, reviewable in pull requests, and owned by your team -- not a third-party service.
 
+v2 introduces the `.ctxl` index system for budget-constrained context selection, version tracking with automatic history entries, multi-agent conflict resolution, auto-update during coding sessions, project bootstrap, spec-kit bidirectional sync, and session-aware PR context generation.
+
 **Core principles:**
 
 - **Local-first, private-by-default.** No data leaves your machine. Ever.
 - **Deterministic.** Same inputs always produce the same Context Pack, in the same order.
-- **Budget-aware.** Respects token limits with intelligent scoring and prioritization.
+- **Budget-aware.** Respects token limits with index-based scoring and category budgets.
 - **Transparent.** Every included and excluded item is attributed with reason codes.
+- **Version-tracked.** Every `.ctx` change is recorded with full history and conflict resolution.
 
 ---
 
 ## Key Features
 
 - **Hierarchical `.ctx` memory files** -- per-directory context that merges upward, child overrides parent
-- **Smart context pack assembly** with locality, recency, and tag-based scoring
+- **`.ctxl` index system** -- scored, categorized, budget-constrained context selection with dependency graph
+- **Version tracking** -- automatic history entries and archival for every `.ctx` change
+- **Multi-agent conflict resolution** -- three-way merge with lock manager for concurrent agent sessions
+- **Auto-update** -- staleness tracking and proposal generation during coding sessions
+- **Project bootstrap** -- analyze directory structure and generate `.ctx` files automatically with `ctxkit bootstrap`
+- **Spec-kit bridge** -- import constitution and specs as locked decisions and contracts, bidirectional sync
+- **PR context generation** -- session-aware PR descriptions with prompt chains and agent decisions
+- **Smart context pack assembly** with index-based selection, locality, recency, and tag-based scoring
 - **Contract enforcement** with scope matching across paths and tags
-- **Token budget management** with guaranteed deterministic output
+- **Token budget management** with category budgets and guaranteed deterministic output
 - **Drift detection** -- flags when referenced files are moved, renamed, or deleted
 - **Proposal workflow** -- diffs are shown before any `.ctx` modification is written
 - **Session tracking** with full audit trail of every context injection
-- **MCP server** -- 10 structured JSON-RPC tools usable by any MCP-compatible agent
-- **Claude Code plugin** -- automatic context injection via 8 hooks, interactive `/ctxkit` skill
+- **MCP server** -- 16 structured JSON-RPC tools usable by any MCP-compatible agent
+- **Claude Code plugin** -- automatic context injection via 8 hooks, interactive `/ctxkit` and `/ctx` skills
 - **Codex integration** -- MCP registration, `AGENTS.md` generation, and CLI fallback
 - **Agent wrapper** for transparent context injection via `ctxkit run`
-- **React inspection dashboard** for visual session and memory management
+- **React inspection dashboard** with 5 new pages: timeline, context map, conflicts, activity feed, PR context
 - **Secret detection** and automatic redaction of credentials in diffs and logs
+- **V1-to-V2 migration** with `ctxkit migrate`
 
 ---
 
 ## Architecture
 
-ctxl is a TypeScript monorepo with six packages:
+ctxl is a TypeScript monorepo with seven packages:
 
 ```
-  +-------------------+     +---------------------+
-  | @ctxl/claude-plugin|     |     @ctxl/mcp       |
-  | (hooks + skill)    |     | (MCP server, 10     |
-  +--------+----------+     |  JSON-RPC tools)    |
-           |                 +----------+----------+
-           |                            |
-           +------------+---------------+
+  +-------------------+     +---------------------+     +---------------------+
+  | @ctxkit/claude-plugin|     |     @ctxkit/mcp       |     | @ctxkit/speckit-bridge|
+  | (hooks + skills)   |     | (MCP server, 16     |     | (spec-kit import/   |
+  +--------+----------+     |  JSON-RPC tools)    |     |  export/sync)       |
+           |                 +----------+----------+     +----------+----------+
+           |                            |                           |
+           +------------+---------------+---------------------------+
                         |
                 +-------v--------+
-                |    @ctxl/cli   |
+                |    @ctxkit/cli   |
                 |  (ctxkit CLI)  |
                 +-------+--------+
                         |
          +--------------+--------------+
          |                             |
 +--------v--------+          +--------v---------+
-|  @ctxl/daemon    |          |    @ctxl/ui       |
-| (HTTP API +      |          | (React dashboard) |
-|  SQLite store)   |          +------------------+
-+--------+--------+
+|  @ctxkit/daemon    |          |    @ctxkit/ui       |
+| (HTTP API +      |          | (React dashboard, |
+|  SQLite store)   |          |  10 pages)        |
++--------+--------+          +------------------+
          |
 +--------v--------+
-|   @ctxl/core    |
+|   @ctxkit/core    |
 | (engine: parse,  |
-|  score, pack)    |
+|  score, pack,    |
+|  index, version, |
+|  conflict, auto- |
+|  update, boot-   |
+|  strap, pr-ctx)  |
 +-----------------+
 ```
 
 | Package | Description | Key Dependencies |
 |---------|-------------|------------------|
-| `@ctxl/core` | Context engine -- parsing, scoring, packing, diffing, redaction | js-yaml, proper-lockfile |
-| `@ctxl/daemon` | HTTP API server with persistent SQLite storage | Hono, @hono/node-server, better-sqlite3 |
-| `@ctxl/cli` | Command-line interface (`ctxkit`) | Commander.js |
-| `@ctxl/ui` | React inspection dashboard | React 19, React Router, Vite |
-| `@ctxl/mcp` | MCP server exposing 10 CtxKit tools over stdio | @modelcontextprotocol/sdk, zod |
-| `@ctxl/claude-plugin` | Claude Code plugin with 8 hooks and `/ctxkit` skill | @ctxl/mcp (client) |
+| `@ctxkit/core` | Context engine -- parsing, scoring, packing, diffing, redaction, indexing, versioning, conflict resolution, auto-update, bootstrap, PR context | js-yaml, proper-lockfile |
+| `@ctxkit/daemon` | HTTP API server with persistent SQLite storage | Hono 4.7, @hono/node-server, better-sqlite3 11.8 |
+| `@ctxkit/cli` | Command-line interface (`ctxkit`) | Commander 13 |
+| `@ctxkit/ui` | React inspection dashboard (10 pages) | React 19, React Router, Vite 6 |
+| `@ctxkit/mcp` | MCP server exposing 16 CtxKit tools over stdio | @modelcontextprotocol/sdk 1.27, zod 3.25 |
+| `@ctxkit/claude-plugin` | Claude Code plugin with 8 hooks, `/ctxkit` skill, and `/ctx` skill | @ctxkit/mcp (client) |
+| `@ctxkit/speckit-bridge` | Spec-kit constitution/spec import, export, validation, and bidirectional sync | @ctxkit/core |
 
-**Tech stack:** TypeScript 5.x, Node.js 20+, Hono (HTTP), better-sqlite3 (storage), Commander.js (CLI), @modelcontextprotocol/sdk (MCP), zod (schema validation), React 19, Vite 6
+**Tech stack:** TypeScript 5.x, Node.js 20+, Hono 4.7 (HTTP), better-sqlite3 11.8 (storage), Commander 13 (CLI), @modelcontextprotocol/sdk 1.27 (MCP), zod 3.25 (schema validation), React 19 (dashboard), Vite 6 (bundler)
 
 ---
 
@@ -97,10 +113,16 @@ cd ctxl
 pnpm install
 pnpm build
 
-# Initialize a .ctx in your project
+# Bootstrap .ctx files from your project structure
+ctxkit bootstrap
+
+# Or initialize a single .ctx manually
 ctxkit init
 
-# Validate the generated .ctx file
+# Generate the .ctxl index
+ctxkit index generate
+
+# Validate the generated files
 ctxkit validate
 
 # Preview the context pack for a request (without sending it)
@@ -115,6 +137,16 @@ ctxkit daemon start
 # Open the inspection dashboard
 ctxkit dashboard
 ```
+
+### Migrating from v1
+
+If you have existing v1 `.ctx` files, run the migration command:
+
+```bash
+ctxkit migrate
+```
+
+This adds `_history` and `_conflicts` fields, generates the `.ctxl` index, and updates the version field to `"2"`. Your existing context is preserved -- migration only adds v2 capabilities.
 
 ---
 
@@ -138,8 +170,10 @@ What happens automatically:
 - **Tool activity** is logged to the session timeline
 - **Task completion** triggers a `.ctx` update proposal
 - **Context compaction** preserves session memory via a compaction spine
+- **Conflicts** are detected and resolved when multiple agents edit the same `.ctx`
+- **History entries** are recorded for every change
 
-Use the interactive skill for manual control:
+Use the interactive `/ctxkit` skill for manual control:
 
 ```bash
 /ctxkit inject       # Build and display context pack
@@ -148,6 +182,20 @@ Use the interactive skill for manual control:
 /ctxkit propose      # Trigger a .ctx update proposal
 /ctxkit apply <id>   # Apply an approved proposal
 /ctxkit policy       # Show effective configuration
+/ctxkit index        # Show current .ctxl index
+/ctxkit conflicts    # List active conflicts
+/ctxkit pr           # Generate PR context from session
+```
+
+Use the interactive `/ctx` skill for quick status:
+
+```bash
+/ctx status          # Show current context state and staleness
+/ctx suggest         # Get auto-update suggestions
+/ctx apply           # Apply pending suggestions
+/ctx diff            # Show pending .ctx diffs
+/ctx conflicts       # Show and resolve conflicts
+/ctx help            # Show available subcommands
 ```
 
 ### Codex (MCP or AGENTS.md)
@@ -158,7 +206,7 @@ Use the interactive skill for manual control:
 codex mcp add ctxkit -- ctxkit-mcp
 ```
 
-Codex can then call any of the 10 MCP tools (`ctxkit.context_pack`, `ctxkit.log_event`, `ctxkit.propose_update`, etc.).
+Codex can then call any of the 16 MCP tools (`ctxkit.context_pack`, `ctxkit.log_event`, `ctxkit.propose_update`, `ctxkit.index.generate`, `ctxkit.pr.generate`, etc.).
 
 **Option B: AGENTS.md** (zero-config, passive)
 
@@ -174,6 +222,7 @@ Generates `AGENTS.md` files from your `.ctx` hierarchy. Codex automatically disc
 ctxkit inject --request "fix auth bug" --json
 ctxkit sessions list --json
 ctxkit propose .ctx --json
+ctxkit pr --json
 ```
 
 All CLI commands support `--json` for machine-readable output compatible with Codex's shell tool.
@@ -186,7 +235,26 @@ Register the MCP server for any agent that supports the Model Context Protocol:
 ctxkit-mcp   # stdio-based MCP server
 ```
 
-Exposes 10 tools: `ctxkit.context_pack`, `ctxkit.log_event`, `ctxkit.propose_update`, `ctxkit.apply_proposal`, `ctxkit.reject_proposal`, `ctxkit.sessions.list`, `ctxkit.sessions.show`, `ctxkit.policy.get`, `ctxkit.policy.validate`, `ctxkit.memory.search`.
+Exposes 16 tools:
+
+| Tool | Description |
+|------|-------------|
+| `ctxkit.context_pack` | Build a context pack for a request |
+| `ctxkit.log_event` | Log a tool event to the session timeline |
+| `ctxkit.propose_update` | Generate a `.ctx` update proposal |
+| `ctxkit.apply_proposal` | Apply an approved proposal |
+| `ctxkit.reject_proposal` | Reject a pending proposal |
+| `ctxkit.sessions.list` | List tracked agent sessions |
+| `ctxkit.sessions.show` | Show session details |
+| `ctxkit.policy.get` | Get effective workspace configuration |
+| `ctxkit.policy.validate` | Validate a configuration object |
+| `ctxkit.memory.search` | Search `.ctx` entries by keyword |
+| `ctxkit.index.generate` | Generate or regenerate the `.ctxl` index |
+| `ctxkit.index.select` | Select context entries using the index with budget constraints |
+| `ctxkit.history.show` | Show version history for a `.ctx` file |
+| `ctxkit.conflicts.resolve` | Resolve a multi-agent conflict |
+| `ctxkit.bootstrap.run` | Analyze a directory and generate `.ctx` files |
+| `ctxkit.pr.generate` | Generate session-aware PR context |
 
 ### Any CLI Agent (wrapper)
 
@@ -198,14 +266,16 @@ Wraps any CLI agent with context injection via environment variables.
 
 ---
 
-## The .ctx File Format
+## The .ctx File Format (v2)
 
 `.ctx` files are YAML documents that capture structured project knowledge at each directory level. They live alongside the code they describe and are designed to be human-readable, git-diffable, and reviewable in pull requests.
+
+v2 adds `_history` and `_conflicts` fields for version tracking and multi-agent conflict resolution.
 
 ### Complete Example
 
 ```yaml
-version: "1"
+version: "2"
 
 summary: |
   Authentication module handling user login, registration, and
@@ -282,6 +352,51 @@ ignore:
     - ".env"
   never_log:
     - "src/auth/secrets.ts"
+
+_history:
+  - version: 3
+    timestamp: "2026-03-10T14:22:00Z"
+    author: "claude-agent-sess_abc123"
+    changes:
+      - field: "key_files"
+        action: "add"
+        summary: "Added src/auth/middleware.ts after refactoring auth pipeline"
+      - field: "gotchas"
+        action: "add"
+        summary: "Added password reset token expiry gotcha"
+    session_id: "sess_abc123"
+  - version: 2
+    timestamp: "2026-02-15T10:30:00Z"
+    author: "developer@team.com"
+    changes:
+      - field: "contracts"
+        action: "update"
+        summary: "Updated AuthService interface to include validateToken method"
+    session_id: null
+  - version: 1
+    timestamp: "2026-01-15T09:00:00Z"
+    author: "developer@team.com"
+    changes:
+      - field: "*"
+        action: "create"
+        summary: "Initial .ctx file for auth module"
+    session_id: null
+
+_conflicts:
+  - id: "conflict_001"
+    status: "resolved"
+    detected_at: "2026-03-10T14:25:00Z"
+    resolved_at: "2026-03-10T14:26:00Z"
+    field: "key_files"
+    agents:
+      - session_id: "sess_abc123"
+        proposed: "add src/auth/rate-limiter.ts"
+      - session_id: "sess_def456"
+        proposed: "add src/auth/throttle.ts"
+    resolution:
+      strategy: "three-way-merge"
+      result: "kept src/auth/rate-limiter.ts (more specific naming, matches existing pattern)"
+      resolved_by: "sess_abc123"
 ```
 
 ### Hierarchical Merging
@@ -301,6 +416,8 @@ repo-root/.ctx          <-- project-wide context (summary, global decisions)
 - `key_files`, `contracts`, `decisions`, and `gotchas` are merged additively
 - `summary` at the child level replaces the parent summary for that scope
 - `ignore` policies are unioned -- a path ignored at any level stays ignored
+- `_history` entries are kept per-file and never merged across levels
+- `_conflicts` are scoped to the file where the conflict occurred
 
 ---
 
@@ -323,6 +440,14 @@ The CLI tool is called `ctxkit`.
 | `ctxkit dashboard` | Open the inspection dashboard |
 | `ctxkit run <cmd...>` | Wrap an agent command with context injection |
 | `ctxkit codex sync-agents` | Generate `AGENTS.md` files from `.ctx` hierarchy |
+| `ctxkit index generate\|show\|select` | Manage the `.ctxl` index |
+| `ctxkit history [path]` | Show version history for a `.ctx` file |
+| `ctxkit conflicts list\|resolve` | List and resolve multi-agent conflicts |
+| `ctxkit bootstrap` | Analyze directory structure and generate `.ctx` files |
+| `ctxkit migrate` | Migrate v1 `.ctx` files to v2 format |
+| `ctxkit speckit import\|export\|validate\|sync` | Spec-kit bridge operations |
+| `ctxkit pr` | Generate session-aware PR context |
+| `ctxkit hooks` | Manage and inspect plugin hooks |
 
 ### Detailed Command Reference
 
@@ -347,7 +472,7 @@ ctxkit validate --check-files    # also verify referenced file paths exist
 
 #### `ctxkit inject`
 
-Build a context pack for a given request. Discovers `.ctx` files, merges the hierarchy, scores entries, and assembles the pack within the token budget.
+Build a context pack for a given request. Discovers `.ctx` files, consults the `.ctxl` index, merges the hierarchy, scores entries, and assembles the pack within category budgets.
 
 ```bash
 ctxkit inject --request "fix the login timeout bug" --budget 4000
@@ -366,7 +491,7 @@ ctxkit inject --request "fix auth bug" --json            # JSON output for scrip
 
 #### `ctxkit propose <ctx-path>`
 
-Generate an update proposal for a `.ctx` file. Analyzes recent changes and produces a diff of suggested updates. The proposal is stored but not applied until explicitly approved.
+Generate an update proposal for a `.ctx` file. Analyzes recent changes and produces a diff of suggested updates. The proposal is stored but not applied until explicitly approved. Proposals automatically include a history entry.
 
 ```bash
 ctxkit propose .ctx
@@ -382,7 +507,7 @@ ctxkit propose .ctx --daemon    # submit via daemon API
 
 #### `ctxkit apply <proposal-id>`
 
-Apply or reject a pending update proposal.
+Apply or reject a pending update proposal. On apply, a history entry is appended and conflict checks run against active sessions.
 
 ```bash
 ctxkit apply prop_abc123
@@ -439,7 +564,7 @@ ctxkit daemon status
 
 #### `ctxkit dashboard`
 
-Open the inspection dashboard in a browser. Requires the daemon to be running.
+Open the inspection dashboard in a browser. Requires the daemon to be running. The dashboard includes 10 pages: sessions, context packs, proposals, drift, config, timeline, context map, conflicts, activity feed, and PR context.
 
 ```bash
 ctxkit dashboard
@@ -483,6 +608,154 @@ ctxkit run -- npx my-agent --cwd src/auth/
 | `--agent` | Agent identifier for config lookup | auto-detect |
 | `--request` | Initial request text | none |
 
+#### `ctxkit index generate|show|select`
+
+Manage the `.ctxl` index -- a scored, categorized manifest of all context entries with dependency graph and category budgets.
+
+```bash
+ctxkit index generate                  # scan all .ctx files and build the index
+ctxkit index generate --force          # regenerate even if index is current
+ctxkit index show                      # display current index with scores
+ctxkit index show --category contracts # filter by category
+ctxkit index select --request "auth flow" --budget 4000  # select entries for a request
+ctxkit index select --request "auth flow" --json          # JSON output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--force` | Force regeneration of the index | `false` |
+| `--category` | Filter by category (`contracts`, `local_ctx`, `related_ctx`, `history`, `reserve`) | all |
+| `--request` | Request text for selection scoring | (required for `select`) |
+| `--budget` | Token budget for selection | `4096` |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit history [path]`
+
+Show version history for a `.ctx` file. Displays all changes with timestamps, authors, and session IDs.
+
+```bash
+ctxkit history                         # history for .ctx in current directory
+ctxkit history src/auth/.ctx           # history for a specific file
+ctxkit history --limit 10              # show last 10 entries
+ctxkit history --json                  # JSON output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--limit` | Maximum number of history entries | `50` |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit conflicts list|resolve`
+
+List and resolve multi-agent conflicts. Conflicts occur when multiple agents propose changes to the same `.ctx` field concurrently.
+
+```bash
+ctxkit conflicts list                         # list all active conflicts
+ctxkit conflicts list --status resolved       # include resolved conflicts
+ctxkit conflicts resolve conflict_001         # interactively resolve a conflict
+ctxkit conflicts resolve conflict_001 --strategy three-way-merge  # use specific strategy
+ctxkit conflicts resolve conflict_001 --accept sess_abc123        # accept one agent's proposal
+ctxkit conflicts list --json                  # JSON output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--status` | Filter by status (`active`, `resolved`, `all`) | `active` |
+| `--strategy` | Resolution strategy (`three-way-merge`, `accept`, `reject`) | interactive |
+| `--accept` | Accept the proposal from this session ID | none |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit bootstrap`
+
+Analyze a directory structure and automatically generate `.ctx` files. Scans source files, package manifests, READMEs, and existing documentation to produce initial context.
+
+```bash
+ctxkit bootstrap                       # bootstrap from current directory
+ctxkit bootstrap --path src/           # bootstrap a specific subtree
+ctxkit bootstrap --depth 3             # limit directory traversal depth
+ctxkit bootstrap --dry-run             # preview without writing files
+ctxkit bootstrap --json                # JSON output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--path` | Root directory to analyze | `.` |
+| `--depth` | Maximum directory depth to traverse | `5` |
+| `--dry-run` | Preview generated files without writing | `false` |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit migrate`
+
+Migrate v1 `.ctx` files to v2 format. Adds `_history` and `_conflicts` fields, updates the version to `"2"`, and generates the `.ctxl` index.
+
+```bash
+ctxkit migrate                         # migrate all .ctx files in the repo
+ctxkit migrate --path src/auth/.ctx    # migrate a specific file
+ctxkit migrate --dry-run               # preview changes without writing
+ctxkit migrate --json                  # JSON output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--path` | Specific `.ctx` file to migrate | all files |
+| `--dry-run` | Preview without writing | `false` |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit speckit import|export|validate|sync`
+
+Bridge operations between ctxl and spec-kit. Import constitutions and specs as locked decisions and contracts, export `.ctx` entries as spec-kit artifacts, validate consistency, or run bidirectional sync.
+
+```bash
+ctxkit speckit import constitution.yaml        # import constitution as locked decisions
+ctxkit speckit import specs/api-v2.yaml        # import spec as contracts
+ctxkit speckit export .ctx --format speckit     # export .ctx entries as spec-kit artifacts
+ctxkit speckit validate                         # check consistency between .ctx and specs
+ctxkit speckit sync                             # bidirectional sync (pull and push changes)
+ctxkit speckit sync --dry-run                   # preview sync without writing
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--format` | Export format (`speckit`, `yaml`, `json`) | `speckit` |
+| `--dry-run` | Preview without writing | `false` |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit pr`
+
+Generate a session-aware PR description from the current session's context. Includes prompt chains, agent decisions, relevant `.ctx` changes, and a structured summary.
+
+```bash
+ctxkit pr                              # generate PR context from active session
+ctxkit pr --session sess_abc123        # generate from a specific session
+ctxkit pr --format markdown            # output as markdown (default)
+ctxkit pr --format json                # output as structured JSON
+ctxkit pr --include-decisions          # include decision rationale in output
+ctxkit pr --include-prompts            # include prompt chain in output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--session` | Session ID to generate PR context from | active session |
+| `--format` | Output format (`markdown`, `json`) | `markdown` |
+| `--include-decisions` | Include decision rationale | `true` |
+| `--include-prompts` | Include the prompt chain | `false` |
+| `--json` | Output as structured JSON | `false` |
+
+#### `ctxkit hooks`
+
+Manage and inspect plugin hooks. Lists registered hooks, shows hook execution history, and allows testing hooks in isolation.
+
+```bash
+ctxkit hooks                           # list all registered hooks
+ctxkit hooks show SessionStart         # show details for a specific hook
+ctxkit hooks test PreToolUse           # test a hook handler in isolation
+ctxkit hooks --json                    # JSON output
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--json` | Output as structured JSON | `false` |
+
 ---
 
 ## Context Pack Assembly
@@ -491,13 +764,27 @@ When a request arrives, the context pack assembly pipeline runs these steps:
 
 ### 1. Discover
 
-Walk from the current working directory upward to the repository root, collecting every `.ctx` file found along the way.
+Walk from the current working directory upward to the repository root, collecting every `.ctx` file found along the way. Load the `.ctxl` index if present.
 
-### 2. Merge
+### 2. Index Select
+
+If a `.ctxl` index exists, use it for budget-constrained selection with category budgets. The index scores entries across five categories:
+
+| Category | Budget Share | Description |
+|----------|-------------|-------------|
+| `contracts` | 20% | Interface contracts and API boundaries |
+| `local_ctx` | 30% | Context from `.ctx` files near the working directory |
+| `related_ctx` | 30% | Context from related modules via dependency graph |
+| `history` | 10% | Recent version history entries |
+| `reserve` | 10% | Buffer for unexpected context needs |
+
+If no index exists, the system falls back to the directory-walk scoring pipeline.
+
+### 3. Merge
 
 Apply hierarchical merge rules. Child entries override parent entries for overlapping topics. Non-overlapping entries are inherited. The result is a single unified context view.
 
-### 3. Score
+### 4. Score
 
 Each entry is scored using a weighted formula:
 
@@ -514,23 +801,25 @@ score = (locality * 0.4) + (tags * 0.3) + (recency * 0.2) + (section_bonus * 0.1
 
 Pinned entries bypass scoring and are always included (within budget).
 
-### 4. Budget
+### 5. Budget
 
-Fill the token budget in priority order:
+Fill the token budget in priority order, respecting category allocations from the `.ctxl` index:
 
 1. **Contracts** matching the request scope (tagged `CONTRACT_REQUIRED`)
 2. **Pinned entries** (tagged `PINNED`)
-3. **Remaining entries** by descending score until the budget is filled
+3. **Index-selected entries** by category budget allocation
+4. **Remaining entries** by descending score until the budget is filled
 
 Entries that do not fit are recorded in the omitted-items list with their score and the reason for exclusion.
 
-### 5. Build
+### 6. Build
 
 Assemble the final Context Pack with full attribution:
 
 - **Source file** -- which `.ctx` file each entry came from
 - **Reason codes** -- why each entry was included
 - **Staleness info** -- how recently each entry was verified
+- **History context** -- relevant version history for included entries
 - **Omitted items** -- what was left out and why
 
 ### Reason Codes
@@ -543,6 +832,9 @@ Assemble the final Context Pack with full attribution:
 | `RECENT_EDIT` | Referenced file was recently modified |
 | `CONTRACT_REQUIRED` | Entry is a contract matching the request scope |
 | `DEEP_READ` | Entry was resolved via direct file read fallback |
+| `INDEX_SELECTED` | Entry was selected by the `.ctxl` index |
+| `DEPENDENCY_GRAPH` | Entry was included via dependency graph traversal |
+| `HISTORY_RELEVANT` | History entry is relevant to the current request |
 
 ---
 
@@ -561,11 +853,29 @@ Create `.ctxl/config.yaml` in your repository root:
 budget: 4096
 
 scoring:
-  mode: weighted          # "weighted" | "locality-only" | "tags-only"
+  mode: weighted          # "weighted" | "locality-only" | "tags-only" | "index"
   locality_weight: 0.4
   tags_weight: 0.3
   recency_weight: 0.2
   section_bonus_weight: 0.1
+
+index:
+  enabled: true
+  category_budgets:
+    contracts: 0.20       # 20% of budget for contracts
+    local_ctx: 0.30       # 30% for local context
+    related_ctx: 0.30     # 30% for related context
+    history: 0.10         # 10% for version history
+    reserve: 0.10         # 10% reserve buffer
+
+auto_update:
+  enabled: true
+  staleness_threshold: 7d    # flag entries older than 7 days
+  proposal_on_complete: true # propose .ctx updates on task completion
+
+conflict_resolution:
+  strategy: three-way-merge  # "three-way-merge" | "last-write-wins" | "manual"
+  lock_timeout: 300          # seconds before lock expires
 
 ignore:
   - "node_modules/**"
@@ -585,10 +895,16 @@ retention:
   sessions: 30d           # keep session data for 30 days
   audit_log: 90d          # keep audit entries for 90 days
   proposals: 7d           # keep unapplied proposals for 7 days
+  history: 365d           # keep .ctx version history for 1 year
 
 daemon:
   port: 7419
   auto_start: false
+
+speckit:
+  enabled: false
+  sync_mode: pull          # "pull" | "push" | "bidirectional"
+  constitution_path: null  # path to spec-kit constitution file
 ```
 
 ### Global Configuration
@@ -622,6 +938,24 @@ The daemon exposes a REST API for programmatic access. All endpoints are prefixe
 | `GET` | `/api/v1/memory/search` | Search `.ctx` entries by keyword |
 | `GET` | `/api/v1/drift` | Run drift detection across all tracked `.ctx` files |
 | `GET` | `/api/v1/audit` | Query the audit log (supports `?from=`, `?to=`, `?path=`) |
+| `POST` | `/api/v1/index/generate` | Generate or regenerate the `.ctxl` index |
+| `GET` | `/api/v1/index` | Get the current `.ctxl` index |
+| `POST` | `/api/v1/index/select` | Select context entries using index with budget constraints |
+| `GET` | `/api/v1/history/:path` | Get version history for a `.ctx` file |
+| `GET` | `/api/v1/history/:path/:version` | Get a specific version of a `.ctx` file |
+| `GET` | `/api/v1/conflicts` | List active conflicts |
+| `GET` | `/api/v1/conflicts/:id` | Get conflict details |
+| `POST` | `/api/v1/conflicts/:id/resolve` | Resolve a conflict |
+| `GET` | `/api/v1/activity` | Get the activity feed (supports `?from=`, `?to=`, `?type=`) |
+| `GET` | `/api/v1/activity/stats` | Get activity statistics |
+| `POST` | `/api/v1/speckit/import` | Import a spec-kit artifact |
+| `POST` | `/api/v1/speckit/export` | Export `.ctx` entries as spec-kit artifacts |
+| `POST` | `/api/v1/speckit/validate` | Validate consistency between `.ctx` and specs |
+| `POST` | `/api/v1/speckit/sync` | Run bidirectional sync |
+| `POST` | `/api/v1/pr-context/generate` | Generate PR context from a session |
+| `GET` | `/api/v1/pr-context/:session_id` | Get generated PR context for a session |
+| `POST` | `/api/v1/bootstrap` | Analyze a directory and generate `.ctx` files |
+| `GET` | `/api/v1/bootstrap/preview` | Preview bootstrap results without writing |
 
 ### Example: Build a Context Pack
 
@@ -639,6 +973,29 @@ curl -X POST http://localhost:7419/api/v1/context-pack \
 
 ```bash
 curl http://localhost:7419/api/v1/sessions?status=active&limit=5
+```
+
+### Example: Generate PR Context
+
+```bash
+curl -X POST http://localhost:7419/api/v1/pr-context/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "sess_abc123",
+    "include_decisions": true,
+    "include_prompts": false
+  }'
+```
+
+### Example: Resolve a Conflict
+
+```bash
+curl -X POST http://localhost:7419/api/v1/conflicts/conflict_001/resolve \
+  -H "Content-Type: application/json" \
+  -d '{
+    "strategy": "three-way-merge",
+    "accepted_session": "sess_abc123"
+  }'
 ```
 
 ---
@@ -689,9 +1046,9 @@ pnpm build
 ### Commands
 
 ```bash
-pnpm build          # Build all packages (6 packages)
-pnpm test           # Run integration tests (147 tests)
-pnpm test:e2e       # Run end-to-end tests (79 tests)
+pnpm build          # Build all packages (7 packages)
+pnpm test           # Run all tests (324 tests across 23 test files)
+pnpm test:e2e       # Run end-to-end tests
 pnpm test:watch     # Run tests in watch mode
 pnpm lint           # Lint all packages
 pnpm lint:fix       # Lint and auto-fix
@@ -705,42 +1062,63 @@ pnpm clean          # Remove all build artifacts
 ```
 ctxl/
   packages/
-    core/               @ctxl/core -- context engine
+    core/               @ctxkit/core -- context engine
       src/
+        auto-update/     Staleness tracking and proposal generation
+        bootstrap/       Directory analysis and .ctx file generation
         config/          Configuration loading and merging
+        conflict/        Multi-agent conflict detection and resolution
         ctx/             .ctx file parsing and validation
         differ/          Diff generation for proposals
+        index/           .ctxl index generation, scoring, and selection
         packer/          Context pack assembly
+        pr-context/      PR description generation from sessions
         redact/          Secret detection and redaction
         scorer/          Entry scoring (locality, tags, recency)
         types/           Shared type definitions
-    daemon/              @ctxl/daemon -- HTTP API + storage
+        versioning/      Version tracking and history management
+    daemon/              @ctxkit/daemon -- HTTP API + storage
       src/
-        routes/          Hono route handlers (context-pack, sessions, events, config, memory, proposals, drift, audit)
+        routes/          Hono route handlers (context-pack, sessions, events, config,
+                         memory, proposals, drift, audit, index, history, conflicts,
+                         activity, speckit, pr-context, bootstrap)
         store/           SQLite persistence layer
         scheduler/       Background task scheduling
-    cli/                 @ctxl/cli -- ctxkit command-line tool
+    cli/                 @ctxkit/cli -- ctxkit command-line tool
       src/
-        commands/        Commander.js command definitions (inject, propose, sessions, drift, codex, ...)
+        commands/        Commander.js command definitions (inject, propose, sessions,
+                         drift, codex, index, history, conflicts, bootstrap, migrate,
+                         speckit, pr, hooks, ...)
         services/        Service layer (agents-md generator)
-    mcp/                 @ctxl/mcp -- MCP server
+    mcp/                 @ctxkit/mcp -- MCP server
       src/
-        tools/           MCP tool registrations (context-pack, events, proposals, sessions, policy, memory)
+        tools/           MCP tool registrations (context-pack, events, proposals,
+                         sessions, policy, memory, index, history, conflicts,
+                         bootstrap, pr)
         client.ts        Daemon HTTP client
         server.ts        McpServer instance and transport
-    claude-plugin/       @ctxl/claude-plugin -- Claude Code plugin
-      scripts/           Hook handler scripts (session-start, user-prompt-submit, pre-tool-use, ...)
+    claude-plugin/       @ctxkit/claude-plugin -- Claude Code plugin
+      scripts/           Hook handler scripts (session-start, user-prompt-submit,
+                         pre-tool-use, ...)
       hooks/             hooks.json configuration
-      skills/            /ctxkit skill definition (SKILL.md)
+      skills/            /ctxkit and /ctx skill definitions (SKILL.md)
       .claude-plugin/    Plugin manifest (plugin.json)
-    ui/                  @ctxl/ui -- React inspection dashboard
+    speckit-bridge/      @ctxkit/speckit-bridge -- spec-kit integration
+      src/
+        import/          Constitution and spec import
+        export/          .ctx to spec-kit artifact export
+        validate/        Consistency validation
+        sync/            Bidirectional sync engine
+    ui/                  @ctxkit/ui -- React inspection dashboard
       src/
         components/      Reusable UI components
-        pages/           Route-level page components
+        pages/           Route-level page components (sessions, context-packs,
+                         proposals, drift, config, timeline, context-map,
+                         conflicts, activity-feed, pr-context)
         services/        API client services
   tests/
-    integration/         Integration test suites (10 files, 147 tests)
-    e2e/                 End-to-end test suites (12 files, 79 tests)
+    integration/         Integration test suites
+    e2e/                 End-to-end test suites
     fixtures/            Test data (golden files, sample repos)
 ```
 

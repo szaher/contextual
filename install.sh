@@ -161,9 +161,9 @@ if [ -n "$LOCAL" ]; then
   REPACK_DIR=$(mktemp -d)
   trap 'rm -rf "$PACK_DIR" "$STAGE_DIR" "$REPACK_DIR"' EXIT
 
-  # Pack ALL workspace packages (including core/daemon which are deps)
-  for pkg in core daemon cli mcp claude-plugin; do
-    (cd "$LOCAL/packages/$pkg" && pnpm pack --pack-destination "$PACK_DIR") || fatal "Failed to pack @ctxl/$pkg"
+  # Pack ALL workspace packages (including core/daemon/speckit-bridge which are deps)
+  for pkg in core speckit-bridge daemon cli mcp claude-plugin; do
+    (cd "$LOCAL/packages/$pkg" && pnpm pack --pack-destination "$PACK_DIR") || fatal "Failed to pack @ctxkit/$pkg"
   done
 
   # Unpack each tarball into a staging directory
@@ -173,7 +173,7 @@ if [ -n "$LOCAL" ]; then
     tar xzf "$tgz" -C "$STAGE_DIR/$name" --strip-components=1
   done
 
-  # Rewrite @ctxl/* deps to file: paths pointing at the ORIGINAL tarballs
+  # Rewrite @ctxkit/* deps to file: paths pointing at the ORIGINAL tarballs
   # so npm resolves them locally instead of from the registry
   info "Rewriting workspace dependencies for local install..."
   node -e "
@@ -183,7 +183,7 @@ if [ -n "$LOCAL" ]; then
     const packDir = process.argv[2];
     const dirs = fs.readdirSync(stageDir);
     const tarballs = fs.readdirSync(packDir).filter(f => f.endsWith('.tgz'));
-    // Map @ctxl/X package name to its original tarball path
+    // Map @ctxkit/X package name to its original tarball path
     const pkgMap = {};
     for (const dir of dirs) {
       const p = JSON.parse(fs.readFileSync(path.join(stageDir, dir, 'package.json'), 'utf8'));
@@ -236,7 +236,7 @@ else
     VERSION_SUFFIX="@$VERSION"
   fi
 
-  $SUDO $PM install -g "@ctxl/cli${VERSION_SUFFIX}" "@ctxl/mcp${VERSION_SUFFIX}" "@ctxl/claude-plugin${VERSION_SUFFIX}"
+  $SUDO $PM install -g "@ctxkit/cli${VERSION_SUFFIX}" "@ctxkit/mcp${VERSION_SUFFIX}" "@ctxkit/claude-plugin${VERSION_SUFFIX}"
 fi
 
 # ---------------------------------------------------------------------------
@@ -296,7 +296,7 @@ printf "\n"
 printf "  The Claude Code plugin provides:\n"
 printf "    - 8 lifecycle hooks (auto-context, drift detection, etc.)\n"
 printf "    - /ctxkit interactive skill\n"
-printf "    - MCP server with 10 tools\n"
+printf "    - MCP server with 16 tools\n"
 printf "\n"
 printf "  Start a new Claude Code session to activate the plugin.\n"
 printf "\n"
