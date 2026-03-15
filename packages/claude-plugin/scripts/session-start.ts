@@ -111,7 +111,60 @@ runHook<SessionStartInput>('SessionStart', async (input) => {
     }
   }
 
-  // 7. Index-based context selection (v2)
+  // 7. Check and auto-install git hooks based on policy
+  try {
+    const { existsSync: fsExistsSync, readFileSync: fsReadFileSync } = await import('node:fs');
+    const { join: pathJoin } = await import('node:path');
+    const hookPath = pathJoin(gitRoot, '.git', 'hooks', 'prepare-commit-msg');
+    const hookInstalled = fsExistsSync(hookPath) && fsReadFileSync(hookPath, 'utf-8').includes('ctxkit hooks init');
+
+    if (!hookInstalled) {
+      // Load hook policy from config (simple YAML field extraction, no js-yaml dependency)
+      let hookPolicy: 'auto' | 'prompt' | 'skip' = 'prompt';
+      try {
+        const configPath = pathJoin(gitRoot, '.ctxl', 'config.yaml');
+        if (fsExistsSync(configPath)) {
+          const configContent = fsReadFileSync(configPath, 'utf-8');
+          const autoInstallMatch = configContent.match(/auto_install:\s*(auto|prompt|skip)/);
+          if (autoInstallMatch) {
+            hookPolicy = autoInstallMatch[1] as 'auto' | 'prompt' | 'skip';
+          }
+        }
+      } catch {
+        // Use default 'prompt' policy
+      }
+
+      // Check if user previously declined
+      const declinedPath = pathJoin(gitRoot, '.ctxl', '.hooks-declined');
+      const declined = fsExistsSync(declinedPath);
+
+      if (declined) {
+        console.error('[ctxkit:SessionStart] Hook installation previously declined — skipping');
+      } else if (hookPolicy === 'auto') {
+        console.error('[ctxkit:SessionStart] Auto-installing prepare-commit-msg hook');
+        try {
+          execSync('ctxkit hooks init', {
+            cwd: gitRoot,
+            encoding: 'utf-8',
+            timeout: 5000,
+            stdio: ['pipe', 'pipe', 'pipe'],
+          });
+          console.error('[ctxkit:SessionStart] Git hooks installed successfully');
+        } catch (err) {
+          console.error(`[ctxkit:SessionStart] Hook install failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      } else if (hookPolicy === 'prompt') {
+        console.error('[ctxkit:SessionStart] Hook not installed — suggesting installation');
+        // The systemMessage will be picked up by the agent
+      } else {
+        console.error('[ctxkit:SessionStart] Hook auto-install policy is "skip" — skipping');
+      }
+    }
+  } catch (err) {
+    console.error(`[ctxkit:SessionStart] Hook check failed (non-blocking): ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  // 8. Index-based context selection (v2) — renumbered from 7
   let indexContext = '';
   try {
     const { existsSync } = await import('node:fs');

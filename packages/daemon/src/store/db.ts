@@ -81,6 +81,21 @@ CREATE TABLE IF NOT EXISTS activity_events (
 CREATE INDEX IF NOT EXISTS idx_activity_session ON activity_events(session_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_activity_type ON activity_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_activity_ctx ON activity_events(ctx_path);
+
+CREATE TABLE IF NOT EXISTS commit_context (
+  commit_hash TEXT PRIMARY KEY,
+  session_id TEXT,
+  files_changed TEXT NOT NULL DEFAULT '[]',
+  entry_count INTEGER NOT NULL DEFAULT 0,
+  trailer_timestamp TEXT NOT NULL,
+  author TEXT NOT NULL,
+  message_subject TEXT NOT NULL,
+  indexed_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_commit_context_session ON commit_context(session_id);
+CREATE INDEX IF NOT EXISTS idx_commit_context_timestamp ON commit_context(trailer_timestamp);
 `;
 
 /**

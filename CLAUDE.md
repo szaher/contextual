@@ -7,6 +7,8 @@ Auto-generated from all feature plans. Last updated: 2026-03-01
 - SQLite via better-sqlite3 (WAL mode, single file at `~/.ctxl/data/ctxl.db`) (003-gap-remediation)
 - TypeScript 5.7 / Node.js 20+ (004-ctxl-v2)
 - SQLite via better-sqlite3 (WAL mode, `~/.ctxl/data/ctxl.db`) + filesystem (.ctx YAML, .ctxl YAML, .ctxl.lock YAML, .ctxl.history/ YAML) (004-ctxl-v2)
+- TypeScript 5.x / Node.js 20+ + Hono 4.7 (HTTP), better-sqlite3 11.8 (storage), Commander 13 (CLI), React 19 (UI), @modelcontextprotocol/sdk 1.27 (MCP) (005-git-hooks-pr-context)
+- SQLite via better-sqlite3 (WAL mode, `~/.ctxl/data/ctxl.db`) — new `commit_context` table (005-git-hooks-pr-context)
 
 - TypeScript 5.x / Node.js 20+
 - Hono (HTTP framework), better-sqlite3 (SQLite storage)
@@ -59,5 +61,6 @@ pnpm lint           # Lint all packages
 <!-- MANUAL ADDITIONS END -->
 
 ## Recent Changes
+- 005-git-hooks-pr-context: Added TypeScript 5.x / Node.js 20+ + Hono 4.7 (HTTP), better-sqlite3 11.8 (storage), Commander 13 (CLI), React 19 (UI), @modelcontextprotocol/sdk 1.27 (MCP)
 - 004-ctxl-v2: Added TypeScript 5.7 / Node.js 20+
 - 003-gap-remediation: Added TypeScript 5.x / Node.js 20+ + Hono 4.7, better-sqlite3 11.8, commander 13, zod 3.25, @modelcontextprotocol/sdk 1.27

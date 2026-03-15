@@ -559,9 +559,10 @@ ctxkit dashboard [options]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--port <port>` | `3742` | Dashboard port |
+| `--port <port>` | `4117` | Dashboard port |
+| `--no-open` | `false` | Start the dashboard without opening a browser |
 
-Opens `http://localhost:<port>` in your default browser using the system's `open` command (macOS), `xdg-open` (Linux), or `start` (Windows).
+Starts the daemon if it is not already running, then opens `http://localhost:<port>` in your default browser using the system's `open` command (macOS), `xdg-open` (Linux), or `start` (Windows). Use `--no-open` for headless or CI environments.
 
 ---
 
@@ -1099,35 +1100,118 @@ The output varies by format. See the [PR Context guide](/guide/pr-context) for f
 
 ## `ctxkit hooks`
 
-Display information about installed hooks.
+Manage git hooks for context trailer injection.
+
+### `ctxkit hooks init`
+
+Install the `prepare-commit-msg` git hook that injects `Ctxkit-*` trailers into commit messages.
 
 ```bash
-ctxkit hooks [options]
+ctxkit hooks init
 ```
 
-### Options
+**Behavior:**
+
+- Installs a POSIX shell script at `.git/hooks/prepare-commit-msg`
+- If an existing `prepare-commit-msg` hook is found, chains with it: the original is renamed to `prepare-commit-msg.ctxkit-original` and a wrapper calls the original first, then appends trailers
+- Sets file permissions to 755
+- The hook calls `ctxkit hooks inject-trailers` on each commit
+
+**Output:**
+
+```
+Installed prepare-commit-msg hook at .git/hooks/prepare-commit-msg
+```
+
+### `ctxkit hooks status`
+
+Check the installation status of ctxkit git hooks.
+
+```bash
+ctxkit hooks status [options]
+```
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--list` | `false` | List all available hooks and their status |
+| `--json` | `false` | Output status as JSON |
+
+**Output:**
+
+```
+Hook                   Status
+---------------------------------------
+prepare-commit-msg     installed
+pre-commit             not_installed
+post-commit            not_installed
+```
+
+**JSON Output:**
+
+```json
+{
+  "prepareCommitMsg": "installed",
+  "preCommit": "not_installed",
+  "postCommit": "not_installed",
+  "hasOtherHooks": false
+}
+```
+
+### `ctxkit hooks remove`
+
+Remove ctxkit git hooks.
+
+```bash
+ctxkit hooks remove [options]
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--all` | `false` | Remove all ctxkit hooks |
+| `--context-trailers` | `false` | Remove only the prepare-commit-msg hook |
+
+**Behavior:**
+
+- When removing a chained hook, restores the original from `prepare-commit-msg.ctxkit-original`
+- At least one of `--all` or `--context-trailers` must be specified
+
+### `ctxkit hooks inject-trailers`
+
+Internal command called by the prepare-commit-msg hook. Not intended for direct use.
+
+```bash
+ctxkit hooks inject-trailers <msg-file>
+```
+
+Reads the commit message file, queries the daemon for the active session (200ms timeout), checks the git staging area for `.ctx` files, formats `Ctxkit-*` trailers, and appends them to the message file. No-op if no active session and no `.ctx` files are staged.
+
+### Trailer Format
+
+Trailers use the standard git trailer format with the `Ctxkit-` prefix:
+
+```
+fix: update auth flow
+
+Ctxkit-Session: sess_7d2f4a1b
+Ctxkit-Files: src/auth/.ctx, src/api/.ctx
+Ctxkit-Entries: 3
+Ctxkit-Timestamp: 2026-03-15T14:30:00Z
+```
 
 ### Examples
 
 ```bash
-# List all hooks
-ctxkit hooks --list
+# Install hooks
+ctxkit hooks init
 
-# Output
-Hook                  Status      Description
----------------------------------------------------------------------------
-SessionStart          active      Inject context at session start
-UserPromptSubmit      active      Log user prompts
-PreToolUse            active      Validate tool inputs
-PostToolUse           active      Track file modifications
-PostToolUseFailure    active      Log tool failures
-TaskCompleted         active      Generate auto-update proposals
-PreCompact            active      Compact context memory
-SessionEnd            active      Finalize session data
+# Check status
+ctxkit hooks status
+ctxkit hooks status --json
+
+# Remove only context trailers hook
+ctxkit hooks remove --context-trailers
+
+# Remove all ctxkit hooks
+ctxkit hooks remove --all
 ```
 
 ---

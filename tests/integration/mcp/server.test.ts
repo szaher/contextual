@@ -28,6 +28,7 @@ const EXPECTED_TOOL_NAMES = [
   'ctxkit.index_select',
   'ctxkit.ctx_write',
   'ctxkit.pr_generate',
+  'ctxkit.commit_context',
 ] as const;
 
 function createMockDaemonClient(): DaemonClient {
@@ -172,9 +173,9 @@ describe('Integration: MCP Server', () => {
 
   // --- tools/list ---
 
-  it('should list all 16 tools', async () => {
+  it('should list all 17 tools', async () => {
     const result = await mcpClient.listTools();
-    expect(result.tools).toHaveLength(16);
+    expect(result.tools).toHaveLength(17);
 
     const names = result.tools.map((t) => t.name).sort();
     const expected = [...EXPECTED_TOOL_NAMES].sort();

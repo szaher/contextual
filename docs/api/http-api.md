@@ -730,6 +730,125 @@ curl "http://localhost:3742/api/v1/memory/search?query=database%20migration"
 
 ---
 
+## Commit Context
+
+### GET /commit-context
+
+List commits with ctxkit context trailers parsed from git log.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cwd` | string | yes | Working directory (repository path) |
+| `session_id` | string | no | Filter by session ID |
+| `since` | string | no | Start date (ISO 8601) |
+| `until` | string | no | End date (ISO 8601) |
+| `limit` | number | no | Maximum results (default: 50) |
+| `has_trailers` | boolean | no | Only return commits with Ctxkit-* trailers |
+
+**Response (200):**
+
+```json
+{
+  "commits": [
+    {
+      "commitHash": "abc1234",
+      "sessionId": "sess_7d2f4a1b",
+      "filesChanged": ["src/auth/.ctx", "src/api/.ctx"],
+      "entryCount": 3,
+      "trailerTimestamp": "2026-03-15T14:30:00Z",
+      "author": "Jane Doe <jane@example.com>",
+      "messageSubject": "fix: update auth flow"
+    }
+  ],
+  "total": 1
+}
+```
+
+**Example:**
+
+```bash
+curl "http://localhost:3742/api/v1/commit-context?cwd=/path/to/repo&has_trailers=true&limit=20"
+```
+
+### GET /commit-context/:hash
+
+Get details for a single commit including linked session data.
+
+**Path Parameters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `hash` | Git commit hash |
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cwd` | string | yes | Working directory (repository path) |
+
+**Response (200):**
+
+```json
+{
+  "commitHash": "abc1234",
+  "sessionId": "sess_7d2f4a1b",
+  "filesChanged": ["src/auth/.ctx"],
+  "entryCount": 3,
+  "trailerTimestamp": "2026-03-15T14:30:00Z",
+  "author": "Jane Doe <jane@example.com>",
+  "messageSubject": "fix: update auth flow",
+  "session": {
+    "id": "sess_7d2f4a1b",
+    "status": "completed",
+    "agent_id": "claude",
+    "started_at": "2026-03-15T14:00:00.000Z"
+  }
+}
+```
+
+**Example:**
+
+```bash
+curl "http://localhost:3742/api/v1/commit-context/abc1234?cwd=/path/to/repo"
+```
+
+---
+
+## Hooks
+
+### GET /hooks/status
+
+Check git hook installation status for a repository.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cwd` | string | yes | Repository path to check |
+
+**Response (200):**
+
+```json
+{
+  "prepareCommitMsg": "installed",
+  "preCommit": "not_installed",
+  "postCommit": "not_installed",
+  "hasOtherHooks": false
+}
+```
+
+Status values: `installed`, `not_installed`, `outdated`, `chained`.
+
+**Example:**
+
+```bash
+curl "http://localhost:3742/api/v1/hooks/status?cwd=/path/to/repo"
+```
+
+---
+
 ## Drift
 
 ### GET /drift

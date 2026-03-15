@@ -96,18 +96,77 @@ daemonCommand
     }
   });
 
-// Dashboard shortcut
+// Dashboard command — starts daemon if needed, serves UI, opens browser
 export const dashboardCommand = new Command('dashboard')
   .description('Open the inspection dashboard in a browser')
-  .option('--port <port>', 'Dashboard port', '3742')
-  .action((options) => {
-    const url = `http://localhost:${options.port}`;
-    console.log(`Opening dashboard at ${url}`);
+  .option('--port <port>', 'Dashboard port', '4117')
+  .option('--no-open', 'Do not auto-open browser')
+  .action(async (options) => {
+    const port = options.port;
+    const url = `http://localhost:${port}`;
+
+    // Check if daemon is already running
+    let daemonRunning = false;
     try {
-      // Open browser (macOS / Linux / Windows)
-      const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
-      execSync(`${cmd} ${url}`, { stdio: 'ignore' });
+      const res = await fetch(`${url}/api/v1/health`);
+      if (res.ok) daemonRunning = true;
     } catch {
-      console.log(`Please open ${url} in your browser.`);
+      // Not running
+    }
+
+    // Start daemon if not running
+    if (!daemonRunning) {
+      console.log('Starting daemon...');
+      if (existsSync(PID_FILE)) {
+        const pid = readFileSync(PID_FILE, 'utf-8').trim();
+        try {
+          process.kill(parseInt(pid, 10), 0);
+        } catch {
+          unlinkSync(PID_FILE);
+        }
+      }
+
+      const ctxlDir = join(homedir(), '.ctxl');
+      mkdirSync(ctxlDir, { recursive: true });
+
+      const logFile = join(ctxlDir, 'daemon.log');
+      const out = openSync(logFile, 'a');
+      const err = openSync(logFile, 'a');
+
+      const require = createRequire(import.meta.url);
+      const daemonEntry = require.resolve('@ctxkit/daemon');
+
+      const child = spawn('node', [daemonEntry], {
+        detached: true,
+        stdio: ['ignore', out, err],
+        env: {
+          ...process.env,
+          CTXL_PORT: port,
+        },
+      });
+
+      if (child.pid) {
+        writeFileSync(PID_FILE, String(child.pid));
+        child.unref();
+        // Wait briefly for daemon to start
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log(`Daemon started (PID ${child.pid})`);
+      } else {
+        console.error('Failed to start daemon');
+        process.exit(1);
+      }
+    }
+
+    console.log(`Dashboard available at ${url}`);
+    console.log('Press Ctrl+C to stop');
+
+    // Open browser unless --no-open
+    if (options.open !== false) {
+      try {
+        const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
+        execSync(`${cmd} ${url}`, { stdio: 'ignore' });
+      } catch {
+        console.log(`Please open ${url} in your browser.`);
+      }
     }
   });

@@ -55,6 +55,7 @@ cp -r examples/01-basic-ctx/* .
 | 24 | [24-pr-context](24-pr-context)               | PR context generation        | Generating structured PR descriptions from session data (prompts, decisions, changes). |
 | 25 | [25-auto-update](25-auto-update)             | Auto-update                  | Automatic staleness tracking, update proposals, and policy-controlled auto-updates. |
 | 26 | [26-migration](26-migration)                 | V1 to V2 migration           | Migrating v1 .ctx files to v2 with versioning, history, and checksums. |
+| 27 | [27-git-hooks](27-git-hooks)                 | Git hooks                    | Installing prepare-commit-msg hook, trailer injection, hook chaining, and removal. |
 
 ## .ctx File Format Quick Reference
 
@@ -130,4 +131,11 @@ ctxkit speckit import               # Import spec-kit specs into .ctx
 ctxkit speckit sync                 # Bidirectional sync with spec-kit
 ctxkit lock status                  # View active file locks
 ctxkit lock release <path>          # Release a stale lock
+
+# Git hooks:
+ctxkit hooks init                   # Install prepare-commit-msg hook
+ctxkit hooks status                 # Check hook installation status
+ctxkit hooks status --json          # Status as JSON
+ctxkit hooks remove --context-trailers  # Remove trailer hook
+ctxkit hooks remove --all           # Remove all ctxkit hooks
 ```

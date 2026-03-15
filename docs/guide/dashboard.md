@@ -108,6 +108,18 @@ The diff viewer highlights:
 - Context lines (unchanged)
 - Redacted secrets (marked with `[REDACTED:<type>]`)
 
+### Commit History
+
+The Commit History page at `/commits` shows commits with ctxkit context trailers:
+
+- **Commit list** -- displays commit hash, subject, author, date, and parsed Ctxkit-* trailer data
+- **Session linking** -- session IDs in trailers are clickable links to `/sessions/:id`
+- **Trailers-only filter** -- toggle to show only commits that have Ctxkit-* trailers
+- **Session filter** -- filter commits by a specific session ID
+- **Trailer details** -- each commit shows the staged `.ctx` files, entry count, and timestamp from trailers
+
+The commit history data comes from parsing `git log` output and is cached in the daemon's `commit_context` SQLite table.
+
 ### Timeline
 
 The Timeline page at `/timeline` shows the evolution of context memory over time:
