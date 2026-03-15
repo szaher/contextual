@@ -104,6 +104,16 @@ jobs:
           git push origin main
           git push origin ${{ steps.version.outputs.tag }}
 
+      - name: Configure npm for Trusted Publishing
+        if: ${{ !inputs.dry_run }}
+        run: |
+          # Remove the auth token placeholder that setup-node creates.
+          # An empty _authToken prevents npm from falling through to
+          # the OIDC token exchange required by Trusted Publishing.
+          sed -i '/_authToken/d' ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          cat ~/.npmrc
+
       - name: Publish to npm
         if: ${{ !inputs.dry_run }}
         run: |
