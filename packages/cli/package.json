@@ -34,7 +34,7 @@
     "@ctxkit/core": "workspace:*",
     "@ctxkit/daemon": "workspace:*",
     "@ctxkit/speckit-bridge": "workspace:*",
-    "commander": "^13.1.0"
+    "commander": "^14.0.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
