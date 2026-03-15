@@ -1,6 +1,6 @@
 {
   "name": "@ctxkit/cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "CLI tool for ctxl context management (ctxkit)",
   "type": "module",
   "license": "MIT",
