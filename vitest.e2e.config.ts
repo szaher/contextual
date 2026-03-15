@@ -8,6 +8,7 @@ export default defineConfig({
       '@ctxkit/daemon': resolve(__dirname, 'packages/daemon/src/index.ts'),
       '@ctxkit/mcp/client': resolve(__dirname, 'packages/mcp/src/client.ts'),
       '@ctxkit/mcp': resolve(__dirname, 'packages/mcp/src/index.ts'),
+      '@ctxkit/speckit-bridge': resolve(__dirname, 'packages/speckit-bridge/src/index.ts'),
     },
   },
   test: {
