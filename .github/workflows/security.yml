@@ -32,6 +32,9 @@ jobs:
       - name: Run pnpm audit
         run: pnpm audit --audit-level=high || true
 
+      - name: Build all packages
+        run: pnpm -r --stream run build
+
       - name: Configure git for E2E tests
         run: |
           git config --global user.name "github-actions[bot]"
