@@ -449,7 +449,9 @@ The CLI tool is called `ctxkit`.
 | `ctxkit migrate` | Migrate v1 `.ctx` files to v2 format |
 | `ctxkit speckit import\|export\|validate\|sync` | Spec-kit bridge operations |
 | `ctxkit pr` | Generate session-aware PR context |
-| `ctxkit hooks` | Manage and inspect plugin hooks |
+| `ctxkit hooks init` | Install git hooks (pre-commit, post-commit, prepare-commit-msg) |
+| `ctxkit hooks status` | Check git hook installation status |
+| `ctxkit hooks remove` | Remove ctxkit git hooks |
 
 ### Detailed Command Reference
 
@@ -745,18 +747,41 @@ ctxkit pr --include-prompts            # include prompt chain in output
 
 #### `ctxkit hooks`
 
-Manage and inspect plugin hooks. Lists registered hooks, shows hook execution history, and allows testing hooks in isolation.
+Manage git hooks for automatic context trailer injection into commit messages.
 
 ```bash
-ctxkit hooks                           # list all registered hooks
-ctxkit hooks show SessionStart         # show details for a specific hook
-ctxkit hooks test PreToolUse           # test a hook handler in isolation
-ctxkit hooks --json                    # JSON output
+ctxkit hooks init                      # install all ctxkit git hooks
+ctxkit hooks init --force              # overwrite existing hooks
+ctxkit hooks status                    # check hook installation status
+ctxkit hooks status --json             # JSON output
+ctxkit hooks remove --context-trailers # remove prepare-commit-msg hook only
+ctxkit hooks remove --all              # remove all ctxkit hooks
+```
+
+**Git Trailers**: When the `prepare-commit-msg` hook is installed, every commit made during an active ctxkit session automatically includes context trailers:
+
+```
+fix: update auth flow
+
+Ctxkit-Session: sess_7d2f4a1b
+Ctxkit-Files: src/auth/.ctx, src/api/.ctx
+Ctxkit-Entries: 3
+Ctxkit-Timestamp: 2026-03-15T14:30:00Z
+```
+
+Trailers are parseable by native git tooling:
+
+```bash
+git log --format='%(trailers:key=Ctxkit-Session,valueonly)'
+git log --grep='Ctxkit-Session: sess_7d2f4a1b'
 ```
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `--force` | Overwrite existing hooks | `false` |
 | `--json` | Output as structured JSON | `false` |
+| `--all` | Remove all ctxkit hooks | `false` |
+| `--context-trailers` | Target only prepare-commit-msg hook | `false` |
 
 ---
 

@@ -11,6 +11,7 @@ import { registerHistoryTools } from './tools/history-tools.js';
 import { registerWriteTools } from './tools/write-tools.js';
 import { registerBootstrapTools } from './tools/bootstrap-tools.js';
 import { registerPrTools } from './tools/pr-tools.js';
+import { registerCommitContextTool } from './tools/commit-context.js';
 
 const VERSION = '0.1.0';
 
@@ -34,6 +35,7 @@ export function createMcpServer(existingClient?: DaemonClient): McpServer {
   registerWriteTools(server, client);
   registerBootstrapTools(server, client);
   registerPrTools(server, client);
+  registerCommitContextTool(server, client);
 
   return server;
 }

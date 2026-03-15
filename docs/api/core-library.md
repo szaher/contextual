@@ -1021,6 +1021,96 @@ if (needsMigration(ctx)) {
 
 ---
 
+## Git Trailers
+
+### `formatTrailers(data: TrailerData): string`
+
+Format context data into `Ctxkit-*` git trailer lines. Applies secret redaction to all values before formatting. Returns an empty string if no meaningful data is present.
+
+```typescript
+import { formatTrailers } from '@ctxkit/core'
+
+const trailers = formatTrailers({
+  sessionId: 'sess_7d2f4a1b',
+  files: ['src/auth/.ctx', 'src/api/.ctx'],
+  entries: 3,
+  timestamp: new Date().toISOString(),
+})
+// "Ctxkit-Session: sess_7d2f4a1b\nCtxkit-Files: src/auth/.ctx, src/api/.ctx\nCtxkit-Entries: 3\nCtxkit-Timestamp: 2026-03-15T14:30:00Z"
+```
+
+### `parseTrailers(commitMessage: string): ParsedTrailer | null`
+
+Extract `Ctxkit-*` trailers from a commit message. Returns `null` if no `Ctxkit-*` trailers are found.
+
+```typescript
+import { parseTrailers } from '@ctxkit/core'
+
+const parsed = parseTrailers(commitMessage)
+if (parsed) {
+  console.log(parsed.sessionId)  // "sess_7d2f4a1b"
+  console.log(parsed.files)      // ["src/auth/.ctx", "src/api/.ctx"]
+  console.log(parsed.entries)    // 3
+  console.log(parsed.timestamp)  // "2026-03-15T14:30:00Z"
+}
+```
+
+### `queryCommitsWithTrailers(cwd, options): CommitContextRecord[]`
+
+Query git log and parse `Ctxkit-*` trailers from each commit. Supports filtering by date range, session ID, and result limit.
+
+```typescript
+import { queryCommitsWithTrailers } from '@ctxkit/core'
+
+const commits = queryCommitsWithTrailers('/path/to/repo', {
+  since: '2026-03-01',
+  limit: 50,
+  sessionId: 'sess_7d2f4a1b',
+})
+
+for (const commit of commits) {
+  console.log(`${commit.commitHash}: ${commit.messageSubject}`)
+  console.log(`  Session: ${commit.sessionId}`)
+  console.log(`  Files: ${commit.filesChanged.join(', ')}`)
+}
+```
+
+```typescript
+interface TrailerData {
+  sessionId?: string;
+  files?: string[];
+  entries?: number;
+  timestamp: string;
+}
+
+interface ParsedTrailer {
+  sessionId: string | null;
+  files: string[];
+  entries: number | null;
+  timestamp: string;
+}
+
+interface CommitContextRecord {
+  commitHash: string;
+  sessionId: string | null;
+  filesChanged: string[];
+  entryCount: number;
+  trailerTimestamp: string;
+  author: string;
+  messageSubject: string;
+  indexedAt?: string;
+}
+
+interface CommitLogOptions {
+  since?: string;
+  until?: string;
+  limit?: number;
+  sessionId?: string;
+}
+```
+
+---
+
 ## Types
 
 ### `CtxFile`

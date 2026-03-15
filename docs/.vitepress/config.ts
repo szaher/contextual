@@ -51,6 +51,7 @@ export default defineConfig({
           { text: 'Bootstrap', link: '/guide/bootstrap' },
           { text: 'Spec-Kit Bridge', link: '/guide/speckit-bridge' },
           { text: 'PR Context', link: '/guide/pr-context' },
+          { text: 'Git Hooks', link: '/guide/git-hooks' },
           { text: 'Migration', link: '/guide/migration' },
         ],
       },

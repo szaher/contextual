@@ -96,6 +96,7 @@ export type {
   AgentConfig,
   AutoApproveConfig,
   RetentionConfig,
+  GitHooksConfig,
 } from './types/config.js';
 export {
   DEFAULT_BUDGET_TOKENS,
@@ -182,6 +183,21 @@ export { updateIndexEntry } from './index/updater.js';
 
 // Additional checksum exports
 export { isValidChecksum, computeChecksumFromString } from './index/checksum.js';
+
+// Git trailers
+export type {
+  TrailerData,
+  ParsedTrailer,
+  CommitContextRecord,
+  HookPolicyMode,
+  HookPolicy,
+  HookFileStatus,
+  HookInstallStatus,
+} from './git/index.js';
+export { formatTrailers } from './git/index.js';
+export { parseTrailers } from './git/index.js';
+export { queryCommitsWithTrailers } from './git/index.js';
+export type { CommitLogOptions } from './git/commit-log.js';
 
 // Utilities
 export { detectSecrets, redactSecrets, containsSecrets } from './redact/secrets.js';

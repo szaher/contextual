@@ -40,8 +40,10 @@ features:
     details: Generate rich pull request descriptions from session data including prompt chains, agent decisions, file changes, and context usage statistics. Output as markdown, JSON, or directly as a GitHub PR body.
   - title: Dashboard
     details: A local React-based inspection dashboard lets you browse sessions, inspect injected context per request, review proposals with diff preview, view dependency graphs, monitor real-time activity, and audit every memory change with full attribution.
+  - title: Git Hooks
+    details: Install a prepare-commit-msg hook that automatically injects Ctxkit-* trailers into commit messages. Trailers capture session ID, staged .ctx files, entry count, and timestamp -- permanently linking context to git history. Supports hook chaining, auto-install via Claude Code plugin, and clean removal.
   - title: MCP Server
-    details: 16 structured JSON-RPC tools exposed over stdio for any MCP-compatible agent. Tools cover context packing, event logging, proposal lifecycle, session inspection, policy validation, memory search, index operations, conflict resolution, and version history -- all discoverable via the standard MCP handshake.
+    details: 17 structured JSON-RPC tools exposed over stdio for any MCP-compatible agent. Tools cover context packing, event logging, proposal lifecycle, session inspection, policy validation, memory search, index operations, conflict resolution, version history, and commit context -- all discoverable via the standard MCP handshake.
   - title: Claude Code Plugin
     details: Automatic context injection via 8 lifecycle hooks with zero developer action required. The plugin injects context at session start, logs tool usage, validates proposals before file writes, tracks staleness for auto-update, and compacts memory at the end of each session.
 ---
@@ -103,6 +105,12 @@ ctxkit history src/auth/.ctx --diff 1..5
 
 # Generate a PR description from session data
 ctxkit pr --format md
+
+# Install git hooks for context trailers in commits
+ctxkit hooks init
+
+# View commit history with trailers in the dashboard
+ctxkit dashboard
 
 # Migrate v1 .ctx files to v2
 ctxkit migrate

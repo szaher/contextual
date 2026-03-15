@@ -9,6 +9,7 @@ import { ContextMapPage } from './pages/ContextMapPage';
 import { ConflictsPage } from './pages/ConflictsPage';
 import { ActivityPage } from './pages/ActivityPage';
 import { PrContextPage } from './pages/PrContextPage';
+import { CommitHistoryPage } from './pages/CommitHistoryPage';
 
 export function App() {
   return (
@@ -22,6 +23,7 @@ export function App() {
         <Link to="/map" style={{ textDecoration: 'none', color: '#6b7280' }}>Map</Link>
         <Link to="/conflicts" style={{ textDecoration: 'none', color: '#6b7280' }}>Conflicts</Link>
         <Link to="/activity" style={{ textDecoration: 'none', color: '#6b7280' }}>Activity</Link>
+        <Link to="/commits" style={{ textDecoration: 'none', color: '#6b7280' }}>Commits</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Dashboard />} />
@@ -33,6 +35,7 @@ export function App() {
         <Route path="/map" element={<ContextMapPage />} />
         <Route path="/conflicts" element={<ConflictsPage />} />
         <Route path="/activity" element={<ActivityPage />} />
+        <Route path="/commits" element={<CommitHistoryPage />} />
       </Routes>
     </div>
   );

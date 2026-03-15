@@ -1,6 +1,10 @@
 import type { IgnorePolicy } from './ctx.js';
 import type { HookConfig } from './hook.js';
 
+export interface GitHooksConfig {
+  auto_install: 'auto' | 'prompt' | 'skip';
+}
+
 export interface WorkspaceProfile {
   version: number;
   budget: BudgetConfig;
@@ -10,6 +14,7 @@ export interface WorkspaceProfile {
   auto_approve: AutoApproveConfig;
   retention: RetentionConfig;
   hooks?: HookConfig;
+  git_hooks?: GitHooksConfig;
 }
 
 export interface GlobalProfile {

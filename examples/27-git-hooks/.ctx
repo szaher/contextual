@@ -1,0 +1,9 @@
+---
+version: 2
+summary: "Git hooks example — prepare-commit-msg trailer injection"
+tags: [git-hooks, trailers, commit-context]
+key_files:
+  - id: readme
+    path: README.md
+    role: "Git hooks setup, trailer format, chaining, and removal"
+    tags: [documentation]

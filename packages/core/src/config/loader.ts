@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { load as yamlLoad } from 'js-yaml';
-import type { WorkspaceProfile, GlobalProfile, BudgetConfig, ScoringConfig, AutoApproveConfig, RetentionConfig } from '../types/config.js';
+import type { WorkspaceProfile, GlobalProfile, BudgetConfig, ScoringConfig, AutoApproveConfig, RetentionConfig, GitHooksConfig } from '../types/config.js';
 import type { IgnorePolicy } from '../types/ctx.js';
 import type { HookConfig } from '../types/hook.js';
 import {
@@ -20,6 +20,7 @@ export interface LoadedProfile {
   auto_approve: AutoApproveConfig;
   retention: RetentionConfig;
   hooks: HookConfig;
+  git_hooks: GitHooksConfig;
   sources: string[];
 }
 
@@ -54,6 +55,7 @@ export function loadProfile(
       audit_days: DEFAULT_AUDIT_RETENTION_DAYS,
     },
     hooks: { ...DEFAULT_HOOK_CONFIG },
+    git_hooks: { auto_install: 'prompt' },
     sources: ['defaults'],
   };
   sources.push('defaults');
@@ -164,6 +166,9 @@ function mergeWorkspaceProfile(
         propose_final_update: ws.hooks?.sessionEnd?.propose_final_update ?? base.hooks.sessionEnd.propose_final_update,
         propose_scope: ws.hooks?.sessionEnd?.propose_scope ?? base.hooks.sessionEnd.propose_scope,
       },
+    },
+    git_hooks: {
+      auto_install: ws.git_hooks?.auto_install ?? base.git_hooks.auto_install,
     },
   };
 }

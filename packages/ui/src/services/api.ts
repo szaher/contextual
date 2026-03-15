@@ -125,3 +125,69 @@ export function queryAudit(params?: { ctx_path?: string; from?: string; to?: str
 export function getHealth() {
   return fetchJSON<HealthStatus>('/health');
 }
+
+// Commit Context
+export interface CommitTrailers {
+  session_id: string | null;
+  files: string[];
+  entries: number;
+  timestamp: string;
+}
+
+export interface CommitContextItem {
+  hash: string;
+  subject: string;
+  author: string;
+  date: string;
+  trailers: CommitTrailers;
+}
+
+export interface CommitContextDetail extends CommitContextItem {
+  body?: string;
+  session?: {
+    id: string;
+    status: string;
+    started_at: string;
+    ended_at: string | null;
+  } | null;
+}
+
+export function listCommitContext(params: {
+  cwd: string;
+  session_id?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  has_trailers?: boolean;
+}) {
+  const qs = new URLSearchParams({ cwd: params.cwd });
+  if (params.session_id) qs.set('session_id', params.session_id);
+  if (params.since) qs.set('since', params.since);
+  if (params.until) qs.set('until', params.until);
+  if (params.limit) qs.set('limit', String(params.limit));
+  if (params.has_trailers !== undefined) qs.set('has_trailers', String(params.has_trailers));
+  return fetchJSON<{ commits: CommitContextItem[]; total: number; has_more: boolean }>(
+    `/commit-context?${qs}`,
+  );
+}
+
+export function getCommitContext(hash: string) {
+  return fetchJSON<CommitContextDetail>(`/commit-context/${hash}`);
+}
+
+// Hooks Status
+export interface HookStatusEntry {
+  status: string;
+  version?: string;
+  chained?: boolean;
+}
+
+export function getHooksStatus(cwd: string) {
+  const qs = new URLSearchParams({ cwd });
+  return fetchJSON<{
+    pre_commit: HookStatusEntry;
+    post_commit: HookStatusEntry;
+    prepare_commit_msg: HookStatusEntry;
+    other_hooks: string[];
+  }>(`/hooks/status?${qs}`);
+}

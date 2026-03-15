@@ -20,6 +20,8 @@ import { activityRoutes } from './routes/activity-routes.js';
 import { bootstrapRoutes } from './routes/bootstrap-routes.js';
 import { speckitRoutes } from './routes/speckit-routes.js';
 import { prContextRoutes } from './routes/pr-context-routes.js';
+import { commitContextRoutes } from './routes/commit-context-routes.js';
+import { hooksRoutes } from './routes/hooks-routes.js';
 
 export interface AppContext {
   db: Database.Database;
@@ -59,6 +61,8 @@ export function createApp(ctx: AppContext): Hono<AppEnv> {
   app.route('/api/v1', bootstrapRoutes);
   app.route('/api/v1', speckitRoutes);
   app.route('/api/v1', prContextRoutes);
+  app.route('/api/v1', commitContextRoutes);
+  app.route('/api/v1', hooksRoutes);
 
   // Serve static UI (dashboard)
   app.use('/*', serveStatic({ root: './packages/ui/dist' }));
