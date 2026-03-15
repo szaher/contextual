@@ -1,17 +1,22 @@
 import { Command } from 'commander';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, existsSync, statSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { parseCtxFile } from '@ctxl/core';
 import type { KeyFile, Contract, Decision } from '@ctxl/core';
 
 export const proposeCommand = new Command('propose')
   .description('Generate a .ctx update proposal showing what would change')
-  .argument('<ctx-path>', 'Path to .ctx file to analyze')
+  .argument('<ctx-path>', 'Path to .ctx file or directory containing .ctx')
   .option('--check-files', 'Check for dead file references', false)
   .option('--daemon <url>', 'Daemon URL to submit proposal', 'http://localhost:3742')
   .option('--json', 'Output as JSON', false)
   .action(async (ctxPathArg: string, options) => {
-    const ctxPath = resolve(ctxPathArg);
+    let ctxPath = resolve(ctxPathArg);
+
+    // If path is a directory, look for .ctx inside it
+    if (existsSync(ctxPath) && statSync(ctxPath).isDirectory()) {
+      ctxPath = join(ctxPath, '.ctx');
+    }
 
     if (!existsSync(ctxPath)) {
       console.error(`Error: .ctx file not found at ${ctxPath}`);
