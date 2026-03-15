@@ -11,7 +11,7 @@ hero:
       link: /getting-started/installation
     - theme: alt
       text: View on GitHub
-      link: https://github.com/szaher/ctxl
+      link: https://github.com/szaher/contextual
 
 features:
   - title: Hierarchical Memory

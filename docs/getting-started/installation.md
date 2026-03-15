@@ -16,11 +16,33 @@ pnpm --version   # 9.0.0 or higher
 git --version    # any recent version
 ```
 
-## Clone and Install
+## Install from npm
+
+The fastest way to get started:
 
 ```bash
-git clone https://github.com/szaher/ctxl.git
-cd ctxl
+# Install the CLI globally
+npm install -g @ctxkit/cli
+
+# Or use npx without installing
+npx @ctxkit/cli --version
+```
+
+Individual packages:
+
+```bash
+npm install @ctxkit/core          # Context engine library
+npm install @ctxkit/daemon        # HTTP daemon with SQLite
+npm install @ctxkit/mcp           # MCP server for agent integration
+npm install @ctxkit/claude-plugin # Claude Code plugin
+npm install @ctxkit/speckit-bridge # Spec-kit bidirectional sync
+```
+
+## Clone and Install (Development)
+
+```bash
+git clone https://github.com/szaher/contextual.git
+cd contextual
 pnpm install
 ```
 

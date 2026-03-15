@@ -2,8 +2,10 @@
 
 **Local-first context memory for AI coding agents**
 
-[![CI](https://github.com/szaher/ctxl/actions/workflows/ci.yml/badge.svg)](https://github.com/szaher/ctxl/actions/workflows/ci.yml)
+[![CI](https://github.com/szaher/contextual/actions/workflows/ci.yml/badge.svg)](https://github.com/szaher/contextual/actions/workflows/ci.yml)
+[![Security Audit](https://github.com/szaher/contextual/actions/workflows/security.yml/badge.svg)](https://github.com/szaher/contextual/actions/workflows/security.yml)
 [![npm version](https://img.shields.io/npm/v/@ctxkit/cli.svg)](https://www.npmjs.com/package/@ctxkit/cli)
+[![@ctxkit/core](https://img.shields.io/npm/v/@ctxkit/core.svg?label=@ctxkit/core)](https://www.npmjs.com/package/@ctxkit/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
 
@@ -90,15 +92,15 @@ ctxl is a TypeScript monorepo with seven packages:
 +-----------------+
 ```
 
-| Package | Description | Key Dependencies |
-|---------|-------------|------------------|
-| `@ctxkit/core` | Context engine -- parsing, scoring, packing, diffing, redaction, indexing, versioning, conflict resolution, auto-update, bootstrap, PR context | js-yaml, proper-lockfile |
-| `@ctxkit/daemon` | HTTP API server with persistent SQLite storage | Hono 4.7, @hono/node-server, better-sqlite3 11.8 |
-| `@ctxkit/cli` | Command-line interface (`ctxkit`) | Commander 13 |
-| `@ctxkit/ui` | React inspection dashboard (10 pages) | React 19, React Router, Vite 6 |
-| `@ctxkit/mcp` | MCP server exposing 16 CtxKit tools over stdio | @modelcontextprotocol/sdk 1.27, zod 3.25 |
-| `@ctxkit/claude-plugin` | Claude Code plugin with 8 hooks, `/ctxkit` skill, and `/ctx` skill | @ctxkit/mcp (client) |
-| `@ctxkit/speckit-bridge` | Spec-kit constitution/spec import, export, validation, and bidirectional sync | @ctxkit/core |
+| Package | npm | Description |
+|---------|-----|-------------|
+| [`@ctxkit/core`](https://www.npmjs.com/package/@ctxkit/core) | [![npm](https://img.shields.io/npm/v/@ctxkit/core.svg)](https://www.npmjs.com/package/@ctxkit/core) | Context engine -- parsing, scoring, packing, diffing, redaction, indexing, versioning, conflict resolution, auto-update, bootstrap, PR context |
+| [`@ctxkit/daemon`](https://www.npmjs.com/package/@ctxkit/daemon) | [![npm](https://img.shields.io/npm/v/@ctxkit/daemon.svg)](https://www.npmjs.com/package/@ctxkit/daemon) | HTTP API server with persistent SQLite storage |
+| [`@ctxkit/cli`](https://www.npmjs.com/package/@ctxkit/cli) | [![npm](https://img.shields.io/npm/v/@ctxkit/cli.svg)](https://www.npmjs.com/package/@ctxkit/cli) | Command-line interface (`ctxkit`) |
+| `@ctxkit/ui` | -- | React inspection dashboard (10 pages, not published) |
+| [`@ctxkit/mcp`](https://www.npmjs.com/package/@ctxkit/mcp) | [![npm](https://img.shields.io/npm/v/@ctxkit/mcp.svg)](https://www.npmjs.com/package/@ctxkit/mcp) | MCP server exposing 16 CtxKit tools over stdio |
+| [`@ctxkit/claude-plugin`](https://www.npmjs.com/package/@ctxkit/claude-plugin) | [![npm](https://img.shields.io/npm/v/@ctxkit/claude-plugin.svg)](https://www.npmjs.com/package/@ctxkit/claude-plugin) | Claude Code plugin with 8 hooks, `/ctxkit` skill, and `/ctx` skill |
+| [`@ctxkit/speckit-bridge`](https://www.npmjs.com/package/@ctxkit/speckit-bridge) | [![npm](https://img.shields.io/npm/v/@ctxkit/speckit-bridge.svg)](https://www.npmjs.com/package/@ctxkit/speckit-bridge) | Spec-kit constitution/spec import, export, validation, and bidirectional sync |
 
 **Tech stack:** TypeScript 5.x, Node.js 20+, Hono 4.7 (HTTP), better-sqlite3 11.8 (storage), Commander 13 (CLI), @modelcontextprotocol/sdk 1.27 (MCP), zod 3.25 (schema validation), React 19 (dashboard), Vite 6 (bundler)
 
@@ -108,7 +110,7 @@ ctxl is a TypeScript monorepo with seven packages:
 
 ```bash
 # Clone and install
-git clone https://github.com/szaher/ctxl.git
+git clone https://github.com/szaher/contextual.git
 cd ctxl
 pnpm install
 pnpm build
@@ -1037,7 +1039,7 @@ The redaction engine scans all proposed `.ctx` updates, diffs, and log entries f
 ### Setup
 
 ```bash
-git clone https://github.com/szaher/ctxl.git
+git clone https://github.com/szaher/contextual.git
 cd ctxl
 pnpm install
 pnpm build
