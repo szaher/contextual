@@ -65,8 +65,10 @@ jobs:
       - name: Run E2E tests
         run: pnpm test:e2e
 
-      - name: Bump version in all packages
-        run: pnpm -r exec npm version ${{ inputs.version_bump }} --no-git-tag-version
+      - name: Bump version in all packages (including root)
+        run: |
+          npm version ${{ inputs.version_bump }} --no-git-tag-version
+          pnpm -r exec npm version ${{ inputs.version_bump }} --no-git-tag-version
 
       - name: Get new version
         id: version
